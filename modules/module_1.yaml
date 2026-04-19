@@ -7,11 +7,16 @@ description: >
   producing a deterministic action plan and findings report.
 
 sections:
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 1: School Identity, Profile, and Context
+# ─────────────────────────────────────────────────────────────────
   - section_id: "1"
     title: School Identity, Profile, and Context
     description: >
       Capture baseline organizational context used to tailor findings,
-      recommendations, and calendar items.
+      recommendations, and calendar items. This section is context only —
+      no scored questions.
     order: 1
     questions:
       - question_id: "1.1"
@@ -116,7 +121,7 @@ sections:
 
       - question_id: "1.10"
         prompt: How many buildings are located at each site?
-        help_text: List each site and its building count. e.g. "Main Campus — 4 buildings, Athletics Campus — 1 building"
+        help_text: "List each site and its building count. e.g. Main Campus — 4 buildings, Athletics Campus — 1 building"
         answer_type: list_of_items
         status: conditional
         skippable: true
@@ -130,7 +135,7 @@ sections:
 
       - question_id: "1.11"
         prompt: What grades does the school serve?
-        help_text: e.g. "PK–12" or "K–8" or "9–12". List all grade levels served.
+        help_text: "e.g. PK–12 or K–8 or 9–12. List all grade levels served."
         answer_type: short_text
         status: core
         skippable: true
@@ -191,8 +196,8 @@ sections:
         prompt: What are the most important upcoming school calendar events that affect IT planning?
         help_text: >
           List events that will create IT demand or constrain IT work windows.
-          e.g. "Summer device refresh (June–July)", "Accreditation visit (March)",
-          "New 6th grade 1:1 rollout (August)". One item per line.
+          e.g. Summer device refresh (June-July), Accreditation visit (March),
+          New 6th grade 1:1 rollout (August). One item per line.
         answer_type: list_of_items
         status: core
         skippable: true
@@ -200,6 +205,9 @@ sections:
         points: 0
         condition: null
 
+# ─────────────────────────────────────────────────────────────────
+# SECTION 2: Governance, Budget, Staffing, and Ownership
+# ─────────────────────────────────────────────────────────────────
   - section_id: "2"
     title: Governance, Budget, Staffing, and Ownership
     description: >
@@ -226,7 +234,7 @@ sections:
 
       - question_id: "2.1b"
         prompt: You selected "Other" — please describe the support model briefly
-        help_text: e.g. "Part-time contractor" or "Shared IT with a sister school".
+        help_text: "e.g. Part-time contractor or Shared IT with a sister school."
         answer_type: short_text
         status: conditional
         skippable: true
@@ -249,7 +257,7 @@ sections:
 
       - question_id: "2.2b"
         prompt: What is that person's name and title?
-        help_text: e.g. "Alex Smith, Director of Technology". This appears in the report and appendix.
+        help_text: "e.g. Alex Smith, Director of Technology. This appears in the report and appendix."
         answer_type: short_text
         status: conditional
         skippable: true
@@ -349,8 +357,8 @@ sections:
       - question_id: "2.10"
         prompt: Are recurring IT tasks tracked on a calendar, checklist, or ticketing system?
         help_text: >
-          Things like: monthly backup reviews, quarterly admin audits, annual firmware reviews,
-          renewal reminders. Is there a system that ensures these happen reliably?
+          Things like monthly backup reviews, quarterly admin audits, annual firmware reviews,
+          and renewal reminders. Is there a system that ensures these happen reliably?
         answer_type: single_select
         status: core
         skippable: true
@@ -380,9 +388,7 @@ sections:
 
       - question_id: "2.12"
         prompt: Who has authority to approve new software or digital tools for classroom use?
-        help_text: >
-          This affects student data handling and IT support obligations.
-          Choose the option that best describes how approval decisions are made.
+        help_text: This affects student data handling and IT support obligations. Choose the option that best describes how approval decisions are made.
         answer_type: single_select
         status: optional
         skippable: true
@@ -394,3 +400,1738 @@ sections:
           - Ed tech director or academic technology lead
           - Principal or head of school
           - No single person — decisions are made ad hoc
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 3: Sites, Buildings, Network, and Internet
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "3"
+    title: Sites, Buildings, Network, and Internet
+    description: >
+      Establish the physical shape, dependencies, equipment profile, and
+      documentation status of the network environment.
+    order: 3
+    questions:
+      - question_id: "3.1"
+        prompt: Do you have digital blueprints, floor plans, or building maps for the school facilities?
+        help_text: Even rough sketches or PDFs count. These are used to document wireless AP locations and network closet positions.
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Yes — current and reasonably accurate
+          - Partial — some buildings or areas covered
+          - No
+          - Unknown
+
+      - question_id: "3.2"
+        prompt: Is there a current network diagram?
+        help_text: A diagram showing the logical and/or physical layout of the network — internet connection, firewall, switches, wireless, and servers.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — current and accurate
+          - Yes — but outdated
+          - No
+          - Unknown
+
+      - question_id: "3.3"
+        prompt: Is there a site map or closet/rack map for each campus or building?
+        help_text: A physical map showing where network equipment is installed — closets, racks, patch panels, cable runs.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — current for all locations
+          - Partial — some locations documented
+          - No
+          - Unknown
+
+      - question_id: "3.4"
+        prompt: Do you know where the wireless access points are physically located throughout the school?
+        help_text: Could you walk a map and point to each AP location?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — all locations are known and documented
+          - Partial — most are known, some are not
+          - No
+          - Unknown
+
+      - question_id: "3.5"
+        prompt: What wireless access point platform or brand is used?
+        help_text: "e.g. Ubiquiti, Aruba, Cisco Meraki, Ruckus, Extreme. If mixed, list the primary platform."
+        answer_type: short_text
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "3.6"
+        prompt: Does the school have a firewall?
+        help_text: A dedicated firewall appliance or service — not just a consumer router. If yes, note the platform or brand in the notes field.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        has_notes: true
+        condition: null
+
+      - question_id: "3.7"
+        prompt: What primary brand or platform is used for the wired network infrastructure?
+        help_text: "e.g. Cisco Meraki, Ubiquiti, HP/Aruba, Netgear. Include switches and any management platform."
+        answer_type: short_text
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "3.8"
+        prompt: Are wireless access points inventoried with model and firmware information?
+        help_text: A record of each AP including model number, current firmware version, and physical location.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — current inventory with model and firmware
+          - Partial — some information documented
+          - No
+          - Unknown
+
+      - question_id: "3.9"
+        prompt: Are switches inventoried with model and firmware information?
+        help_text: A record of each switch including model, firmware version, and location.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — current inventory with model and firmware
+          - Partial — some information documented
+          - No
+          - Unknown
+
+      - question_id: "3.10"
+        prompt: Is there a switch map showing how major switches connect to one another?
+        help_text: A diagram or documented record showing the uplink relationships between switches and the path to the core.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — current and accurate
+          - Partial — some connections documented
+          - No
+          - Unknown
+
+      - question_id: "3.11"
+        prompt: Are core network devices inventoried with make, model, location, and support status?
+        help_text: Core devices include the firewall, core switches, wireless controller, and any network management appliance.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — fully documented with support status
+          - Partial — some information documented
+          - No
+          - Unknown
+
+      - question_id: "3.12"
+        prompt: Do you have administrative access to the network infrastructure?
+        help_text: Can you log into the firewall, switches, and wireless system with admin credentials that the school controls?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — full admin access to all infrastructure
+          - Partial — admin access to some but not all devices
+          - No — access is controlled by a vendor or MSP
+          - Unknown
+
+      - question_id: "3.13"
+        prompt: How many internet connections are in place?
+        help_text: Count the number of separate ISP connections terminating at the school. Most small schools have one.
+        answer_type: count
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "3.14"
+        prompt: Who is the primary ISP or ISPs?
+        help_text: "List the internet service provider(s). e.g. Comcast, Spectrum, AT&T Fiber, local provider."
+        answer_type: list_of_items
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "3.15"
+        prompt: Is there internet failover or redundancy?
+        help_text: If the primary internet connection goes down, does traffic automatically or manually switch to a backup?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — automatic failover to a secondary connection
+          - Yes — manual failover (requires someone to switch it)
+          - No — single connection with no backup
+          - Unknown
+
+      - question_id: "3.16"
+        prompt: Does the school have static public IP addresses?
+        help_text: Static IPs are relevant if the school hosts any services externally or has firewall rules tied to specific addresses.
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+        options:
+          - Yes
+          - No
+          - Unknown
+
+      - question_id: "3.17"
+        prompt: Are firewall platform, firmware status, and support or warranty status known?
+        help_text: Do you know the firewall model, what firmware version it is running, and whether it is under active support?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition:
+          type: answer_is
+          question_id: "3.6"
+          value: "yes"
+        options:
+          - Yes — fully known and documented
+          - Partial — some information known
+          - No
+          - Unknown
+
+      - question_id: "3.18"
+        prompt: Are switch and wireless configurations backed up or exportable?
+        help_text: If a switch or AP had to be replaced today, could its configuration be restored without rebuilding from scratch?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — configurations are backed up or can be exported
+          - Partial — some devices backed up, others not
+          - No
+          - Unknown
+
+      - question_id: "3.19"
+        prompt: Is wireless coverage known to be adequate in instructional and administrative areas?
+        help_text: Are there known dead spots or areas where staff or students regularly experience poor Wi-Fi?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — coverage is adequate throughout
+          - Mixed — some areas have coverage problems
+          - No — coverage is a known problem
+          - Unknown
+
+      - question_id: "3.20"
+        prompt: Are network segments or VLAN purposes documented?
+        help_text: If VLANs are in use, is there a record of what each segment is for and what devices belong to it?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — all segments documented
+          - Partial — some segments documented
+          - No
+          - Unknown — not sure if VLANs are in use
+
+      - question_id: "3.21"
+        prompt: Do network closets or server areas have battery backup or UPS protection for critical equipment?
+        help_text: A UPS (uninterruptible power supply) keeps equipment running during brief outages and allows controlled shutdown.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — fully protected
+          - Partial — some equipment protected, some not
+          - No
+          - Unknown
+
+      - question_id: "3.22"
+        prompt: Is UPS runtime for critical network or server equipment known?
+        help_text: How long will the UPS keep equipment running under normal load? Is this tested or just estimated?
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 1
+        condition:
+          type: answer_is
+          question_id: "3.21"
+          value: ["Yes — fully protected", "Partial — some equipment protected, some not"]
+        options:
+          - Yes — documented and tested
+          - Estimated only — not formally tested
+          - No
+          - Unknown
+
+      - question_id: "3.23"
+        prompt: Are UPS devices monitored or network-connected for alerting and status?
+        help_text: Can the UPS send an alert if it is on battery power or if its battery health is degraded?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Yes — monitored with alerting
+          - Partial — some monitored
+          - No
+          - Unknown
+
+      - question_id: "3.24"
+        prompt: Is the network scanned or discovered regularly for connected devices?
+        help_text: Is there a process — automated or manual — that identifies what devices are connected to the network?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Yes — regularly scanned
+          - Occasionally — ad hoc or infrequent
+          - No
+          - Unknown
+
+      - question_id: "3.25"
+        prompt: How often is the network scanned or discovered?
+        help_text: Select the closest match to the actual frequency.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 0
+        condition:
+          type: answer_is
+          question_id: "3.24"
+          value: ["Yes — regularly scanned", "Occasionally — ad hoc or infrequent"]
+        options:
+          - Continuously (automated monitoring)
+          - Daily
+          - Weekly
+          - Monthly
+          - Ad hoc — no regular schedule
+          - Unknown
+
+      - question_id: "3.26"
+        prompt: Are there known connectivity pain points currently affecting school operations?
+        help_text: Areas with poor Wi-Fi, recurring outages, slow internet, or devices that can't connect reliably. If yes, describe briefly in the notes field.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        has_notes: true
+        condition: null
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 4: Identity, Accounts, and Access
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "4"
+    title: Identity, Accounts, and Access
+    description: >
+      Assess how accounts are managed, secured, and transitioned.
+    order: 4
+    questions:
+      - question_id: "4.1"
+        prompt: What is the primary identity and productivity platform?
+        help_text: The platform that provides email, file storage, and login for staff and students.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Google Workspace
+          - Microsoft 365
+          - Hybrid — Google and Microsoft both in active use
+          - Local directory or Active Directory only
+          - Other
+          - Unknown
+
+      - question_id: "4.2"
+        prompt: Is there Active Directory or another centralized login management system in place?
+        help_text: A system that manages who can log in to what — could be cloud-based (Azure AD, Google) or on-premises (Windows Active Directory).
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — cloud-based (Azure AD, Google Directory, etc.)
+          - Yes — on-premises (Windows Active Directory)
+          - Yes — hybrid (both cloud and on-premises)
+          - No
+          - Unknown
+
+      - question_id: "4.3"
+        prompt: Is there a documented onboarding process for staff accounts?
+        help_text: A checklist or procedure that ensures new staff get the right accounts, access, and devices consistently.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — documented and followed consistently
+          - Informal — process exists but is not documented
+          - No
+          - Unknown
+
+      - question_id: "4.4"
+        prompt: Is there a documented offboarding process for staff accounts?
+        help_text: A checklist or procedure that ensures departing staff accounts are deactivated and access is revoked promptly.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — documented and followed consistently
+          - Informal — process exists but is not documented
+          - No
+          - Unknown
+
+      - question_id: "4.5"
+        prompt: Are student account lifecycle processes documented?
+        help_text: Is there a defined process for creating student accounts at enrollment and deactivating them at departure or graduation?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — documented and followed consistently
+          - Informal — process exists but is not documented
+          - No
+          - Unknown
+          - Not applicable — school does not manage student accounts
+
+      - question_id: "4.6"
+        prompt: Is MFA enabled for administrative or privileged accounts?
+        help_text: Multi-factor authentication on global admin, domain admin, IT staff accounts, and any account with elevated access.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — all privileged accounts have MFA
+          - Partial — some privileged accounts have MFA
+          - No
+          - Unknown
+
+      - question_id: "4.7"
+        prompt: Is there a reviewed list of global admins or equivalent privileged roles?
+        help_text: A current, verified list of who holds the highest-level administrative access across all major platforms.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — reviewed within the last 12 months
+          - Yes — but outdated (not reviewed in over 12 months)
+          - No
+          - Unknown
+
+      - question_id: "4.8"
+        prompt: Are shared accounts minimized and justified?
+        help_text: Shared accounts make auditing impossible and complicate offboarding. Are shared accounts limited to necessary cases and formally justified?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — shared accounts are minimal and documented
+          - Partially — some shared accounts exist without formal justification
+          - No — shared accounts are common and not tracked
+          - Unknown
+
+      - question_id: "4.9"
+        prompt: Are password reset and recovery procedures documented?
+        help_text: Is there a defined process for resetting passwords and recovering access across major platforms?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — documented for all major platforms
+          - Partial — documented for some platforms
+          - No
+          - Unknown
+
+      - question_id: "4.10"
+        prompt: Are staff devices configured to automatically sync files to a cloud platform?
+        help_text: "e.g. Google Drive sync, Microsoft OneDrive sync. This affects whether local files are protected if a device fails."
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 1
+        condition:
+          type: answer_is
+          question_id: "4.1"
+          value: ["Google Workspace", "Microsoft 365", "Hybrid — Google and Microsoft both in active use"]
+        options:
+          - Yes — all staff devices sync consistently
+          - Partial — some devices or some folders only
+          - No
+          - Unknown
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 5: Endpoints, Printing, and Classroom Technology
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "5"
+    title: Endpoints, Printing, and Classroom Technology
+    description: >
+      Understand the school's device inventory, management posture, age profile,
+      printing footprint, and replacement planning.
+    order: 5
+    questions:
+      - question_id: "5.1"
+        prompt: Is there a current inventory of managed devices?
+        help_text: A record — even a spreadsheet — of school-owned devices including who has them and their status.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — current and reasonably complete
+          - Partial — exists but incomplete or outdated
+          - No
+          - Unknown
+
+      - question_id: "5.2"
+        prompt: Does the inventory include owner or assignment, model, serial number, age or purchase date, and status?
+        help_text: These fields are needed for lifecycle planning, warranty claims, and support.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 3
+        condition:
+          type: answer_is
+          question_id: "5.1"
+          value: ["Yes — current and reasonably complete", "Partial — exists but incomplete or outdated"]
+        options:
+          - Yes — all key fields present
+          - Partial — some fields missing
+          - No
+          - Unknown
+
+      - question_id: "5.3"
+        prompt: Is the school a 1:1 environment for student devices?
+        help_text: A 1:1 environment means each student in the relevant grades has a school-issued or school-managed device.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+        options:
+          - Yes — all relevant grades are 1:1
+          - Partial — some grades are 1:1
+          - No
+          - Unknown
+
+      - question_id: "5.4"
+        prompt: Do student devices go home with students?
+        help_text: Take-home devices have different support, filtering, and break/fix implications than shared classroom devices.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 0
+        condition:
+          type: answer_is
+          question_id: "5.3"
+          value: ["Yes — all relevant grades are 1:1", "Partial — some grades are 1:1"]
+        options:
+          - Yes — all student devices go home
+          - Some — take-home for some grades or programs
+          - No — devices stay at school
+          - Unknown
+
+      - question_id: "5.5"
+        prompt: Are school-owned devices managed through MDM or endpoint management?
+        help_text: MDM (mobile device management) or endpoint management allows remote policy enforcement, software deployment, and device wipe.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — most devices managed
+          - Partial — some devices managed
+          - No
+          - Unknown
+
+      - question_id: "5.6"
+        prompt: Is there a documented standard for staff device provisioning?
+        help_text: A defined process and configuration standard for setting up a new staff device.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — documented standard in use
+          - Partial — informal process
+          - No
+          - Unknown
+
+      - question_id: "5.7"
+        prompt: Can staff devices be set up quickly and consistently using a defined process or toolset?
+        help_text: Could a replacement device be fully configured and handed to staff in a reasonable timeframe without starting from scratch each time?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — defined process or imaging/MDM enrollment in place
+          - Partially — possible but inconsistent
+          - No — each setup is manual and varies
+          - Unknown
+
+      - question_id: "5.8"
+        prompt: Are staff devices standardized on one operating system or a small number of supported builds?
+        help_text: Standardization reduces support complexity and licensing overhead.
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Yes — standardized
+          - Partially — mostly standardized with some exceptions
+          - No — mixed environment
+          - Unknown
+
+      - question_id: "5.9"
+        prompt: Is there a defined refresh cycle for major device categories?
+        help_text: A planned replacement schedule — e.g. staff laptops every 4-5 years, student devices every 3-4 years.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — documented refresh cycle
+          - Informal — devices replaced when they fail or become unusable
+          - No
+          - Unknown
+
+      - question_id: "5.10"
+        prompt: Are there known devices beyond supported OS versions or manufacturer support?
+        help_text: Devices running Windows 10 past end-of-life, old Chromebooks that no longer receive updates, or Macs that cannot run a supported macOS.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - None known — all devices are within supported life
+          - Some — a small number of unsupported devices in use
+          - Many — a significant portion of the fleet is unsupported
+          - Unknown
+
+      - question_id: "5.11"
+        prompt: Are device warranties or support coverage tracked?
+        help_text: Is there a record of warranty expiry dates and support contract status for school-owned devices?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Yes — tracked for all devices
+          - Partial — tracked for some devices
+          - No
+          - Unknown
+
+      - question_id: "5.12"
+        prompt: Are spares, loaners, or emergency replacement processes defined?
+        help_text: If a student or staff device fails today, is there a process and a pool of spare devices to provide a replacement?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — spare pool and process defined
+          - Partial — some spares available but no formal process
+          - No
+          - Unknown
+
+      - question_id: "5.13"
+        prompt: Is there a documented decommissioning or disposal process for retired devices?
+        help_text: A process that ensures data is wiped, licenses are recovered, and devices are disposed of appropriately.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — documented process in use
+          - Partial — informal process
+          - No
+          - Unknown
+
+      - question_id: "5.14"
+        prompt: How many years does a staff device typically remain in service?
+        help_text: An estimate is fine. This helps assess whether the current refresh cycle matches actual usage patterns.
+        answer_type: short_text
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "5.15"
+        prompt: Do different student grades receive different device types?
+        help_text: "e.g. iPads in lower school, Chromebooks in middle school, laptops in upper school."
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+        options:
+          - Yes
+          - No
+          - Unknown
+
+      - question_id: "5.16"
+        prompt: What is the rationale for different student device types by grade or program?
+        help_text: Briefly describe why different device types are used — curriculum requirements, age-appropriateness, cost, etc.
+        answer_type: long_text
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 0
+        condition:
+          type: answer_is
+          question_id: "5.15"
+          value: "Yes"
+
+      - question_id: "5.17"
+        prompt: Are printers, specialty devices, and classroom technology tracked consistently?
+        help_text: Printers, interactive displays, AV equipment, document cameras — is there a record of what exists and where?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Yes — all tracked
+          - Partial — some tracked
+          - No
+          - Unknown
+
+      - question_id: "5.18"
+        prompt: How many large multi-function printers or copier-class devices does the school have?
+        help_text: Devices that print, copy, scan, and/or fax — typically leased or high-volume shared devices.
+        answer_type: count
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "5.19"
+        prompt: How many smaller desktop or small-office printers does the school have?
+        help_text: Individual or small-group printers — not copier-class devices.
+        answer_type: count
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 6: Core Systems, Servers, Vendors, and Contracts
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "6"
+    title: Core Systems, Servers, Vendors, and Contracts
+    description: >
+      Capture the systems the school depends on, the server environment if present,
+      and whether vendor relationships and renewal risks are visible.
+    order: 6
+    questions:
+      - question_id: "6.1"
+        prompt: What Student Information System (SIS) does the school use?
+        help_text: "e.g. Blackbaud, Veracross, PowerSchool, FACTS, Gradelink."
+        answer_type: short_text
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "6.2"
+        prompt: What Learning Management System (LMS) does the school use?
+        help_text: "e.g. Canvas, Schoology, Google Classroom, Seesaw, Managebac. Enter None if not in use."
+        answer_type: short_text
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "6.3"
+        prompt: Is there a list of core systems used by the school?
+        help_text: A register of the major platforms the school depends on — not every tool, but the critical ones.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — current list in use
+          - Partial — incomplete or informal list
+          - No
+          - Unknown
+
+      - question_id: "6.4"
+        prompt: Does that list include purpose, owner, vendor, renewal date, and admin access method?
+        help_text: These five fields make the list operationally useful rather than just a name list.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 3
+        condition:
+          type: answer_is
+          question_id: "6.3"
+          value: ["Yes — current list in use", "Partial — incomplete or informal list"]
+        options:
+          - Yes — all key fields present
+          - Partial — some fields missing
+          - No
+          - Unknown
+
+      - question_id: "6.5"
+        prompt: Can you list the school's major software subscriptions and services?
+        help_text: One subscription per line. Include tools used by students, staff, or administration — not just IT-managed tools.
+        answer_type: list_of_items
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "6.6"
+        prompt: For major software subscriptions, are cost, purpose, renewal timing, and primary user groups tracked?
+        help_text: Is there a record that would allow you to review and rationalize subscriptions at renewal time?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — fully tracked
+          - Partial — some information tracked
+          - No
+          - Unknown
+
+      - question_id: "6.7"
+        prompt: For major education or student-data systems, is FERPA or COPPA review status known?
+        help_text: Schools are responsible for ensuring third-party tools handling student data meet regulatory requirements.
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — reviewed for most student-data systems
+          - Partial — reviewed for some
+          - No
+          - Unknown
+
+      - question_id: "6.8"
+        prompt: Are contract renewal dates tracked in a calendar or system?
+        help_text: Is there a way to get advance notice before a contract or subscription auto-renews or lapses?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — tracked in a calendar or system with reminders
+          - Partial — some renewals tracked, others not
+          - No
+          - Unknown
+
+      - question_id: "6.9"
+        prompt: Are vendor support escalation paths documented?
+        help_text: For each critical vendor, do you know the support contact, account number, and how to escalate if normal support fails?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — documented for all critical vendors
+          - Partial — documented for some vendors
+          - No
+          - Unknown
+
+      - question_id: "6.10"
+        prompt: Are there any single-vendor or single-person dependencies that create operational risk?
+        help_text: >
+          A situation where one vendor going unresponsive or one person leaving would leave you unable to manage or access a critical system.
+          If yes, briefly describe in the notes field.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        has_notes: true
+        condition: null
+
+      - question_id: "6.11"
+        prompt: Are there known tools or services the school is paying for but not actively using?
+        help_text: Subscriptions that auto-renew but are rarely or never used. If yes, list them in the notes field.
+        answer_type: yes_no_unknown
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        has_notes: true
+        condition: null
+
+      - question_id: "6.12"
+        prompt: Who is the school's phone or voice service provider?
+        help_text: "e.g. RingCentral, 8x8, Vonage, traditional PBX vendor, or local telephone company."
+        answer_type: short_text
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "6.13"
+        prompt: How many servers are currently in use?
+        help_text: Count physical and virtual servers the school manages on-premises. Cloud-only schools enter 0.
+        answer_type: count
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "6.14"
+        prompt: Is there a documented inventory of servers including model, serial, role, location, operating system, and support status?
+        help_text: A record detailed enough to support a vendor call or a replacement decision.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 5
+        condition:
+          type: value_comparison
+          question_id: "6.13"
+          operator: greater_than
+          value: 0
+        options:
+          - Yes — fully documented
+          - Partial — some information documented
+          - No
+          - Unknown
+
+      - question_id: "6.15"
+        prompt: Is the purpose of each server clearly documented?
+        help_text: Does a record exist explaining what each server does, so someone new could understand the environment?
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 3
+        condition:
+          type: value_comparison
+          question_id: "6.13"
+          operator: greater_than
+          value: 0
+        options:
+          - Yes — all servers have documented purposes
+          - Partial — some documented
+          - No
+          - Unknown
+
+      - question_id: "6.16"
+        prompt: Are server administrative access methods documented and available to the school?
+        help_text: If the primary IT person were unavailable, could another authorized person access and manage each server?
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 5
+        condition:
+          type: value_comparison
+          question_id: "6.13"
+          operator: greater_than
+          value: 0
+        options:
+          - Yes — fully documented and accessible
+          - Partial — some access methods documented
+          - No
+          - Unknown
+
+      - question_id: "6.17"
+        prompt: Is there a defined server patching or update cycle?
+        help_text: A scheduled process for applying security patches and OS updates to servers.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 2
+        condition:
+          type: value_comparison
+          question_id: "6.13"
+          operator: greater_than
+          value: 0
+        options:
+          - Yes — documented patching schedule
+          - Informal — patching happens but on no defined schedule
+          - No
+          - Unknown
+
+      - question_id: "6.18"
+        prompt: Are server warranties or support coverage known?
+        help_text: Do you know when each server's warranty expires and whether extended support is in place?
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 1
+        condition:
+          type: value_comparison
+          question_id: "6.13"
+          operator: greater_than
+          value: 0
+        options:
+          - Yes — known for all servers
+          - Partial — known for some servers
+          - No
+          - Unknown
+
+      - question_id: "6.19"
+        prompt: Is there a hardware refresh or lifecycle plan for servers?
+        help_text: A plan that identifies when servers will need to be replaced and budgets for that cost.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 1
+        condition:
+          type: value_comparison
+          question_id: "6.13"
+          operator: greater_than
+          value: 0
+        options:
+          - Yes — documented lifecycle plan
+          - Informal — planned informally
+          - No
+          - Unknown
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 7: Data Protection, Backup, and Recovery
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "7"
+    title: Data Protection, Backup, and Recovery
+    description: >
+      Understand whether data protection exists, is documented, and can be
+      relied upon during an incident.
+    order: 7
+    questions:
+      - question_id: "7.1"
+        prompt: What backup service or platform is currently used?
+        help_text: "e.g. Veeam, Acronis, Backblaze, Datto, Druva, or a built-in cloud backup service. Enter None if no backup exists."
+        answer_type: short_text
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "7.2"
+        prompt: Are backups in place for critical systems or data sets?
+        help_text: Choose the option that best reflects your actual confidence in the current backup status.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — confirmed and verified
+          - Maybe or assumed — believed to be in place but not verified
+          - No
+          - Unknown
+
+      - question_id: "7.3"
+        prompt: Is there a documented list of what is backed up and what is not?
+        help_text: A backup scope document prevents surprises during recovery — you need to know what is and is not protected before an incident, not during one.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — documented scope
+          - Partial — some systems documented, others not
+          - No
+          - Unknown
+
+      - question_id: "7.4"
+        prompt: Do backups cover servers?
+        help_text: Are on-premises or self-managed servers included in the backup scope?
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 5
+        condition:
+          type: value_comparison
+          question_id: "6.13"
+          operator: greater_than
+          value: 0
+        options:
+          - Yes — all servers backed up
+          - Partial — some servers backed up
+          - No
+          - Unknown
+          - Not applicable
+
+      - question_id: "7.5"
+        prompt: Do backups cover individual staff devices where appropriate?
+        help_text: Staff devices that store locally-saved files, documents, or data that is not synced to cloud storage.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — staff devices are backed up
+          - Partial — some staff devices backed up
+          - No
+          - Unknown
+          - Not applicable — staff work entirely in cloud storage
+
+      - question_id: "7.6"
+        prompt: Do backups cover critical cloud or online school data where appropriate?
+        help_text: >
+          Cloud platforms provide availability but not always backup. A deleted file, corrupted record, or
+          ransomware event can propagate through a synced environment. Storing data in Google Drive or
+          Microsoft 365 is not the same as having it backed up.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — critical cloud data is backed up
+          - Partial — some cloud data backed up
+          - No
+          - Unknown
+          - Not applicable
+
+      - question_id: "7.7"
+        prompt: Is backup success reviewed regularly?
+        help_text: Is someone checking that backup jobs are completing successfully — not just assuming they are?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — reviewed regularly (at least weekly)
+          - Irregularly — checked occasionally but not on a schedule
+          - No
+          - Unknown
+
+      - question_id: "7.8"
+        prompt: Has a restore test been performed and documented within the last 12 months?
+        help_text: A backup that has never been tested cannot be relied upon. A restore test confirms that recovery is actually possible.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — tested and documented within the last 12 months
+          - More than 12 months ago
+          - No — never tested
+          - Unknown
+
+      - question_id: "7.9"
+        prompt: How often are restore tests performed?
+        help_text: Select the closest match to the actual frequency.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 3
+        condition:
+          type: answer_is
+          question_id: "7.8"
+          value: ["Yes — tested and documented within the last 12 months", "More than 12 months ago"]
+        options:
+          - Quarterly
+          - Twice per year
+          - Annually
+          - Less than annually
+          - Never
+          - Unknown
+
+      - question_id: "7.10"
+        prompt: Is there a defined recovery priority for critical systems?
+        help_text: If multiple systems went down at once, is there a documented order for what gets restored first?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — recovery priority is documented
+          - Partial — informally understood but not documented
+          - No
+          - Unknown
+
+      - question_id: "7.11"
+        prompt: Is there a written incident or disaster response reference for IT operations?
+        help_text: A document someone could pick up during a crisis that tells them who to call, what to check first, and how to communicate. A one-page reference counts.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — written reference exists
+          - Partial — informal notes or partial documentation
+          - No
+          - Unknown
+
+      - question_id: "7.12"
+        prompt: Are critical admin credentials and recovery materials accessible in an emergency?
+        help_text: If the primary IT person were unavailable, could another authorized person access the credentials needed to recover systems?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — securely stored and accessible to authorized backup person
+          - Partially — some credentials accessible, others not
+          - No
+          - Unknown
+
+      - question_id: "7.13"
+        prompt: How far back can a backup restore go and still produce data the school could actually use?
+        help_text: >
+          This is the useful recovery window — not how long data is retained, but how far back a restore
+          would produce data that is still relevant and usable. A backup retained for 90 days may only
+          be useful for the last 7 days if data changes rapidly.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Less than 1 week
+          - 1 to 2 weeks
+          - 2 to 4 weeks
+          - 1 to 3 months
+          - More than 3 months
+          - Unknown
+
+      - question_id: "7.14"
+        prompt: Are restore tests performed at least once within every useful recovery window period?
+        help_text: >
+          If your useful recovery window is 30 days, restore tests should happen at least monthly.
+          File-level restore tests (restoring a single file or record) count — you do not need to
+          perform full system restores every time.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        prefill: null
+        points: 3
+        condition:
+          type: answer_is
+          question_id: "7.13"
+          value: ["Less than 1 week", "1 to 2 weeks", "2 to 4 weeks", "1 to 3 months", "More than 3 months"]
+        options:
+          - Yes
+          - No
+          - Unknown
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 8: Security Operations, Filtering, and Safeguards
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "8"
+    title: Security Operations, Filtering, and Safeguards
+    description: >
+      Capture practical security maturity without requiring a full formal audit.
+      The emphasis is on baseline hygiene, operational response, and student-facing protections.
+    order: 8
+    questions:
+      - question_id: "8.1"
+        prompt: What endpoint protection or antivirus platform is in use?
+        help_text: "e.g. Microsoft Defender for Business, CrowdStrike, Malwarebytes, Sophos. Enter None if not in use."
+        answer_type: short_text
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "8.2"
+        prompt: Is endpoint protection deployed on supported devices?
+        help_text: Are managed school-owned devices actually covered by endpoint protection, or just licensed for it?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — deployed on most managed devices
+          - Partial — deployed on some devices
+          - No
+          - Unknown
+
+      - question_id: "8.3"
+        prompt: Is patching for endpoints and servers managed on a defined cadence?
+        help_text: A scheduled process for applying security updates — not just when something breaks or when there is time.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — documented patching schedule
+          - Informal — patching happens but not on a defined schedule
+          - No
+          - Unknown
+
+      - question_id: "8.4"
+        prompt: Are critical network and security devices reviewed for firmware currency?
+        help_text: Firewalls, switches, and wireless controllers that are running outdated firmware may have known vulnerabilities.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — reviewed regularly (at least twice per year)
+          - Irregularly — reviewed occasionally
+          - No
+          - Unknown
+
+      - question_id: "8.5"
+        prompt: Is a web filter or content filter in place?
+        help_text: >
+          A filter that blocks harmful, inappropriate, or distracting content for students and/or staff.
+          Schools receiving E-rate funding are required to have filtering for students (CIPA).
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — for students and staff
+          - Yes — for students only
+          - Limited or partial coverage
+          - No
+          - Unknown
+
+      - question_id: "8.6"
+        prompt: Does the school use a student safety monitoring platform?
+        help_text: >
+          A platform that monitors student online activity for signals of self-harm, bullying,
+          or other behavioral risk. e.g. GoGuardian Beacon, Lightspeed Alert, Securly.
+          If yes, note the platform in the notes field.
+        answer_type: yes_no_unknown
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        has_notes: true
+        condition: null
+
+      - question_id: "8.7"
+        prompt: Are filtering, web protection, or student safety controls documented well enough to understand coverage and gaps?
+        help_text: Could you explain to a parent or auditor what is filtered, who is covered, and what the exceptions process is?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Yes — controls are documented
+          - Partial — some documentation exists
+          - No
+          - Unknown
+
+      - question_id: "8.8"
+        prompt: Is there a documented process for responding to suspicious activity, malware, or account compromise?
+        help_text: A reference document someone could use during an incident — who to notify, how to contain the problem, how to communicate. A one-page guide counts.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — documented process exists
+          - Partial — informal notes or partial documentation
+          - No
+          - Unknown
+
+      - question_id: "8.9"
+        prompt: Are logs or alerts from key systems reviewed by someone?
+        help_text: Authentication logs, firewall alerts, endpoint protection alerts — is someone actually looking at these on a regular basis?
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 2
+        condition: null
+        options:
+          - Yes — reviewed regularly
+          - Sometimes — reviewed occasionally
+          - No
+          - Unknown
+
+      - question_id: "8.10"
+        prompt: Does the school carry cyber insurance?
+        help_text: A cyber liability policy that covers costs related to data breaches, ransomware, or other cyber incidents.
+        answer_type: single_select
+        status: optional
+        skippable: true
+        prefill: null
+        points: 1
+        condition: null
+        options:
+          - Yes
+          - No
+          - Unknown
+
+      - question_id: "8.11"
+        prompt: Are there known unresolved security concerns today?
+        help_text: >
+          Active issues you are already aware of — not hypothetical risks.
+          Note: identifying a known problem scores better than not knowing,
+          because you cannot fix what you are not aware of. If yes, describe briefly in the notes field.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        has_notes: true
+        condition: null
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 9: Documentation and Operational Readiness
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "9"
+    title: Documentation and Operational Readiness
+    description: >
+      Measure whether the environment is understandable and supportable by more than one person.
+    order: 9
+    questions:
+      - question_id: "9.1"
+        prompt: Is there a central location where IT documentation is stored?
+        help_text: A wiki, shared drive folder, IT documentation platform, or similar. If yes, is it actually used?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — well used and reasonably complete
+          - Yes — but used inconsistently
+          - No
+          - Unknown
+
+      - question_id: "9.2"
+        prompt: Are network, systems, and vendor documents kept in a reasonably current state?
+        help_text: Are the documents you have actually accurate, or are they out of date enough to be misleading?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — most documentation is current
+          - Partly — some is current, some is outdated
+          - No — documentation is generally outdated
+          - Unknown
+
+      - question_id: "9.3"
+        prompt: Are standard operating procedures documented for common recurring tasks?
+        help_text: >
+          Step-by-step guides for tasks like: setting up a new device, resetting a password,
+          adding a new staff account, troubleshooting a printer. Even basic SOPs reduce key-person dependency.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        condition: null
+        options:
+          - Yes — SOPs exist for most recurring tasks
+          - Partial — some tasks are documented
+          - No
+          - Unknown
+
+      - question_id: "9.4"
+        prompt: Is there a known process for documenting changes after projects or incidents?
+        help_text: When something changes in the environment — a new device, a configuration change, a resolved incident — does documentation get updated?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 3
+        condition: null
+        options:
+          - Yes — changes are documented as part of the process
+          - Informal — sometimes documented, sometimes not
+          - No
+          - Unknown
+
+      - question_id: "9.5"
+        prompt: Could a qualified third party understand the environment from existing documentation?
+        help_text: If a new IT person or external consultant arrived today, could they understand how the environment is built and how to support it?
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 5
+        condition: null
+        options:
+          - Yes — documentation is sufficient for a qualified person to get oriented
+          - Partially — they could understand some areas but not others
+          - No — the environment is not understandable from documentation alone
+          - Unknown
+
+      - question_id: "9.6"
+        prompt: Are there major knowledge areas that currently live only in one person's head?
+        help_text: >
+          Things only one person knows how to do — configure the firewall, manage the phone system,
+          reset the backup service. Identifying these is the first step to addressing them.
+          If yes, list the areas in the notes field.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        prefill: null
+        points: 4
+        has_notes: true
+        condition: null
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION 10: Near-Term Priorities and Planning Inputs
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "10"
+    title: Near-Term Priorities and Planning Inputs
+    description: >
+      Capture what you already know needs attention and any context that helps
+      sequence the action plan. This section does not generate a score —
+      it calibrates and contextualizes the recommendations from all other sections.
+    order: 10
+    questions:
+      - question_id: "10.1"
+        prompt: List up to five known IT problems or projects you already know need attention
+        help_text: >
+          Things already on your radar — independent of what this assessment surfaces.
+          One item per line. Up to five items.
+          Items that match assessment findings will be flagged as user-confirmed priorities in the action plan.
+        answer_type: list_of_items
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "10.2"
+        prompt: Are there IT projects or initiatives already approved or planned for the next 12 months?
+        help_text: Projects that are already funded, committed, or in progress. One item per line.
+        answer_type: list_of_items
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "10.3"
+        prompt: Are there known deadlines, audits, renewals, or compliance events coming up that IT needs to be ready for?
+        help_text: "e.g. E-rate filing deadline, accreditation visit, major contract renewal, state audit. One item per line."
+        answer_type: list_of_items
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "10.4"
+        prompt: What changes are expected before the next school year?
+        help_text: New grade levels, new campuses, staff changes, major device rollouts, infrastructure projects, or anything else IT needs to plan for.
+        answer_type: long_text
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "10.5"
+        prompt: Is leadership or administration expecting a budget, refresh, or improvement plan from IT in the near future?
+        help_text: If yes, note the deadline or context in the notes field. This will be highlighted in the roadmap section of the report.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        has_notes: true
+        condition: null
+
+      - question_id: "10.6"
+        prompt: Are there known obstacles, constraints, or dependencies that will affect IT's ability to act on findings from this assessment?
+        help_text: Budget freezes, staffing gaps, vendor dependencies, upcoming disruptions. These will be noted in the action plan so recommendations reflect reality.
+        answer_type: long_text
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+
+      - question_id: "10.7"
+        prompt: Overall, how confident are you in the accuracy of the information you provided across this assessment?
+        help_text: This affects how findings are weighted and presented. There is no penalty for lower confidence — honest uncertainty is more useful than false precision.
+        answer_type: single_select
+        status: core
+        skippable: true
+        prefill: null
+        points: 0
+        condition: null
+        options:
+          - High — most answers are documented or verified
+          - Moderate — most answers are based on recall or staff reports
+          - Low — many answers were estimated or unknown
+          - Mixed — confidence varies significantly by section
+
+      - question_id: "10.8"
+        prompt: Are there specific sections or topic areas where you feel the data provided was particularly incomplete or uncertain?
+        help_text: These sections will receive an additional uncertainty annotation in the report. One area per line.
+        answer_type: list_of_items
+        status: optional
+        skippable: true
+        prefill: null
+        points: 0
+        condition:
+          type: answer_is
+          question_id: "10.7"
+          value: ["Moderate — most answers are based on recall or staff reports", "Low — many answers were estimated or unknown", "Mixed — confidence varies significantly by section"]

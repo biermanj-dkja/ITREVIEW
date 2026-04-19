@@ -1,6 +1,8 @@
 import uuid
 import json
-from flask import Flask, render_template, request, redirect, url_for, session, flash, g
+import os
+from pathlib import Path
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from database import (
     init_db, save_answer, get_answers, get_answer, create_session,
     get_session, mark_section_complete, get_all_sessions,
@@ -11,7 +13,16 @@ from engine import (
     calculate_section_score, get_section_severity_label, CRITICAL_QUESTIONS
 )
 
-app = Flask(__name__)
+# Resolve the directory this file lives in.
+# This ensures templates and modules are found correctly on Windows
+# regardless of what directory Python is invoked from.
+BASE_DIR = Path(__file__).resolve().parent
+TEMPLATE_DIR = BASE_DIR / "templates"
+
+app = Flask(
+    __name__,
+    template_folder=str(TEMPLATE_DIR),
+)
 app.secret_key = "school-it-engine-dev-key-change-in-production"
 
 # Custom Jinja2 filters
@@ -26,9 +37,7 @@ def setup():
     init_db()
 
 
-# ─────────────────────────────────────────────
 # HOME / SESSION MANAGEMENT
-# ─────────────────────────────────────────────
 
 @app.route("/")
 def home():
@@ -71,16 +80,13 @@ def resume(session_id):
         return redirect(url_for("home"))
     complete = json.loads(sess["sections_complete"])
     module = load_module(MODULE_ID)
-    # Find first incomplete section
     for s in module["sections"]:
         if s["section_id"] not in complete:
             return redirect(url_for("section", session_id=session_id, section_id=s["section_id"]))
     return redirect(url_for("summary", session_id=session_id))
 
 
-# ─────────────────────────────────────────────
 # SECTION INTAKE
-# ─────────────────────────────────────────────
 
 @app.route("/session/<session_id>/section/<section_id>", methods=["GET", "POST"])
 def section(session_id, section_id):
@@ -98,7 +104,6 @@ def section(session_id, section_id):
     answers = get_answers(session_id)
     profile = get_school_profile()
 
-    # Apply prefills on first visit
     if request.method == "GET":
         for q in sec["questions"]:
             qid = q["question_id"]
@@ -113,7 +118,6 @@ def section(session_id, section_id):
     if request.method == "POST":
         action = request.form.get("action", "save")
 
-        # Process each visible question
         for q in visible_questions:
             qid = q["question_id"]
             atype = q["answer_type"]
@@ -133,7 +137,7 @@ def section(session_id, section_id):
             if atype == "multi_select":
                 raw = request.form.getlist(field_key)
                 status = "answered" if raw else "unanswered"
-            elif atype in ("yes_no_unknown",):
+            elif atype == "yes_no_unknown":
                 raw = request.form.get(field_key)
                 status = "answered" if raw else "unanswered"
             else:
@@ -143,7 +147,6 @@ def section(session_id, section_id):
             notes = request.form.get(f"{field_key}_notes", "").strip() or None
 
             if atype == "list_of_items" and isinstance(raw, str):
-                # Split textarea into list
                 items = [line.strip() for line in raw.splitlines() if line.strip()]
                 raw = items if items else None
                 status = "answered" if raw else "unanswered"
@@ -151,11 +154,9 @@ def section(session_id, section_id):
             save_answer(session_id, qid, raw, notes=notes, status=status)
 
         if action == "complete":
-            # Compute section score
             answers = get_answers(session_id)
             earned, max_pts, answered_count, total_q = calculate_section_score(sec, answers)
 
-            # Count unknowns and critical unknowns
             critical_set = CRITICAL_QUESTIONS.get(section_id, set())
             unknown_count = sum(
                 1 for q in visible_questions
@@ -178,10 +179,8 @@ def section(session_id, section_id):
                 severity=severity
             ))
 
-        # Save and stay — refresh to pick up new conditional questions
         return redirect(url_for("section", session_id=session_id, section_id=section_id))
 
-    # Compute progress
     complete = json.loads(sess["sections_complete"])
     total_sections = len(module["sections"])
     complete_count = len(complete)
@@ -202,8 +201,8 @@ def section(session_id, section_id):
 
 @app.route("/session/<session_id>/section/<section_id>/complete")
 def section_complete(session_id, section_id):
-    earned = int(request.args.get("earned", 0))
-    max_pts = int(request.args.get("max_pts", 0))
+    earned = int(float(request.args.get("earned", 0)))
+    max_pts = int(float(request.args.get("max_pts", 0)))
     severity = request.args.get("severity", "unknown")
 
     module = load_module(MODULE_ID)
@@ -211,7 +210,6 @@ def section_complete(session_id, section_id):
     sess = get_session(session_id)
     complete = json.loads(sess["sections_complete"])
 
-    # Find next section
     next_section = None
     sections = module["sections"]
     for i, s in enumerate(sections):
@@ -235,9 +233,7 @@ def section_complete(session_id, section_id):
     )
 
 
-# ─────────────────────────────────────────────
 # SUMMARY
-# ─────────────────────────────────────────────
 
 @app.route("/session/<session_id>/summary")
 def summary(session_id):
@@ -288,10 +284,10 @@ def summary(session_id):
 
 if __name__ == "__main__":
     init_db()
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("  School IT Documentation Engine")
     print("  Running at: http://localhost:5000")
     print("  This tool runs entirely on your computer.")
     print("  No data is sent to the internet.")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
     app.run(debug=True, port=5000)

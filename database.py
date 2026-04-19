@@ -3,11 +3,14 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "data" / "assessments.db"
+# Always resolve paths relative to this file, not the working directory.
+# This is critical for Windows compatibility.
+BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "data" / "assessments.db"
 
 
 def get_db():
-    db = sqlite3.connect(DB_PATH)
+    db = sqlite3.connect(str(DB_PATH))
     db.row_factory = sqlite3.Row
     db.execute("PRAGMA journal_mode=WAL")
     db.execute("PRAGMA foreign_keys=ON")
@@ -67,9 +70,10 @@ def save_answer(session_id, question_id, raw_answer, notes=None, status="answere
             answer_status=excluded.answer_status,
             last_modified=excluded.last_modified
     """, (session_id, question_id, json.dumps(raw_answer), notes, status, now, now))
-    db.execute("""
-        UPDATE assessment_session SET last_modified=? WHERE session_id=?
-    """, (now, session_id))
+    db.execute(
+        "UPDATE assessment_session SET last_modified=? WHERE session_id=?",
+        (now, session_id)
+    )
     db.commit()
     db.close()
 
@@ -125,9 +129,7 @@ def get_session(session_id):
         "SELECT * FROM assessment_session WHERE session_id=?", (session_id,)
     ).fetchone()
     db.close()
-    if row:
-        return dict(row)
-    return None
+    return dict(row) if row else None
 
 
 def mark_section_complete(session_id, section_id):
@@ -141,11 +143,10 @@ def mark_section_complete(session_id, section_id):
         if section_id not in complete:
             complete.append(section_id)
         now = datetime.utcnow().isoformat()
-        db.execute("""
-            UPDATE assessment_session
-            SET sections_complete=?, last_modified=?
-            WHERE session_id=?
-        """, (json.dumps(complete), now, session_id))
+        db.execute(
+            "UPDATE assessment_session SET sections_complete=?, last_modified=? WHERE session_id=?",
+            (json.dumps(complete), now, session_id)
+        )
         db.commit()
     db.close()
 

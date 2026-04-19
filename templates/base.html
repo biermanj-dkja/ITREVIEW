@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}School IT Engine{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0f1117;
+      --surface:    #181c27;
+      --surface2:   #1e2333;
+      --border:     #2a3050;
+      --accent:     #4f8ef7;
+      --accent-dim: #2a4a8a;
+      --text:       #d4daf0;
+      --text-dim:   #7a85a8;
+      --text-faint: #404868;
+      --healthy:    #34d399;
+      --watch:      #fbbf24;
+      --concern:    #f87171;
+      --urgent:     #ef4444;
+      --mono:       'IBM Plex Mono', monospace;
+      --sans:       'IBM Plex Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Privacy banner */
+    .privacy-banner {
+      background: var(--accent-dim);
+      border-bottom: 1px solid var(--accent);
+      text-align: center;
+      padding: 6px 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .privacy-banner span { opacity: 0.7; }
+
+    /* Nav */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      height: 52px;
+    }
+    .nav-brand {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .nav-links { display: flex; gap: 16px; margin-left: auto; }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Layout */
+    .container { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
+    .container-wide { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .card-sm { padding: 18px 22px; }
+
+    /* Typography */
+    h1 { font-size: 26px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+    h2 { font-size: 19px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    h3 { font-size: 15px; font-weight: 500; margin-bottom: 4px; color: var(--text); }
+    p { color: var(--text-dim); margin-bottom: 12px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #6fa3ff; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--text-dim); }
+    .btn-danger { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+
+    /* Forms */
+    .form-group { margin-bottom: 20px; }
+    label.field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    input[type="text"], input[type="url"], input[type="number"], textarea, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      padding: 10px 14px;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 80px; }
+    select option { background: var(--surface2); }
+
+    /* Radio / checkbox groups */
+    .option-group { display: flex; flex-direction: column; gap: 8px; }
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .option-item:hover { border-color: var(--accent-dim); }
+    .option-item input[type="radio"],
+    .option-item input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    .option-item.selected { border-color: var(--accent); background: rgba(79,142,247,0.08); }
+
+    /* Severity badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .badge-healthy  { background: rgba(52,211,153,0.15); color: var(--healthy); border: 1px solid rgba(52,211,153,0.3); }
+    .badge-watch    { background: rgba(251,191,36,0.15);  color: var(--watch);   border: 1px solid rgba(251,191,36,0.3); }
+    .badge-concern  { background: rgba(248,113,113,0.15); color: var(--concern); border: 1px solid rgba(248,113,113,0.3); }
+    .badge-urgent   { background: rgba(239,68,68,0.2);    color: var(--urgent);  border: 1px solid rgba(239,68,68,0.4); }
+    .badge-unknown  { background: rgba(122,133,168,0.15); color: var(--text-dim);border: 1px solid var(--border); }
+
+    /* Point chip */
+    .point-chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 11px;
+      background: var(--surface2);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .point-chip.high { color: var(--concern); border-color: rgba(248,113,113,0.4); }
+    .point-chip.critical { color: var(--urgent); border-color: rgba(239,68,68,0.4); }
+    .point-chip.zero { color: var(--text-faint); }
+
+    /* Alerts */
+    .alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
+    .alert-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+    .alert-success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); color: var(--healthy); }
+
+    /* Progress bar */
+    .progress-track {
+      background: var(--surface2);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    /* Flex helpers */
+    .flex { display: flex; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .mt-4 { margin-top: 4px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mb-4 { margin-bottom: 4px; }
+    .mb-8 { margin-bottom: 8px; }
+    .text-dim { color: var(--text-dim); }
+    .text-faint { color: var(--text-faint); }
+    .text-sm { font-size: 13px; }
+    .text-xs { font-size: 11px; font-family: var(--mono); }
+    .text-accent { color: var(--accent); }
+    .mono { font-family: var(--mono); }
+
+    /* Section nav sidebar */
+    .layout-with-sidebar {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .sidebar { position: sticky; top: 24px; }
+    .sidebar-section {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 4px;
+      border: 1px solid transparent;
+      cursor: default;
+    }
+    .sidebar-section.complete { border-color: var(--border); color: var(--text-dim); }
+    .sidebar-section.active { background: rgba(79,142,247,0.1); border-color: var(--accent); color: var(--accent); }
+    .sidebar-section.pending { color: var(--text-faint); }
+
+    /* Skip/unknown row */
+    .answer-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      align-items: center;
+    }
+    .answer-meta label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text-faint);
+      cursor: pointer;
+      font-weight: 400;
+      margin: 0;
+    }
+    .answer-meta input[type="checkbox"] { width: auto; }
+    .answer-meta label:hover { color: var(--text-dim); }
+
+    /* Question card */
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin-bottom: 16px;
+      transition: border-color 0.15s;
+    }
+    .question-card:focus-within { border-color: var(--accent-dim); }
+    .question-card.answered { border-left: 3px solid var(--accent); }
+    .question-card.skipped { opacity: 0.5; }
+    .question-card.unknown-ans { border-left: 3px solid var(--text-faint); }
+
+    .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .q-prompt {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .q-id {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-faint);
+      white-space: nowrap;
+      margin-top: 3px;
+    }
+    .q-help {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .q-notes-area { margin-top: 10px; }
+    .q-notes-area label { font-size: 11px; color: var(--text-faint); }
+    .q-notes-area textarea { min-height: 52px; font-size: 13px; }
+
+    /* Score display */
+    .score-display {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .score-fraction {
+      font-family: var(--mono);
+      font-size: 52px;
+      font-weight: 500;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .score-fraction .max { font-size: 28px; color: var(--text-dim); }
+
+    @media (max-width: 700px) {
+      .layout-with-sidebar { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="privacy-banner">
+    🔒 <span>This tool runs entirely on your computer. No data is sent to the internet.</span>
+    &nbsp;·&nbsp; localhost:5000
+  </div>
+
+  <nav>
+    <a href="/" class="nav-brand">SCHOOL IT ENGINE</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/setup">School Profile</a>
+    </div>
+  </nav>
+
+  <div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div style="padding: 0 24px; margin-top: 16px; max-width: 860px; margin-left: auto; margin-right: auto;">
+          {% for cat, msg in messages %}
+            <div class="alert alert-{{ cat }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

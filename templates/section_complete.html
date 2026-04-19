@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Section {{ section.section_id }} Complete{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 48px;">
+
+  <div style="text-align: center; margin-bottom: 40px;">
+    <div style="font-size: 48px; margin-bottom: 8px;">
+      {% if severity == "context_only" %}✅
+      {% elif severity == "healthy" %}✅
+      {% elif severity == "watch" %}👁
+      {% elif severity == "concern" %}⚠️
+      {% elif severity == "urgent" %}🚨
+      {% else %}❓{% endif %}
+    </div>
+    <h1>Section {{ section.section_id }} complete</h1>
+    <p class="mt-8">{{ section.title }}</p>
+  </div>
+
+  {# Score reveal card #}
+  {% if severity == "context_only" %}
+  <div class="card" style="text-align: center; border-color: var(--accent);">
+    <div class="text-xs text-faint mb-16">SECTION STATUS</div>
+    <div style="padding: 20px 0;">
+      <div style="font-family: var(--mono); font-size: 36px; font-weight: 500; color: var(--accent);">
+        Complete
+      </div>
+      <div class="mt-16">
+        <span class="badge" style="background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); font-size: 13px; padding: 4px 14px;">
+          Context only — no scored questions
+        </span>
+      </div>
+      <div class="text-dim text-sm mt-16" style="max-width: 420px; margin: 16px auto 0;">
+        This section captures profile and context information used to tailor your report.
+        It does not contribute to your assessment score, but every question here
+        improves the accuracy and relevance of your findings and action plan.
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="card" style="text-align: center; border-color:
+    {% if severity == 'healthy' %}var(--healthy)
+    {% elif severity == 'watch' %}var(--watch)
+    {% elif severity == 'concern' %}var(--concern)
+    {% elif severity == 'urgent' %}var(--urgent)
+    {% else %}var(--border){% endif %};">
+
+    <div class="text-xs text-faint mb-16">SECTION SCORE</div>
+
+    <div style="padding: 20px 0;">
+      <div style="font-family: var(--mono); font-size: 52px; font-weight: 500; line-height: 1; margin-bottom: 8px;">
+        {{ earned | int }}<span style="font-size: 28px; color: var(--text-dim);"> / {{ max_pts }}</span>
+      </div>
+      <div class="mt-8">
+        <span class="badge badge-{{ severity }}">{{ severity | upper }}</span>
+      </div>
+      <div class="text-dim text-sm mt-16">{{ pct }}% of available points earned</div>
+    </div>
+
+    {% if severity == "urgent" %}
+    <div class="alert alert-error" style="text-align: left; margin-top: 8px;">
+      <strong>Urgent gaps identified.</strong> This section contains findings that require immediate attention. Review the action plan when your assessment is complete.
+    </div>
+    {% elif severity == "concern" %}
+    <div style="padding: 12px 16px; background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.2); border-radius: 6px; text-align: left; font-size: 13px; color: var(--text-dim); margin-top: 8px;">
+      Material gaps were identified in this section. These will appear in your action plan with recommended next steps.
+    </div>
+    {% elif severity == "watch" %}
+    <div style="padding: 12px 16px; background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.2); border-radius: 6px; text-align: left; font-size: 13px; color: var(--text-dim); margin-top: 8px;">
+      Some areas to monitor or improve were identified. These will appear in your action plan.
+    </div>
+    {% elif severity == "healthy" %}
+    <div style="padding: 12px 16px; background: rgba(52,211,153,0.07); border: 1px solid rgba(52,211,153,0.2); border-radius: 6px; text-align: left; font-size: 13px; color: var(--text-dim); margin-top: 8px;">
+      This section looks strong. Continue to the next section.
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# Navigation #}
+  <div class="flex-between mt-24">
+    <a href="/session/{{ session_id }}/section/{{ section.section_id }}"
+       class="btn btn-ghost">← Review answers</a>
+
+    {% if next_section %}
+    <a href="/session/{{ session_id }}/section/{{ next_section.section_id }}"
+       class="btn btn-primary">
+      Next: {{ next_section.title }} →
+    </a>
+    {% else %}
+    <a href="/session/{{ session_id }}/summary" class="btn btn-primary">
+      View full summary →
+    </a>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

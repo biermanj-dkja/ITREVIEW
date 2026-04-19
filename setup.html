@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}School Profile — School IT Engine{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="margin-bottom: 28px;">
+    <a href="/" class="text-dim text-sm" style="text-decoration: none;">← Back to Home</a>
+  </div>
+
+  <h1>School Profile</h1>
+  <p>This information identifies your school across all assessments. It takes about 30 seconds to fill in.</p>
+
+  <div class="card mt-24">
+    <form method="POST">
+      <div class="form-group">
+        <label for="school_name">School Name *</label>
+        <input type="text" id="school_name" name="school_name"
+               value="{{ profile.school_name if profile else '' }}"
+               placeholder="e.g. St. Mark's Academy"
+               required>
+      </div>
+      <div class="form-group">
+        <label for="school_website">School Website *</label>
+        <input type="url" id="school_website" name="school_website"
+               value="{{ profile.school_website if profile else '' }}"
+               placeholder="https://www.yourschool.org"
+               required>
+        <p class="text-xs text-faint mt-4" style="font-family: var(--sans);">
+          The website URL helps identify your school unambiguously across assessment records.
+        </p>
+      </div>
+      <div class="flex gap-12 mt-24">
+        <button type="submit" class="btn btn-primary">Save Profile</button>
+        <a href="/" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

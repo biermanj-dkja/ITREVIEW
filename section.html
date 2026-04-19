@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block title %}Section {{ section.section_id }} — {{ section.title }}{% endblock %}
+
+{% macro point_chip(pts) %}
+  {% if pts == 0 %}
+    <span class="point-chip zero">context</span>
+  {% elif pts >= 5 %}
+    <span class="point-chip critical">{{ pts }} pts</span>
+  {% elif pts >= 3 %}
+    <span class="point-chip high">{{ pts }} pts</span>
+  {% else %}
+    <span class="point-chip">{{ pts }} pts</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro render_question(q, answers) %}
+  {% set qid = q.question_id %}
+  {% set fkey = "q_" + qid.replace(".", "_") %}
+  {% set ans = answers.get(qid, {}) %}
+  {% set cur_val = ans.get("raw_answer") %}
+  {% set cur_status = ans.get("answer_status", "unanswered") %}
+  {% set is_skipped = cur_status == "skipped" %}
+  {% set is_unknown = cur_status == "unknown" %}
+  {% set is_answered = cur_status == "answered" %}
+
+  <div class="question-card {{ 'answered' if is_answered else ('skipped' if is_skipped else ('unknown-ans' if is_unknown else '')) }}"
+       id="qcard_{{ fkey }}">
+
+    <div class="q-header">
+      <div>
+        <div class="q-id">{{ qid }}
+          {% if q.status == "optional" %}<span style="color: var(--text-faint);"> — optional</span>{% endif %}
+          {% if q.status == "conditional" %}<span style="color: var(--watch);"> — conditional</span>{% endif %}
+        </div>
+        <div class="q-prompt">{{ q.prompt }}</div>
+      </div>
+      {{ point_chip(q.points) }}
+    </div>
+
+    {% if q.help_text %}
+    <div class="q-help">{{ q.help_text }}</div>
+    {% endif %}
+
+    {# ── Answer input ── #}
+    {% if not is_skipped and not is_unknown %}
+
+      {% if q.answer_type == "short_text" %}
+        <input type="text" name="{{ fkey }}"
+               value="{{ cur_val if cur_val else '' }}"
+               placeholder="Type your answer…">
+
+      {% elif q.answer_type == "long_text" %}
+        <textarea name="{{ fkey }}" rows="4"
+                  placeholder="Type your answer…">{{ cur_val if cur_val else '' }}</textarea>
+
+      {% elif q.answer_type == "count" %}
+        <input type="number" name="{{ fkey }}" min="0"
+               value="{{ cur_val if cur_val is not none else '' }}"
+               placeholder="0"
+               style="max-width: 160px;">
+
+      {% elif q.answer_type == "list_of_items" %}
+        <textarea name="{{ fkey }}" rows="4"
+                  placeholder="One item per line…">{% if cur_val %}{% if cur_val is iterable and cur_val is not string %}{{ cur_val | join('\n') }}{% else %}{{ cur_val }}{% endif %}{% endif %}</textarea>
+
+      {% elif q.answer_type == "yes_no_unknown" %}
+        <div class="option-group">
+          {% for opt in [("yes", "Yes"), ("no", "No")] %}
+          <label class="option-item {{ 'selected' if cur_val == opt[0] }}">
+            <input type="radio" name="{{ fkey }}" value="{{ opt[0] }}"
+                   {{ 'checked' if cur_val == opt[0] }}
+                   onchange="updateCard('{{ fkey }}')">
+            {{ opt[1] }}
+          </label>
+          {% endfor %}
+        </div>
+
+      {% elif q.answer_type == "single_select" %}
+        <div class="option-group">
+          {% for opt in q.options %}
+          <label class="option-item {{ 'selected' if cur_val == opt }}">
+            <input type="radio" name="{{ fkey }}" value="{{ opt }}"
+                   {{ 'checked' if cur_val == opt }}
+                   onchange="updateCard('{{ fkey }}')">
+            {{ opt }}
+          </label>
+          {% endfor %}
+        </div>
+
+      {% elif q.answer_type == "multi_select" %}
+        <div class="option-group">
+          {% for opt in q.options %}
+          <label class="option-item {{ 'selected' if cur_val and opt in cur_val }}">
+            <input type="checkbox" name="{{ fkey }}" value="{{ opt }}"
+                   {{ 'checked' if cur_val and opt in cur_val }}>
+            {{ opt }}
+          </label>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {# Notes field #}
+      {% if q.get("has_notes") %}
+      <div class="q-notes-area">
+        <label>Notes (optional)</label>
+        <textarea name="{{ fkey }}_notes" rows="2"
+                  placeholder="Brief description…">{{ ans.get("notes", "") or "" }}</textarea>
+      </div>
+      {% endif %}
+
+    {% else %}
+      {# Placeholder when skipped/unknown #}
+      {% if is_skipped %}
+        <div style="padding: 10px; color: var(--text-faint); font-size: 13px; font-style: italic;">
+          Question skipped
+        </div>
+      {% elif is_unknown %}
+        <div style="padding: 10px; color: var(--text-faint); font-size: 13px; font-style: italic;">
+          Marked as unknown
+        </div>
+      {% endif %}
+    {% endif %}
+
+    {# Skip / Unknown controls #}
+    <div class="answer-meta">
+      <label>
+        <input type="checkbox" name="{{ fkey }}_skip" value="1"
+               {{ 'checked' if is_skipped }}
+               onchange="toggleSkip(this, '{{ fkey }}')">
+        Skip this question
+      </label>
+      {% if q.answer_type not in ["yes_no_unknown"] %}
+      <label>
+        <input type="checkbox" name="{{ fkey }}_unknown" value="1"
+               {{ 'checked' if is_unknown }}
+               onchange="toggleUnknown(this, '{{ fkey }}')">
+        I don't know the answer
+      </label>
+      {% endif %}
+    </div>
+
+  </div>
+{% endmacro %}
+
+{% block content %}
+<div class="container-wide" style="padding-top: 28px;">
+  <div class="layout-with-sidebar">
+
+    {# ── Sidebar ── #}
+    <div class="sidebar">
+      <div class="card card-sm" style="padding: 12px;">
+        <div class="text-xs text-faint mb-8">SECTIONS</div>
+        {% for s in module.sections %}
+        <div class="sidebar-section
+          {{ 'complete' if s.section_id in complete else
+             ('active' if s.section_id == section.section_id else 'pending') }}">
+          {% if s.section_id in complete %}✓ {% endif %}
+          {{ s.section_id }}. {{ s.title }}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="card card-sm mt-8" style="padding: 12px;">
+        <div class="text-xs text-faint mb-4">PROGRESS</div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: {{ (complete_count / total_sections * 100) | int }}%"></div>
+        </div>
+        <div class="text-xs text-faint mt-4">{{ complete_count }} of {{ total_sections }} sections complete</div>
+      </div>
+    </div>
+
+    {# ── Main content ── #}
+    <div>
+      <div style="margin-bottom: 4px;">
+        <span class="text-xs text-faint">SECTION {{ section.section_id }} OF {{ total_sections }}</span>
+      </div>
+      <h1 style="margin-bottom: 4px;">{{ section.title }}</h1>
+      <p style="margin-bottom: 28px;">{{ section.description }}</p>
+
+      <div class="card card-sm flex-between mb-24" style="padding: 12px 16px;">
+        <div class="text-sm text-dim">
+          {{ questions | length }} question{{ 's' if questions | length != 1 }}
+          visible in this section
+        </div>
+        <div class="text-xs text-faint mono">
+          Point values shown next to each question
+          &nbsp;·&nbsp;
+          Score revealed on completion
+        </div>
+      </div>
+
+      <form method="POST" id="section-form">
+
+        {% for q in questions %}
+          {{ render_question(q, answers) }}
+        {% endfor %}
+
+        <hr class="divider">
+
+        <div class="flex-between">
+          <a href="/" class="btn btn-ghost">← Save &amp; Exit</a>
+          <div class="flex gap-12">
+            <button type="submit" name="action" value="save" class="btn btn-secondary">
+              Save Progress
+            </button>
+            <button type="submit" name="action" value="complete" class="btn btn-primary">
+              Complete Section →
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateCard(fkey) {
+    // Visual feedback when radio is selected
+    const card = document.getElementById('qcard_' + fkey);
+    if (!card) return;
+    card.classList.remove('answered');
+    setTimeout(() => card.classList.add('answered'), 10);
+  }
+
+  function toggleSkip(cb, fkey) {
+    const unknownCb = document.querySelector(`input[name="${fkey}_unknown"]`);
+    const inputs = document.querySelectorAll(
+      `[name="${fkey}"], [name="${fkey}[]"]`
+    );
+    if (cb.checked) {
+      if (unknownCb) unknownCb.checked = false;
+      inputs.forEach(el => { el.disabled = true; el.style.opacity = '0.3'; });
+    } else {
+      inputs.forEach(el => { el.disabled = false; el.style.opacity = ''; });
+    }
+  }
+
+  function toggleUnknown(cb, fkey) {
+    const skipCb = document.querySelector(`input[name="${fkey}_skip"]`);
+    const inputs = document.querySelectorAll(
+      `[name="${fkey}"], [name="${fkey}[]"]`
+    );
+    if (cb.checked) {
+      if (skipCb) skipCb.checked = false;
+      inputs.forEach(el => { el.disabled = true; el.style.opacity = '0.3'; });
+    } else {
+      inputs.forEach(el => { el.disabled = false; el.style.opacity = ''; });
+    }
+  }
+
+  // Option item visual selection for radio buttons
+  document.querySelectorAll('.option-item input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const group = radio.closest('.option-group');
+      if (!group) return;
+      group.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+      radio.closest('.option-item').classList.add('selected');
+    });
+  });
+
+  // Option item visual selection for checkboxes
+  document.querySelectorAll('.option-item input[type="checkbox"]:not([name$="_skip"]):not([name$="_unknown"])').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.option-item').classList.toggle('selected', cb.checked);
+    });
+  });
+</script>
+{% endblock %}

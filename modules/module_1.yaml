@@ -72,7 +72,7 @@ sections:
 
       - question_id: "1.6"
         prompt: Does the school have an official logo or crest available for use in the report?
-        help_text: If yes, you will be able to specify the file path or upload it later.
+        help_text: "If yes, note where the file is located. File upload support is coming in a later update."
         answer_type: yes_no_unknown
         status: optional
         skippable: true
@@ -140,6 +140,7 @@ sections:
         answer_type: short_text
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -254,6 +255,7 @@ sections:
         answer_type: yes_no_unknown
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 5
         condition: null
@@ -277,6 +279,7 @@ sections:
         answer_type: yes_no_unknown
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 4
         condition: null
@@ -314,7 +317,6 @@ sections:
           - Yes — formal annual budget
           - Yes — but informal or ad hoc
           - "No"
-          - "Unknown"
 
       - question_id: "2.7"
         prompt: Are there known budget or staffing constraints affecting IT work this year?
@@ -355,7 +357,6 @@ sections:
           - Yes — another person could cover fully
           - Partially — some things would be managed, others would not
           - No — operations would be significantly disrupted
-          - "Unknown"
 
       - question_id: "2.10"
         prompt: Are recurring IT tasks tracked on a calendar, checklist, or ticketing system?
@@ -372,7 +373,6 @@ sections:
           - Yes — fully tracked in a system
           - Partially — some tasks tracked, others rely on memory
           - No — relies on memory or informal reminders
-          - "Unknown"
 
       - question_id: "2.11"
         prompt: Is there a ticketing system for IT support requests?
@@ -387,7 +387,6 @@ sections:
           - Yes — in regular active use
           - Yes — but limited or inconsistent use
           - "No"
-          - "Unknown"
 
       - question_id: "2.12"
         prompt: Who has authority to approve new software or digital tools for classroom use?
@@ -428,7 +427,6 @@ sections:
           - Yes — current and reasonably accurate
           - Partial — some buildings or areas covered
           - "No"
-          - "Unknown"
 
       - question_id: "3.2"
         prompt: Is there a current network diagram?
@@ -443,7 +441,6 @@ sections:
           - Yes — current and accurate
           - Yes — but outdated
           - "No"
-          - "Unknown"
 
       - question_id: "3.3"
         prompt: Is there a site map or closet/rack map for each campus or building?
@@ -458,7 +455,6 @@ sections:
           - Yes — current for all locations
           - Partial — some locations documented
           - "No"
-          - "Unknown"
 
       - question_id: "3.4"
         prompt: Do you know where the wireless access points are physically located throughout the school?
@@ -473,7 +469,6 @@ sections:
           - Yes — all locations are known and documented
           - Partial — most are known, some are not
           - "No"
-          - "Unknown"
 
       - question_id: "3.5"
         prompt: What wireless access point platform or brand is used?
@@ -498,7 +493,6 @@ sections:
           - Yes — current inventory with model and firmware
           - Partial — some information documented
           - "No"
-          - "Unknown"
 
       - question_id: "3.7"
         prompt: Does the school have a firewall?
@@ -534,6 +528,7 @@ sections:
         answer_type: short_text
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -551,7 +546,6 @@ sections:
           - Yes — current inventory with model and firmware
           - Partial — some information documented
           - "No"
-          - "Unknown"
 
       - question_id: "3.10"
         prompt: Is there a switch map showing how major switches connect to one another?
@@ -566,7 +560,6 @@ sections:
           - Yes — current and accurate
           - Partial — some connections documented
           - "No"
-          - "Unknown"
 
       - question_id: "3.11"
         prompt: Are core network devices inventoried with make, model, location, and support status?
@@ -581,7 +574,6 @@ sections:
           - Yes — fully documented with support status
           - Partial — some information documented
           - "No"
-          - "Unknown"
 
       - question_id: "3.12"
         prompt: Do you have administrative access to the network infrastructure?
@@ -596,7 +588,6 @@ sections:
           - Yes — full admin access to all infrastructure
           - Partial — admin access to some but not all devices
           - No — access is controlled by a vendor or MSP
-          - "Unknown"
 
       - question_id: "3.13"
         prompt: How many internet connections are in place?
@@ -632,7 +623,6 @@ sections:
           - Yes — automatic failover to a secondary connection
           - Yes — manual failover (requires someone to switch it)
           - No — single connection with no backup
-          - "Unknown"
 
       - question_id: "3.16"
         prompt: Does the school have static public IP addresses?
@@ -646,7 +636,6 @@ sections:
         options:
           - "Yes"
           - "No"
-          - "Unknown"
 
       - question_id: "3.16b"
         prompt: What are the static IP address ranges assigned to the school?
@@ -667,6 +656,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 3
         condition:
@@ -677,7 +667,6 @@ sections:
           - Yes — fully known and documented
           - Partial — some information known
           - "No"
-          - "Unknown"
 
       - question_id: "3.18"
         prompt: Are switch and wireless configurations backed up regularly?
@@ -692,7 +681,6 @@ sections:
           - Yes — configurations are backed up regularly
           - Partial — some devices backed up, others not
           - "No"
-          - "Unknown"
 
       - question_id: "3.19"
         prompt: Is wireless coverage known to be adequate in instructional and administrative areas?
@@ -707,7 +695,6 @@ sections:
           - Yes — coverage is adequate throughout
           - Mixed — some areas have coverage problems
           - No — coverage is a known problem
-          - "Unknown"
 
       - question_id: "3.20"
         prompt: Are network segments or VLAN purposes documented?
@@ -737,7 +724,6 @@ sections:
           - Yes — fully protected
           - Partial — some equipment protected, some not
           - "No"
-          - "Unknown"
 
       - question_id: "3.22"
         prompt: Is UPS runtime for critical network or server equipment known?
@@ -757,7 +743,6 @@ sections:
           - Yes — documented and tested
           - Estimated only — not formally tested
           - "No"
-          - "Unknown"
 
       - question_id: "3.23"
         prompt: Are UPS devices monitored or network-connected for alerting and status?
@@ -765,6 +750,7 @@ sections:
         answer_type: single_select
         status: optional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 1
         condition: null
@@ -772,7 +758,6 @@ sections:
           - Yes — monitored with alerting
           - Partial — some monitored
           - "No"
-          - "Unknown"
 
       - question_id: "3.24"
         prompt: Is the network scanned or discovered regularly for connected devices?
@@ -787,7 +772,6 @@ sections:
           - Yes — regularly scanned
           - Occasionally — ad hoc or infrequent
           - "No"
-          - "Unknown"
 
       - question_id: "3.25"
         prompt: How often is the network scanned or discovered?
@@ -809,9 +793,9 @@ sections:
           - Weekly
           - Monthly
           - Ad hoc — no regular schedule
-          - "Unknown"
 
       - question_id: "3.26"
+        inverted: true
         prompt: Are there known connectivity pain points currently affecting school operations?
         help_text: >
           Areas with poor Wi-Fi, recurring outages, slow internet, or devices that cannot connect
@@ -821,6 +805,7 @@ sections:
         answer_type: yes_no_unknown
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 3
         has_notes: true
@@ -851,7 +836,6 @@ sections:
           - Hybrid — Google and Microsoft both in active use
           - Local or on-premises systems only
           - Other
-          - "Unknown"
 
       - question_id: "4.1b"
         prompt: Is that primary productivity platform also the primary online authentication and identity platform?
@@ -879,7 +863,6 @@ sections:
           - Yes — on-premises (Windows Active Directory)
           - Yes — hybrid (both cloud and on-premises)
           - "No"
-          - "Unknown"
 
       - question_id: "4.3"
         prompt: Is there a documented onboarding process for staff accounts?
@@ -894,7 +877,6 @@ sections:
           - Yes — documented and followed consistently
           - Informal — process exists but is either not documented or not always followed or both
           - "No"
-          - "Unknown"
 
       - question_id: "4.4"
         prompt: Is there a documented offboarding process for staff accounts?
@@ -909,7 +891,6 @@ sections:
           - Yes — documented and followed consistently
           - Informal — process exists but is either not documented or not always followed or both
           - "No"
-          - "Unknown"
 
       - question_id: "4.5"
         prompt: Are student account lifecycle processes documented?
@@ -924,7 +905,6 @@ sections:
           - Yes — documented and followed consistently
           - Informal — process exists but is either not documented or not always followed or both
           - "No"
-          - "Unknown"
           - Not applicable — school does not manage student accounts
 
       - question_id: "4.6"
@@ -940,7 +920,6 @@ sections:
           - Yes — all privileged accounts have MFA
           - Partial — some privileged accounts have MFA
           - "No"
-          - "Unknown"
 
       - question_id: "4.6b"
         prompt: Is MFA required for all standard staff accounts?
@@ -955,7 +934,6 @@ sections:
           - Yes — required for all staff
           - Partial — encouraged but not enforced for all staff
           - "No"
-          - "Unknown"
 
       - question_id: "4.7"
         prompt: Is there a reviewed list of global admins or equivalent privileged roles?
@@ -970,7 +948,6 @@ sections:
           - Yes — reviewed within the last 12 months
           - Yes — but outdated (not reviewed in over 12 months)
           - "No"
-          - "Unknown"
 
       - question_id: "4.8"
         prompt: Are shared accounts minimized and justified?
@@ -985,7 +962,6 @@ sections:
           - Yes — shared accounts are minimal and documented
           - Partially — some shared accounts exist without formal justification
           - No — shared accounts are common and not tracked
-          - "Unknown"
 
       - question_id: "4.9"
         prompt: Are password reset and recovery procedures documented?
@@ -1000,7 +976,6 @@ sections:
           - Yes — documented for all major platforms
           - Partial — documented for some platforms
           - "No"
-          - "Unknown"
 
       - question_id: "4.10"
         prompt: Are staff devices configured to automatically sync files to a cloud platform?
@@ -1021,7 +996,6 @@ sections:
           - Yes — all staff devices sync consistently
           - Partial — some devices or some folders only
           - "No"
-          - "Unknown"
 
 # ─────────────────────────────────────────────────────────────────
 # SECTION 5: Endpoints, Printing, and Classroom Technology (~5 min)
@@ -1040,6 +1014,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 4
         condition: null
@@ -1047,7 +1022,6 @@ sections:
           - Yes — current and reasonably complete
           - Partial — exists but incomplete or outdated
           - "No"
-          - "Unknown"
 
       - question_id: "5.2"
         prompt: Does the inventory include owner or assignment, model, serial number, age or purchase date, and status?
@@ -1067,7 +1041,6 @@ sections:
           - Yes — all key fields present
           - Partial — some fields missing
           - "No"
-          - "Unknown"
 
       - question_id: "5.3"
         prompt: Is the school a 1:1 environment for student devices?
@@ -1075,6 +1048,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -1082,7 +1056,6 @@ sections:
           - Yes — all relevant grades are 1:1
           - Partial — some grades are 1:1
           - "No"
-          - "Unknown"
 
       - question_id: "5.4"
         prompt: Do student devices go home with students?
@@ -1102,7 +1075,6 @@ sections:
           - Yes — all student devices go home
           - Some — take-home for some grades or programs
           - No — devices stay at school
-          - "Unknown"
 
       - question_id: "5.5"
         prompt: Are school-owned devices managed through MDM or endpoint management?
@@ -1110,6 +1082,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 4
         condition: null
@@ -1117,7 +1090,6 @@ sections:
           - Yes — most devices managed
           - Partial — some devices managed
           - "No"
-          - "Unknown"
 
       - question_id: "5.6"
         prompt: Is there a documented standard for staff device hardware?
@@ -1132,7 +1104,6 @@ sections:
           - Yes — documented hardware standard in use
           - Partial — informal preference but not documented
           - "No"
-          - "Unknown"
 
       - question_id: "5.7"
         prompt: Are staff devices standardized on one operating system or a small number of supported builds?
@@ -1147,7 +1118,6 @@ sections:
           - Yes — standardized
           - Partially — mostly standardized with some exceptions
           - "No"
-          - "Unknown"
 
       - question_id: "5.8"
         prompt: Can staff devices be set up quickly and consistently using a defined process or toolset?
@@ -1162,7 +1132,6 @@ sections:
           - Yes — defined process or imaging/MDM enrollment in place
           - Partially — possible but inconsistent
           - No — each setup is manual and varies
-          - "Unknown"
 
       - question_id: "5.9"
         prompt: Is there a defined refresh cycle for major device categories?
@@ -1177,7 +1146,6 @@ sections:
           - Yes — documented refresh cycle
           - Informal — refresh cycle defined but not followed
           - "No"
-          - "Unknown"
 
       - question_id: "5.10"
         prompt: Are there known devices beyond supported OS versions or manufacturer support?
@@ -1192,7 +1160,6 @@ sections:
           - None known — all devices are within supported life
           - Some — a small number of unsupported devices in use
           - Many — a significant portion of the fleet is unsupported
-          - "Unknown"
 
       - question_id: "5.11"
         prompt: Are device warranties or support coverage tracked?
@@ -1207,7 +1174,6 @@ sections:
           - Yes — tracked for all devices
           - Partial — tracked for some devices
           - "No"
-          - "Unknown"
 
       - question_id: "5.12"
         prompt: Are spares, loaners, or emergency replacement processes defined?
@@ -1222,7 +1188,6 @@ sections:
           - Yes — spare pool and process defined
           - Partial — some spares available but no formal process
           - "No"
-          - "Unknown"
 
       - question_id: "5.13"
         prompt: Is there a documented decommissioning or disposal process for retired devices?
@@ -1237,7 +1202,6 @@ sections:
           - Yes — documented process in use
           - Partial — informal process
           - "No"
-          - "Unknown"
 
       - question_id: "5.14"
         prompt: How many years does a staff device typically remain in service?
@@ -1261,7 +1225,6 @@ sections:
         options:
           - "Yes"
           - "No"
-          - "Unknown"
 
       - question_id: "5.16"
         prompt: What is the rationale for different student device types by grade or program?
@@ -1282,6 +1245,7 @@ sections:
         answer_type: single_select
         status: optional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 1
         condition: null
@@ -1289,7 +1253,6 @@ sections:
           - Yes — all tracked
           - Partial — some tracked
           - "No"
-          - "Unknown"
 
       - question_id: "5.18"
         prompt: How many large multi-function printers or copier-class devices does the school have?
@@ -1355,7 +1318,6 @@ sections:
           - Yes — current list in use
           - Partial — incomplete or informal list
           - "No"
-          - "Unknown"
 
       - question_id: "6.4"
         prompt: Does that list include purpose, owner, vendor, renewal date, and admin access method?
@@ -1375,7 +1337,6 @@ sections:
           - Yes — all key fields present
           - Partial — some fields missing
           - "No"
-          - "Unknown"
 
       - question_id: "6.5"
         prompt: Can you list the school's major software subscriptions and services?
@@ -1383,6 +1344,7 @@ sections:
         answer_type: list_of_items
         status: optional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -1400,7 +1362,6 @@ sections:
           - Yes — fully tracked
           - Partial — some information tracked
           - "No"
-          - "Unknown"
 
       - question_id: "6.7"
         prompt: For major education or student-data systems, is FERPA or COPPA review status known?
@@ -1415,7 +1376,6 @@ sections:
           - Yes — reviewed for most student-data systems
           - Partial — reviewed for some
           - "No"
-          - "Unknown"
 
       - question_id: "6.8"
         prompt: Are contract renewal dates tracked in a calendar or system?
@@ -1430,7 +1390,6 @@ sections:
           - Yes — tracked in a calendar or system with reminders
           - Partial — some renewals tracked, others not
           - "No"
-          - "Unknown"
 
       - question_id: "6.9"
         prompt: Are vendor support escalation paths documented?
@@ -1445,9 +1404,9 @@ sections:
           - Yes — documented for all critical vendors
           - Partial — documented for some vendors
           - "No"
-          - "Unknown"
 
       - question_id: "6.10"
+        inverted: true
         prompt: Are there any single-vendor or single-person dependencies that create operational risk?
         help_text: >
           A situation where one vendor going unresponsive or one person leaving would leave you unable
@@ -1461,6 +1420,7 @@ sections:
         condition: null
 
       - question_id: "6.11"
+        inverted: true
         prompt: Are there known tools or services the school is paying for but not actively using?
         help_text: Subscriptions that auto-renew but are rarely or never used. If yes, list them in the notes field.
         answer_type: yes_no_unknown
@@ -1508,7 +1468,6 @@ sections:
           - Yes — fully documented
           - Partial — some information documented
           - "No"
-          - "Unknown"
 
       - question_id: "6.15"
         prompt: Is the purpose of each server clearly documented?
@@ -1516,6 +1475,7 @@ sections:
         answer_type: single_select
         status: conditional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 3
         condition:
@@ -1527,7 +1487,6 @@ sections:
           - Yes — all servers have documented purposes
           - Partial — some documented
           - "No"
-          - "Unknown"
 
       - question_id: "6.16"
         prompt: Are server administrative access methods documented and available to the school?
@@ -1546,7 +1505,6 @@ sections:
           - Yes — fully documented and accessible
           - Partial — some access methods documented
           - "No"
-          - "Unknown"
 
       - question_id: "6.17"
         prompt: Is there a defined server patching or update cycle?
@@ -1565,7 +1523,6 @@ sections:
           - Yes — documented patching schedule
           - Informal — patching happens but on no defined schedule
           - "No"
-          - "Unknown"
 
       - question_id: "6.18"
         prompt: Are server warranties or support coverage known?
@@ -1584,7 +1541,6 @@ sections:
           - Yes — known for all servers
           - Partial — known for some servers
           - "No"
-          - "Unknown"
 
       - question_id: "6.19"
         prompt: Is there a hardware refresh or lifecycle plan for servers?
@@ -1603,7 +1559,6 @@ sections:
           - Yes — documented lifecycle plan
           - Informal — planned informally
           - "No"
-          - "Unknown"
 
 # ─────────────────────────────────────────────────────────────────
 # SECTION 7: Data Protection, Backup, and Recovery (~3 min)
@@ -1618,22 +1573,26 @@ sections:
     questions:
       - question_id: "7.1"
         prompt: Are backups in place for critical systems or data sets?
-        help_text: Choose the option that best reflects your actual confidence in the current backup status.
+        help_text: >
+          Choose the option that best reflects your actual confidence in the current backup status.
+          This question controls the rest of this section — if you select No or Unknown,
+          the remaining backup questions will be hidden. Save your progress after answering
+          to see the full section.
         answer_type: single_select
         status: core
         skippable: true
         prefill: null
         points: 5
         is_gate: true
+        gate_hides_unconditional: true
+        triggers_save: true
         gate_negative_values:
           - "No"
-          - "Unknown"
         condition: null
         options:
           - Yes — confirmed and verified
           - Maybe or assumed — believed to be in place but not verified
           - "No"
-          - "Unknown"
 
       - question_id: "7.2"
         prompt: What backup service or platform is currently used?
@@ -1658,7 +1617,6 @@ sections:
           - Yes — documented scope
           - Partial — some systems documented, others not
           - "No"
-          - "Unknown"
 
       - question_id: "7.4"
         prompt: Do backups cover servers?
@@ -1677,7 +1635,6 @@ sections:
           - Yes — all servers backed up
           - Partial — some servers backed up
           - "No"
-          - "Unknown"
           - Not applicable
 
       - question_id: "7.5"
@@ -1693,7 +1650,6 @@ sections:
           - Yes — staff devices are backed up
           - Partial — some staff devices backed up
           - "No"
-          - "Unknown"
           - Not applicable — staff work entirely in cloud storage
 
       - question_id: "7.6"
@@ -1712,7 +1668,6 @@ sections:
           - Yes — critical cloud data is backed up
           - Partial — some cloud data backed up
           - "No"
-          - "Unknown"
           - Not applicable
 
       - question_id: "7.7"
@@ -1728,7 +1683,6 @@ sections:
           - Yes — reviewed regularly (at least weekly)
           - Irregularly — checked occasionally but not on a schedule
           - "No"
-          - "Unknown"
 
       - question_id: "7.7b"
         prompt: Are backups stored onsite, offsite, or both?
@@ -1746,7 +1700,6 @@ sections:
           - Offsite only — stored in cloud or remote location
           - Onsite only — stored at the school
           - Inconsistent — some backups are both, some are only one location
-          - "Unknown"
 
       - question_id: "7.8"
         prompt: Has a restore test been performed and documented within the last 12 months?
@@ -1761,7 +1714,6 @@ sections:
           - Yes — tested and documented within the last 12 months
           - More than 12 months ago
           - No — never tested
-          - "Unknown"
 
       - question_id: "7.9"
         prompt: How often are restore tests performed?
@@ -1783,7 +1735,6 @@ sections:
           - Annually
           - Less than annually
           - Never
-          - "Unknown"
 
       - question_id: "7.10"
         prompt: Is there a defined recovery priority for critical systems?
@@ -1791,6 +1742,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 3
         condition: null
@@ -1798,7 +1750,6 @@ sections:
           - Yes — recovery priority is documented
           - Partial — informally understood but not documented
           - "No"
-          - "Unknown"
 
       - question_id: "7.11"
         prompt: Is there a written 1-page incident or disaster response reference for IT operations?
@@ -1813,7 +1764,6 @@ sections:
           - Yes — written reference exists
           - Partial — informal notes or partial documentation
           - "No"
-          - "Unknown"
 
       - question_id: "7.12"
         prompt: Are critical admin credentials and recovery materials accessible in an emergency?
@@ -1828,7 +1778,6 @@ sections:
           - Yes — securely stored and accessible to authorized backup person
           - Partially — some credentials accessible, others not
           - "No"
-          - "Unknown"
 
       - question_id: "7.13"
         prompt: How far back can a backup restore go and still produce data the school could actually use?
@@ -1847,7 +1796,6 @@ sections:
           - 2 to 4 weeks
           - 1 to 3 months
           - More than 3 months
-          - "Unknown"
 
       - question_id: "7.14"
         prompt: Are restore tests performed at least once within every useful recovery window period?
@@ -1871,7 +1819,6 @@ sections:
         options:
           - "Yes"
           - "No"
-          - "Unknown"
 
 # ─────────────────────────────────────────────────────────────────
 # SECTION 8: Security Operations, Filtering, and Safeguards (~3 min)
@@ -1889,22 +1836,24 @@ sections:
         help_text: >
           Endpoint protection (also known as antivirus or EDR) — is it actively deployed
           on school-managed devices, or just licensed? Deployment means it is installed,
-          running, and reporting.
+          running, and reporting. This question controls whether the endpoint protection
+          follow-up questions appear — save your progress after answering to see them.
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 5
         is_gate: true
+        gate_hides_unconditional: false
+        triggers_save: true
         gate_negative_values:
           - "No"
-          - "Unknown"
         condition: null
         options:
           - Yes — deployed on most managed devices
           - Partial — deployed on some devices
           - "No"
-          - "Unknown"
 
       - question_id: "8.2"
         prompt: What endpoint protection platform is in use?
@@ -1927,6 +1876,7 @@ sections:
         answer_type: single_select
         status: conditional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 2
         condition:
@@ -1957,7 +1907,6 @@ sections:
           - Yes — documented patching schedule with defined response windows
           - Informal — patching happens but not on a defined schedule
           - "No"
-          - "Unknown"
 
       - question_id: "8.4"
         prompt: Are critical network and security devices reviewed for firmware currency?
@@ -1972,7 +1921,6 @@ sections:
           - Yes — reviewed regularly (at least twice per year)
           - Irregularly — reviewed occasionally
           - "No"
-          - "Unknown"
 
       - question_id: "8.5"
         prompt: Is a web filter or content filter in place?
@@ -1990,7 +1938,6 @@ sections:
           - Yes — for students only
           - Limited or partial coverage
           - "No"
-          - "Unknown"
 
       - question_id: "8.6"
         prompt: Does the school use a student safety monitoring platform?
@@ -2019,7 +1966,6 @@ sections:
           - Yes — controls are documented
           - Partial — some documentation exists
           - "No"
-          - "Unknown"
 
       - question_id: "8.8"
         prompt: Is there a documented process for responding to suspicious activity, malware, or account compromise?
@@ -2034,7 +1980,6 @@ sections:
           - Yes — documented process exists
           - Partial — informal notes or partial documentation
           - "No"
-          - "Unknown"
 
       - question_id: "8.9"
         prompt: Are logs or alerts from key systems reviewed by someone?
@@ -2049,7 +1994,6 @@ sections:
           - Yes — reviewed regularly
           - Sometimes — reviewed occasionally
           - "No"
-          - "Unknown"
 
       - question_id: "8.10"
         prompt: Does the school carry cyber insurance?
@@ -2063,7 +2007,6 @@ sections:
         options:
           - "Yes"
           - "No"
-          - "Unknown"
 
       - question_id: "8.10b"
         prompt: Do you have a copy of the cyber insurance policy on file?
@@ -2087,6 +2030,7 @@ sections:
         answer_type: single_select
         status: conditional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 2
         condition:
@@ -2100,6 +2044,7 @@ sections:
           - I don't know
 
       - question_id: "8.11"
+        inverted: true
         prompt: Are there known unresolved security concerns today?
         help_text: >
           Active issues you are already aware of — not hypothetical risks.
@@ -2136,7 +2081,6 @@ sections:
           - Yes — well used and reasonably complete
           - Yes — but used inconsistently
           - "No"
-          - "Unknown"
 
       - question_id: "9.2"
         prompt: Are network, systems, and vendor documents kept in a reasonably current state?
@@ -2151,7 +2095,6 @@ sections:
           - Yes — most documentation is current
           - Partly — some is current, some is outdated
           - No — documentation is generally outdated
-          - "Unknown"
 
       - question_id: "9.3"
         prompt: Are standard operating procedures documented for common recurring tasks?
@@ -2168,7 +2111,6 @@ sections:
           - Yes — SOPs exist for most recurring tasks
           - Partial — some tasks are documented
           - "No"
-          - "Unknown"
 
       - question_id: "9.4"
         prompt: Is there a known process for documenting changes after projects or incidents?
@@ -2183,7 +2125,6 @@ sections:
           - Yes — changes are documented as part of the process
           - Informal — sometimes documented, sometimes not
           - "No"
-          - "Unknown"
 
       - question_id: "9.5"
         prompt: Could a qualified third party understand the environment from existing documentation?
@@ -2198,9 +2139,9 @@ sections:
           - Yes — documentation is sufficient for a qualified person to get oriented
           - Partially — they could understand some areas but not others
           - No — the environment is not understandable from documentation alone
-          - "Unknown"
 
       - question_id: "9.6"
+        inverted: true
         prompt: Are there major knowledge areas that currently live only in one person's head?
         help_text: >
           Things only one person knows how to do — configure the firewall, manage the phone system,
@@ -2312,10 +2253,4 @@ sections:
         skippable: true
         prefill: null
         points: 0
-        condition:
-          type: answer_is
-          question_id: "10.7"
-          value:
-            - Moderate — most answers are based on recall or staff reports
-            - Low — many answers were estimated or unknown
-            - Mixed — confidence varies significantly by section
+        condition: null

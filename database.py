@@ -211,3 +211,24 @@ def get_school_profile():
     row = db.execute("SELECT * FROM school_profile LIMIT 1").fetchone()
     db.close()
     return dict(row) if row else None
+
+
+def delete_session(session_id):
+    """Permanently delete a session and all its answers."""
+    db  = get_db()
+    db.execute("DELETE FROM answer_record WHERE session_id=?", (session_id,))
+    db.execute("DELETE FROM assessment_session WHERE session_id=?", (session_id,))
+    db.commit()
+    db.close()
+
+
+def deprecate_session(session_id):
+    """Mark a session as deprecated — excluded from trends but kept in DB."""
+    db  = get_db()
+    now = datetime.utcnow().isoformat()
+    db.execute(
+        "UPDATE assessment_session SET status='deprecated', last_modified=? WHERE session_id=?",
+        (now, session_id)
+    )
+    db.commit()
+    db.close()

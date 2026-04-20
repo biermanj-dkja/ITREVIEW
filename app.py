@@ -6,7 +6,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from database import (
     init_db, save_answer, get_answers, get_answer, create_session,
     get_session, mark_section_complete, get_all_sessions,
-    save_school_profile, get_school_profile, flag_session_incomplete
+    save_school_profile, get_school_profile, flag_session_incomplete,
+    delete_session
 )
 from engine import (
     load_module, get_section, get_visible_questions,
@@ -258,6 +259,16 @@ def section_complete(session_id, section_id):
         complete=complete,
         module=module,
     )
+
+
+
+# ── DELETE SESSION ──────────────────────────────────────────────
+
+@app.route("/session/<session_id>/delete", methods=["POST"])
+def delete_session_route(session_id):
+    delete_session(session_id)
+    flash("Assessment deleted.", "success")
+    return redirect(url_for("home"))
 
 
 # ── SUMMARY ────────────────────────────────────────────────────────

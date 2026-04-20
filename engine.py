@@ -96,42 +96,73 @@ def get_gate_status(section, answers):
 def get_visible_questions(section, answers):
     """
     Return questions whose conditions are satisfied.
-    If a gate question has fired negatively, all questions that depend
-    on the gate (i.e. any non-gate question that is not the gate itself)
-    are hidden. Gate-dependent questions are identified as those whose
-    condition references the gate question, OR any question that appears
-    after the gate with no condition of its own (within the same section).
-    The gate question itself is always visible.
+
+    Gate logic:
+    - If a gate question has fired negatively, all directly dependent
+      questions are hidden (those with no condition, or whose condition
+      references the gate question).
+    - CASCADE: questions whose condition references a hidden question are
+      also hidden, regardless of their stored answer. This prevents
+      sub-conditional questions from bleeding through when their parent
+      is hidden by a gate.
+    - The gate question itself is always visible.
     """
     gate_qid, gate_fired = get_gate_status(section, answers)
+
+    # Build the set of hidden question IDs (gate-hidden + cascades)
+    # We do this in two passes so cascades are resolved correctly.
+    hidden_ids = set()
+
+    if gate_fired:
+        # Pass 1: identify directly gate-hidden questions.
+        # If the gate has gate_hides_unconditional=True, ALL unconditional
+        # questions in the section are hidden (e.g. Section 7 — no backups
+        # means all backup questions are irrelevant).
+        # Otherwise only questions whose condition explicitly references
+        # the gate question are hidden (e.g. Section 8 — no EP deployment
+        # only hides the EP-specific follow-up questions).
+        gate_q = next((q for q in section["questions"] if q.get("is_gate")), None)
+        hides_unconditional = gate_q.get("gate_hides_unconditional", False) if gate_q else False
+
+        for q in section["questions"]:
+            if q.get("is_gate"):
+                continue
+            cond = q.get("condition")
+            if cond is None:
+                if hides_unconditional:
+                    hidden_ids.add(q["question_id"])
+                # else: unconditional questions remain visible
+            elif cond.get("question_id") == gate_qid:
+                hidden_ids.add(q["question_id"])
+
+        # Pass 2: cascade — hide questions whose condition references
+        # any already-hidden question. Repeat until stable.
+        changed = True
+        while changed:
+            changed = False
+            for q in section["questions"]:
+                qid = q["question_id"]
+                if qid in hidden_ids or q.get("is_gate"):
+                    continue
+                cond = q.get("condition")
+                if cond and cond.get("question_id") in hidden_ids:
+                    hidden_ids.add(qid)
+                    changed = True
 
     visible = []
     for q in section["questions"]:
         qid = q["question_id"]
 
-        # Gate question is always shown
+        # Gate question always shown
         if q.get("is_gate"):
             visible.append(q)
             continue
 
-        # If gate has fired negatively, hide all non-gate questions
-        # whose condition references the gate OR that have no condition
-        # (they were implicitly dependent on backups/EP existing)
-        if gate_fired:
-            cond = q.get("condition")
-            if cond is None:
-                # Unconditional questions in a gated section are hidden
-                # when the gate fires — they assume the gated thing exists
-                continue
-            if cond.get("question_id") == gate_qid:
-                # Explicitly depends on the gate question
-                continue
-            # Questions conditional on something else are evaluated normally
-            if evaluate_condition(cond, answers):
-                visible.append(q)
+        # Hidden by gate or cascade
+        if qid in hidden_ids:
             continue
 
-        # Normal evaluation
+        # Normal condition evaluation
         if evaluate_condition(q.get("condition"), answers):
             visible.append(q)
 
@@ -210,8 +241,17 @@ def calculate_section_score(section, answers):
 
         # Score by type
         if atype == "yes_no_unknown":
-            if raw == "yes":
-                earned += points
+            inverted = q.get("inverted", False)
+            if inverted:
+                # Inverted: "no" = good = full points, "yes" = problem = partial/zero
+                if raw == "no":
+                    earned += points
+                elif raw == "yes":
+                    # Partial credit for knowing about the problem (per design doc)
+                    earned += points * 0.5
+            else:
+                if raw == "yes":
+                    earned += points
 
         elif atype == "single_select":
             earned += _score_single_select(qid, raw, points, notes)

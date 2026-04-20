@@ -10,8 +10,24 @@
   <h1>Assessment Summary</h1>
   <p>{{ sess.school_name }} &nbsp;·&nbsp; <span class="mono text-faint text-xs">{{ session_id[:8] }}…</span></p>
 
-  {% if section_results %}
+  {% if flagged %}
+  <div class="card mt-16" style="border-color: var(--urgent);">
+    <h3 style="color: var(--urgent); margin-bottom: 8px;">⚠ Assessment incomplete</h3>
+    <p class="text-sm text-dim">
+      The following sections had more than 20% of questions skipped and cannot be fully scored.
+      Please return to these sections and provide more complete answers before finishing.
+    </p>
+    {% for sid in flagged %}
+    <div class="flex-between mt-8">
+      <div class="text-sm">Section {{ sid }}</div>
+      <a href="/session/{{ session_id }}/section/{{ sid }}"
+         class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px;">Return →</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
+  {% if section_results %}
   <div class="card mt-24">
     <h2 class="mb-16">Section Scores</h2>
     <table style="width: 100%; border-collapse: collapse;">
@@ -21,6 +37,7 @@
           <th style="text-align: left; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); font-weight: 500;">Section</th>
           <th style="text-align: right; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); font-weight: 500;">Score</th>
           <th style="text-align: center; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); font-weight: 500;">Status</th>
+          <th style="text-align: center; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); font-weight: 500;"></th>
         </tr>
       </thead>
       <tbody>
@@ -29,13 +46,17 @@
           <td style="padding: 12px; color: var(--text-faint); font-family: var(--mono); font-size: 12px;">{{ r.section.section_id }}</td>
           <td style="padding: 12px;">
             <div style="font-weight: 500; font-size: 14px;">{{ r.section.title }}</div>
-            <div class="text-xs text-faint mt-4">{{ r.answered_count }} question{{ 's' if r.answered_count != 1 }} answered</div>
+            <div class="text-xs text-faint mt-4">
+              {{ r.answered_count }} answered
+              {% if r.skipped_count > 0 %} · {{ r.skipped_count }} skipped{% endif %}
+              {% if r.flagged %} · <span style="color: var(--urgent);">⚠ too many skips</span>{% endif %}
+            </div>
           </td>
           <td style="padding: 12px; text-align: right; font-family: var(--mono); font-size: 14px;">
             {% if r.max_pts == 0 %}
               <span class="text-faint text-sm">Context only</span>
             {% else %}
-              {{ r.earned | int }} / {{ r.max_pts }}
+              {{ r.earned }} / {{ r.max_pts }}
               <div class="text-xs text-faint">{{ r.pct }}%</div>
             {% endif %}
           </td>
@@ -45,6 +66,10 @@
             {% else %}
               <span class="badge badge-{{ r.severity }}">{{ r.severity }}</span>
             {% endif %}
+          </td>
+          <td style="padding: 12px; text-align: center;">
+            <a href="/session/{{ session_id }}/section/{{ r.section.section_id }}"
+               class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px;">Review</a>
           </td>
         </tr>
         {% endfor %}
@@ -57,9 +82,7 @@
   {% for r in section_results %}{% set _ = complete_ids.append(r.section.section_id) %}{% endfor %}
   {% set incomplete = [] %}
   {% for s in module.sections %}
-    {% if s.section_id not in complete_ids %}
-      {% set _ = incomplete.append(s) %}
-    {% endif %}
+    {% if s.section_id not in complete_ids %}{% set _ = incomplete.append(s) %}{% endif %}
   {% endfor %}
 
   {% if incomplete %}
@@ -67,7 +90,12 @@
     <h3 style="color: var(--watch); margin-bottom: 12px;">Sections not yet complete</h3>
     {% for s in incomplete %}
     <div class="flex-between" style="margin-bottom: 8px;">
-      <div class="text-sm">{{ s.section_id }}. {{ s.title }}</div>
+      <div class="text-sm">
+        {{ s.section_id }}. {{ s.title }}
+        {% if s.estimated_minutes %}
+        <span class="text-faint text-xs"> — ~{{ s.estimated_minutes }} min</span>
+        {% endif %}
+      </div>
       <a href="/session/{{ session_id }}/section/{{ s.section_id }}"
          class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px;">Start →</a>
     </div>

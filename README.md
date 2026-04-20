@@ -79,7 +79,7 @@ deactivate
 6. **Important:** Hit **Save Progress** after answering questions — some
    follow-up questions only appear after saving
 7. Click **Complete Section** to see your section score and severity label
-8. Your progress is saved automatically — close the browser and resume anytime
+8. Your progress is saved when you hit Save Progress or Complete Section — close the browser after saving and resume anytime
 
 ---
 
@@ -90,7 +90,9 @@ school_it_engine/
 ├── app.py              # Flask application and routes
 ├── database.py         # SQLite operations
 ├── engine.py           # Module loader, scoring, gate logic
+├── test_scoring.py     # Automated scoring tests
 ├── requirements.txt    # Python dependencies
+├── README.md           # This file
 ├── modules/
 │   └── module_1.yaml   # Question definitions for Module 1
 ├── templates/          # HTML templates

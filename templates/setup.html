@@ -12,17 +12,17 @@
   <div class="card mt-24">
     <form method="POST">
       <div class="form-group">
-        <label for="school_name">School Name *</label>
+        <label class="field-label" for="school_name">School Name *</label>
         <input type="text" id="school_name" name="school_name"
                value="{{ profile.school_name if profile else '' }}"
-               placeholder="e.g. St. Mark's Academy"
+               placeholder="e.g. Hillel Academy"
                required>
       </div>
       <div class="form-group">
-        <label for="school_website">School Website *</label>
+        <label class="field-label" for="school_website">School Website *</label>
         <input type="text" id="school_website" name="school_website"
                value="{{ profile.school_website if profile else '' }}"
-               placeholder="e.g. stmarks.org or ehillel.org">
+               placeholder="e.g. ourschool.org or www.academy.net">
         <p class="text-xs text-faint mt-4" style="font-family: var(--sans);">
           Your school name and website together form a unique identifier in the local database.
           No format checking is performed — enter the domain in whatever form you use.

@@ -24,8 +24,6 @@
   {% set is_unknown = cur_status == "unknown" %}
   {# A question is "answered" if it has any non-unanswered status — including context questions #}
   {% set is_answered = cur_status in ("answered", "unknown", "skipped") and cur_status != "unanswered" and cur_val is not none or (cur_status == "answered" and cur_val is not none) %}
-  {% set has_unknown_opt = questions_have_unknown_option(q) %}
-
   <div class="question-card {{ 'answered' if cur_status == 'answered' and cur_val is not none else ('skipped' if is_skipped else ('unknown-ans' if is_unknown else '')) }}"
        id="qcard_{{ fkey }}">
 
@@ -131,14 +129,21 @@
                onchange="toggleSkip(this, '{{ fkey }}')">
         Skip this question
       </label>
-      {# Only show "I don't know" tick box if the question has no Unknown option #}
-      {% if q.answer_type not in ["yes_no_unknown"] and not has_unknown_opt %}
+      {% if q.answer_type not in ["yes_no_unknown"] %}
       <label>
         <input type="checkbox" name="{{ fkey }}_unknown" value="1"
                {{ 'checked' if is_unknown }}
                onchange="toggleUnknown(this, '{{ fkey }}')">
         I don't know the answer
       </label>
+      {% endif %}
+      {# D2: Inline save button for questions that trigger conditional questions #}
+      {% if q.get("triggers_save") %}
+      <button type="submit" name="action" value="save"
+              class="btn btn-secondary"
+              style="padding: 5px 12px; font-size: 12px; margin-left: auto;">
+        Save to reveal follow-up questions ↓
+      </button>
       {% endif %}
     </div>
 

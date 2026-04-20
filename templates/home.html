@@ -11,11 +11,11 @@
   {% if not profile %}
   <div class="card" style="border-color: var(--watch);">
     <h2 style="color: var(--watch);">Setup Required</h2>
-    <p class="mt-8">Before starting an assessment, set up your school profile. This takes about 30 seconds.</p>
+    <p class="mt-8">Before starting an assessment, set up your school profile.</p>
     <a href="/setup" class="btn btn-primary mt-16">Set Up School Profile →</a>
   </div>
   {% else %}
-  <div class="card card-sm flex-between mb-4" style="border-color: var(--border);">
+  <div class="card card-sm flex-between mb-4">
     <div>
       <div class="text-xs text-faint mb-4">SCHOOL PROFILE</div>
       <div style="font-weight: 500;">{{ profile.school_name }}</div>
@@ -31,25 +31,35 @@
 
   {% if sessions %}
   {% for sess in sessions %}
+  {% if sess.status != 'deprecated' %}
   {% set complete = sess.sections_complete | from_json %}
-  <div class="card card-sm flex-between">
-    <div>
-      <div class="text-xs text-faint mono mb-4">{{ sess.session_id[:8] }}…</div>
-      <div style="font-weight: 500;">{{ sess.school_name }}</div>
-      <div class="text-sm text-dim mt-4">
-        {{ complete | length }} section{{ 's' if complete | length != 1 }} complete
-        &nbsp;·&nbsp;
-        Last saved {{ sess.last_modified[:10] }}
+  <div class="card card-sm" style="margin-bottom: 12px;">
+    <div class="flex-between">
+      <div>
+        <div class="text-xs text-faint mono mb-4">{{ sess.session_id[:8] }}…</div>
+        <div style="font-weight: 500;">{{ sess.school_name }}</div>
+        <div class="text-sm text-dim mt-4">
+          {{ complete | length }} section{{ 's' if complete | length != 1 }} complete
+          &nbsp;·&nbsp;
+          Last saved {{ sess.last_modified[:10] }} at {{ sess.last_modified[11:16] }} UTC
+        </div>
+      </div>
+      <div class="flex gap-8">
+        {% if sess.status == 'in_progress' %}
+        <a href="/resume/{{ sess.session_id }}" class="btn btn-primary">Resume →</a>
+        {% else %}
+        <a href="/session/{{ sess.session_id }}/summary" class="btn btn-secondary">View Summary</a>
+        {% endif %}
+        <form method="POST" action="/session/{{ sess.session_id }}/delete"
+              onsubmit="return confirm('Permanently delete this assessment and all its answers? This cannot be undone.')">
+          <button type="submit" class="btn btn-danger" style="padding: 8px 14px; font-size: 13px;">
+            Delete
+          </button>
+        </form>
       </div>
     </div>
-    <div class="flex gap-8">
-      {% if sess.status == 'in_progress' %}
-      <a href="/resume/{{ sess.session_id }}" class="btn btn-primary">Resume →</a>
-      {% else %}
-      <a href="/session/{{ sess.session_id }}/summary" class="btn btn-secondary">View Summary</a>
-      {% endif %}
-    </div>
   </div>
+  {% endif %}
   {% endfor %}
   {% else %}
   <div class="card" style="text-align: center; padding: 48px;">

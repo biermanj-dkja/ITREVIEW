@@ -3,10 +3,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-# Always resolve paths relative to this file, not the working directory.
-# This is critical for Windows compatibility.
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "data" / "assessments.db"
+DB_PATH  = BASE_DIR / "data" / "assessments.db"
 
 
 def get_db():
@@ -37,6 +35,7 @@ def init_db():
             status TEXT NOT NULL DEFAULT 'in_progress',
             sections_complete TEXT NOT NULL DEFAULT '[]',
             sections_skipped TEXT NOT NULL DEFAULT '[]',
+            sections_flagged TEXT NOT NULL DEFAULT '[]',
             overall_completion_percentage REAL NOT NULL DEFAULT 0.0
         );
 
@@ -53,12 +52,18 @@ def init_db():
             UNIQUE(session_id, question_id)
         );
     """)
+    # Migrate: add sections_flagged column if it doesn't exist yet
+    try:
+        db.execute("ALTER TABLE assessment_session ADD COLUMN sections_flagged TEXT NOT NULL DEFAULT '[]'")
+        db.commit()
+    except Exception:
+        pass  # Column already exists
     db.commit()
     db.close()
 
 
 def save_answer(session_id, question_id, raw_answer, notes=None, status="answered"):
-    db = get_db()
+    db  = get_db()
     now = datetime.utcnow().isoformat()
     db.execute("""
         INSERT INTO answer_record
@@ -70,16 +75,14 @@ def save_answer(session_id, question_id, raw_answer, notes=None, status="answere
             answer_status=excluded.answer_status,
             last_modified=excluded.last_modified
     """, (session_id, question_id, json.dumps(raw_answer), notes, status, now, now))
-    db.execute(
-        "UPDATE assessment_session SET last_modified=? WHERE session_id=?",
-        (now, session_id)
-    )
+    db.execute("UPDATE assessment_session SET last_modified=? WHERE session_id=?",
+               (now, session_id))
     db.commit()
     db.close()
 
 
 def get_answers(session_id):
-    db = get_db()
+    db   = get_db()
     rows = db.execute(
         "SELECT * FROM answer_record WHERE session_id=?", (session_id,)
     ).fetchall()
@@ -87,16 +90,16 @@ def get_answers(session_id):
     result = {}
     for row in rows:
         result[row["question_id"]] = {
-            "raw_answer": json.loads(row["raw_answer"]) if row["raw_answer"] else None,
-            "notes": row["notes"],
+            "raw_answer":    json.loads(row["raw_answer"]) if row["raw_answer"] else None,
+            "notes":         row["notes"],
             "answer_status": row["answer_status"],
-            "answered_on": row["answered_on"],
+            "answered_on":   row["answered_on"],
         }
     return result
 
 
 def get_answer(session_id, question_id):
-    db = get_db()
+    db  = get_db()
     row = db.execute(
         "SELECT * FROM answer_record WHERE session_id=? AND question_id=?",
         (session_id, question_id)
@@ -104,15 +107,15 @@ def get_answer(session_id, question_id):
     db.close()
     if row:
         return {
-            "raw_answer": json.loads(row["raw_answer"]) if row["raw_answer"] else None,
-            "notes": row["notes"],
+            "raw_answer":    json.loads(row["raw_answer"]) if row["raw_answer"] else None,
+            "notes":         row["notes"],
             "answer_status": row["answer_status"],
         }
     return None
 
 
 def create_session(session_id, module_id, school_name):
-    db = get_db()
+    db  = get_db()
     now = datetime.utcnow().isoformat()
     db.execute("""
         INSERT OR IGNORE INTO assessment_session
@@ -124,16 +127,21 @@ def create_session(session_id, module_id, school_name):
 
 
 def get_session(session_id):
-    db = get_db()
+    db  = get_db()
     row = db.execute(
         "SELECT * FROM assessment_session WHERE session_id=?", (session_id,)
     ).fetchone()
     db.close()
-    return dict(row) if row else None
+    if row:
+        d = dict(row)
+        if "sections_flagged" not in d:
+            d["sections_flagged"] = "[]"
+        return d
+    return None
 
 
 def mark_section_complete(session_id, section_id):
-    db = get_db()
+    db  = get_db()
     row = db.execute(
         "SELECT sections_complete FROM assessment_session WHERE session_id=?",
         (session_id,)
@@ -151,17 +159,43 @@ def mark_section_complete(session_id, section_id):
     db.close()
 
 
+def flag_session_incomplete(session_id, section_id):
+    """Flag a section as having too many skips — prevents full assessment completion."""
+    db  = get_db()
+    row = db.execute(
+        "SELECT sections_flagged FROM assessment_session WHERE session_id=?",
+        (session_id,)
+    ).fetchone()
+    if row:
+        flagged = json.loads(row["sections_flagged"] or "[]")
+        if section_id not in flagged:
+            flagged.append(section_id)
+        now = datetime.utcnow().isoformat()
+        db.execute(
+            "UPDATE assessment_session SET sections_flagged=?, last_modified=? WHERE session_id=?",
+            (json.dumps(flagged), now, session_id)
+        )
+        db.commit()
+    db.close()
+
+
 def get_all_sessions():
-    db = get_db()
+    db   = get_db()
     rows = db.execute(
         "SELECT * FROM assessment_session ORDER BY last_modified DESC"
     ).fetchall()
     db.close()
-    return [dict(r) for r in rows]
+    result = []
+    for r in rows:
+        d = dict(r)
+        if "sections_flagged" not in d:
+            d["sections_flagged"] = "[]"
+        result.append(d)
+    return result
 
 
 def save_school_profile(school_name, school_website):
-    db = get_db()
+    db  = get_db()
     now = datetime.utcnow().isoformat()
     db.execute("DELETE FROM school_profile")
     db.execute(
@@ -173,7 +207,7 @@ def save_school_profile(school_name, school_website):
 
 
 def get_school_profile():
-    db = get_db()
+    db  = get_db()
     row = db.execute("SELECT * FROM school_profile LIMIT 1").fetchone()
     db.close()
     return dict(row) if row else None

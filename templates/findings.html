@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}Findings — {{ sess.school_name }}{% endblock %}
+{% block content %}
+<div class="container">
+
+  {# ── HEADER ─────────────────────────────────────────────────── #}
+  <div style="margin-bottom: 8px;">
+    <a href="/session/{{ session_id }}/summary" class="text-dim text-sm" style="text-decoration:none;">← Summary</a>
+  </div>
+
+  <div class="flex-between" style="align-items: flex-start; margin-bottom: 24px;">
+    <div>
+      <h1>
+        {% if section_label %}
+          Findings — {{ section_label }}
+        {% else %}
+          Full Assessment Findings
+        {% endif %}
+      </h1>
+      <p class="text-dim text-sm mt-4">
+        {{ sess.school_name }}
+        &nbsp;·&nbsp;
+        {% if section_label %}
+          Single-section evaluation
+        {% else %}
+          {{ report.section_ids_evaluated | length }} section{{ 's' if report.section_ids_evaluated | length != 1 }} evaluated
+        {% endif %}
+        &nbsp;·&nbsp;
+        {{ report.finding_count }} finding{{ 's' if report.finding_count != 1 }}
+        {% if report.suppressed_findings %}
+          &nbsp;·&nbsp; <span class="text-faint">{{ report.suppressed_findings | length }} absorbed by composites</span>
+        {% endif %}
+      </p>
+    </div>
+    {% if not section_label %}
+    <a href="/session/{{ session_id }}/findings" class="btn btn-secondary" style="flex-shrink:0;">
+      Re-run Findings
+    </a>
+    {% endif %}
+  </div>
+
+  {# ── DATA CONFIDENCE NOTE ────────────────────────────────────── #}
+  {% if not section_label and report.data_confidence in ('moderate','low','mixed') %}
+  <div class="card mb-16" style="border-color: var(--watch); background: rgba(255,180,50,0.05);">
+    <strong style="color: var(--watch);">Data confidence: {{ report.data_confidence }}</strong>
+    {% if report.data_confidence == 'moderate' %}
+    <p class="text-sm mt-4">The IT person indicated that most answers are based on recall or staff reports rather than documented verification. Findings should be verified before action is taken.</p>
+    {% elif report.data_confidence == 'low' %}
+    <p class="text-sm mt-4">Many answers were estimated or unknown. Treat all findings as provisional until confirmed against actual system state.</p>
+    {% elif report.data_confidence == 'mixed' %}
+    <p class="text-sm mt-4">Confidence varies by section. Sections flagged as uncertain are noted below.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# ── NOTHING FOUND ───────────────────────────────────────────── #}
+  {% if report.finding_count == 0 %}
+  <div class="card" style="text-align:center; padding: 48px;">
+    <div style="font-size:32px; margin-bottom:12px;">✅</div>
+    <h3>No findings for this section</h3>
+    <p class="mt-8 text-dim">All evaluated questions in this section scored positively.</p>
+  </div>
+
+  {% else %}
+
+  {# ── SEVERITY SUMMARY STRIP ──────────────────────────────────── #}
+  <div style="display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap;">
+    {% for sev, label, color in [
+        ('urgent','Urgent','var(--urgent)'),
+        ('concern','Concern','var(--concern)'),
+        ('watch','Watch','var(--watch)'),
+    ] %}
+    {% if report.by_severity[sev] %}
+    <div style="background: rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:6px;
+                padding:10px 18px; display:flex; align-items:center; gap:10px;">
+      <span class="badge badge-{{ sev }}">{{ label }}</span>
+      <span style="font-size:22px; font-weight:600; color:{{ color }};">
+        {{ report.by_severity[sev] | length }}
+      </span>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  {# ── KEY RISK GROUPS (full report only) ─────────────────────── #}
+  {% if not section_label and report.key_risk_groups %}
+  <div class="card mt-8 mb-24">
+    <h2 style="margin-bottom:16px;">Key Risks</h2>
+    <p class="text-sm text-dim mb-16">
+      These groups aggregate related findings across sections into named risks.
+      Addressing the primary finding in each group has the broadest impact.
+    </p>
+    {% for group_id, group in report.key_risk_groups.items() %}
+    <div style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+      <div class="flex-between">
+        <div>
+          <span class="badge badge-{{ group.severity }}" style="margin-right:10px;">{{ group.severity }}</span>
+          <strong>{{ group.title }}</strong>
+        </div>
+        <span class="text-xs text-faint mono">Group {{ group_id }}</span>
+      </div>
+      <div class="text-xs text-faint mt-6" style="padding-left:2px;">
+        {{ group.finding_ids | join(' · ') }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ── FINDINGS LIST ───────────────────────────────────────────── #}
+  {% macro time_label(horizon) %}
+    {% if horizon == 'immediate' %}⚡ Immediate
+    {% elif horizon == 'next_30_days' %}📅 Within 30 days
+    {% elif horizon == 'next_90_days' %}📅 Within 90 days
+    {% elif horizon == 'next_12_months' %}📅 Within 12 months
+    {% elif horizon == 'strategic_future' %}🗺 Strategic / future
+    {% else %}{{ horizon }}
+    {% endif %}
+  {% endmacro %}
+
+  {% macro sched_label(cat) %}
+    {% if cat == 1 %}During school year
+    {% elif cat == 2 %}Winter break preferred
+    {% elif cat == 3 %}Spring break preferred
+    {% elif cat == 4 %}Summer preferred
+    {% endif %}
+  {% endmacro %}
+
+  {# Render urgent first, then concern, then watch #}
+  {% for sev, label in [('urgent','Urgent'),('concern','Concern'),('watch','Watch')] %}
+  {% set sev_findings = report.findings | selectattr('severity','equalto',sev) | list %}
+  {% if sev_findings %}
+
+  <h2 style="margin: 28px 0 12px; color: var(--{{ sev }});">{{ label }}</h2>
+
+  {% for f in sev_findings %}
+  <div class="card mb-12" style="border-left: 4px solid var(--{{ f.severity }}); padding-left: 20px;">
+
+    {# Title row #}
+    <div class="flex-between" style="align-items:flex-start; gap:16px; margin-bottom:10px;">
+      <div>
+        <span class="badge badge-{{ f.severity }}" style="margin-right:8px;">{{ f.severity }}</span>
+        <strong style="font-size:15px;">{{ f.title }}</strong>
+      </div>
+      <span class="mono text-faint" style="font-size:11px; white-space:nowrap; padding-top:2px;">
+        {{ f.finding_id }}
+      </span>
+    </div>
+
+    {# Description #}
+    <p class="text-sm" style="line-height:1.65; color: var(--text-dim); margin-bottom:12px;">
+      {{ f.description }}
+    </p>
+
+    {# Notes passthrough #}
+    {% if f.notes_passthrough %}
+    <div style="background: rgba(255,255,255,0.04); border:1px solid var(--border);
+                border-radius:5px; padding:10px 14px; margin-bottom:12px;">
+      <div class="text-xs text-faint mb-4" style="text-transform:uppercase; letter-spacing:.06em;">
+        IT person noted
+      </div>
+      <p class="text-sm" style="font-style:italic;">{{ f.notes_passthrough }}</p>
+    </div>
+    {% endif %}
+
+    {# Plain language note #}
+    {% if f.plain_language_note %}
+    <div style="background: rgba(79,142,247,0.06); border:1px solid rgba(79,142,247,0.25);
+                border-radius:5px; padding:10px 14px; margin-bottom:12px;">
+      <div class="text-xs" style="color:var(--accent); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px;">
+        Note
+      </div>
+      <p class="text-sm text-dim">{{ f.plain_language_note }}</p>
+    </div>
+    {% endif %}
+
+    {# Amplification flag #}
+    {% if f.amplification_flag %}
+    <div style="background: rgba(255,180,50,0.06); border:1px solid rgba(255,180,50,0.25);
+                border-radius:5px; padding:8px 14px; margin-bottom:12px;">
+      <p class="text-xs text-dim">
+        📎 This finding is harder to resolve while documentation is absent —
+        addressing Section 9 findings first will make this easier to close systematically.
+      </p>
+    </div>
+    {% endif %}
+
+    {# Actions #}
+    {% if f.actions %}
+    <div style="margin-top:10px;">
+      <div class="text-xs text-faint" style="text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;">
+        Recommended actions
+      </div>
+      {% for act in f.actions %}
+      <div style="padding: 8px 0; border-top: 1px solid var(--border); display:flex; gap:12px; align-items:flex-start;">
+        <div style="flex:1;">
+          <p class="text-sm" style="{% if act.constraint_flag %}color: var(--watch);{% endif %}">
+            {% if act.user_confirmed %}⭐ {% endif %}
+            {{ act.description }}
+            {% if act.constraint_flag %}&nbsp;<span class="text-xs">[budget constraint noted]</span>{% endif %}
+          </p>
+        </div>
+        <div style="flex-shrink:0; text-align:right;">
+          <span class="text-xs text-faint" style="white-space:nowrap;">
+            {{ time_label(act.time_horizon) }}
+          </span>
+          {% if act.schedule_category %}
+          <div class="text-xs text-faint" style="margin-top:2px;">
+            🗓 {{ sched_label(act.schedule_category) }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {# Key risk group membership #}
+    {% if f.aggregation_groups %}
+    <div class="text-xs text-faint mt-10">
+      Contributes to:
+      {% for gid in f.aggregation_groups %}
+        {% if report.key_risk_groups and gid in report.key_risk_groups %}
+          <span style="color:var(--accent);">{{ report.key_risk_groups[gid].title }}</span>{% if not loop.last %}, {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% endfor %}
+
+  {# ── SUPPRESSED FINDINGS NOTE ────────────────────────────────── #}
+  {% if report.suppressed_findings %}
+  <div class="card mt-24" style="background: rgba(0,0,0,0.15); border-color: var(--border);">
+    <h3 style="margin-bottom:8px; font-size:14px; color: var(--text-faint);">
+      {{ report.suppressed_findings | length }} finding{{ 's' if report.suppressed_findings | length != 1 }} absorbed by composite findings
+    </h3>
+    <p class="text-xs text-faint mb-10">
+      The following were superseded by a broader composite finding and are not shown above.
+      Their recommended actions are included in the composite.
+    </p>
+    {% for f in report.suppressed_findings %}
+    <div class="text-xs text-dim" style="padding: 4px 0; border-top: 1px solid var(--border);">
+      <span class="mono text-faint">{{ f.finding_id }}</span>
+      &nbsp;·&nbsp; {{ f.title }}
+      &nbsp;·&nbsp; <span class="text-faint">absorbed by {{ f.suppressed_by }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% endif %}{# end if findings exist #}
+
+  {# ── FOOTER NAV ──────────────────────────────────────────────── #}
+  <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
+              display:flex; gap:12px; flex-wrap:wrap;">
+    <a href="/session/{{ session_id }}/summary" class="btn btn-ghost">← Back to Summary</a>
+    {% if section_label %}
+    <a href="/session/{{ session_id }}/findings" class="btn btn-secondary">Run Full Assessment Findings →</a>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

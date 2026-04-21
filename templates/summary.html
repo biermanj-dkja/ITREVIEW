@@ -68,8 +68,12 @@
             {% endif %}
           </td>
           <td style="padding: 12px; text-align: center;">
-            <a href="/session/{{ session_id }}/section/{{ r.section.section_id }}"
-               class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px;">Review</a>
+            <div style="display: flex; gap: 6px;">
+              <a href="/session/{{ session_id }}/section/{{ r.section.section_id }}"
+                 class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px;">Review</a>
+              <a href="/session/{{ session_id }}/findings/{{ r.section.section_id }}"
+                 class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px; color: var(--accent);">Findings</a>
+            </div>
           </td>
         </tr>
         {% endfor %}
@@ -111,6 +115,30 @@
     <a href="/session/{{ session_id }}/section/1" class="btn btn-primary mt-16">Begin assessment →</a>
   </div>
   {% endif %}
+
+  {# ── FINDINGS PANEL ─────────────────────────────────────── #}
+  <div class="card mt-24" style="border-color: rgba(79,142,247,0.3); background: rgba(79,142,247,0.04);">
+    <div class="flex-between" style="align-items: flex-start; gap: 24px;">
+      <div>
+        <h2 style="margin-bottom: 8px;">Findings and Action Plan</h2>
+        <p class="text-sm text-dim" style="max-width: 520px; line-height: 1.6;">
+          The findings engine evaluates all your answers against a set of deterministic rules
+          and produces a prioritised list of gaps and recommended actions. It runs on demand
+          against your current saved answers — run it again any time you update a section.
+        </p>
+        <p class="text-sm text-faint mt-8" style="max-width: 520px; line-height: 1.6;">
+          You can also generate findings for a single section — useful for reviewing one area
+          without running the full assessment. Use the <strong>Section Findings</strong> link
+          next to any completed section in the table above.
+        </p>
+      </div>
+      <div style="flex-shrink: 0;">
+        <a href="/session/{{ session_id }}/findings" class="btn btn-primary"
+           style="white-space: nowrap;">Generate Full Findings →</a>
+      </div>
+    </div>
+  </div>
+
 
 </div>
 {% endblock %}

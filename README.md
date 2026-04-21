@@ -9,14 +9,77 @@ This tool runs entirely on your computer. No data is sent to the internet.
 ## Requirements
 
 - Python 3.10 or higher
-- pip
 - Node.js 18 or higher (required for DOCX report generation)
+
+Both are free, one-time installs. See Pre-Setup below if either is not
+already on your machine.
+
+---
+
+## Pre-Setup
+
+These steps install software on your machine. You only need to do them
+once — not every time you use the tool.
+
+### 1. Install Node.js
+
+Node.js is required for DOCX report generation. npm (the Node.js package
+manager) comes bundled with it automatically.
+
+1. Go to **https://nodejs.org**
+2. Download the **LTS** version (the left button — "Recommended For Most Users")
+3. Run the installer with all default settings
+4. **Close and reopen your terminal** after installation — the PATH will not
+   update in an already-open window
+5. Verify the installation worked:
+
+```bash
+node --version
+npm --version
+```
+
+Both commands should print a version number. If either is unrecognised,
+close and reopen your terminal and try again.
+
+### 2. Install the docx package for Node.js
+
+```bash
+npm install -g docx
+```
+
+You only need to do this once per machine.
+
+### 3. Install Python
+
+1. Go to **https://www.python.org/downloads**
+2. Click the yellow **Download Python** button — it will offer the correct
+   version for your operating system automatically
+3. Run the installer
+4. **Windows users:** On the first screen of the installer, check the box
+   that says **"Add Python to PATH"** before clicking Install Now.
+   If you miss this step, Python will not be recognised as a command in
+   your terminal.
+5. **Close and reopen your terminal** after installation
+6. Verify the installation worked:
+
+```bash
+python --version
+```
+
+This should print a version number of 3.10 or higher. On some Mac systems
+the command is `python3 --version` instead.
 
 ---
 
 ## Setup
 
-### 1. Create a virtual environment (recommended)
+These steps set up the project itself. Run them once when you first install
+the tool, and again if you move it to a new machine.
+
+### 1. Create a virtual environment
+
+A virtual environment keeps the tool's Python dependencies separate from
+the rest of your machine.
 
 ```bash
 python -m venv venv
@@ -32,48 +95,22 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
+You should see `(venv)` appear at the start of your terminal prompt
+when the virtual environment is active.
+
 ### 2. Install Python dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Install Node.js (if not already installed)
-
-Node.js is required for DOCX report generation. npm (the Node.js package
-manager) comes bundled with it — you do not need to install npm separately.
-
-1. Go to **https://nodejs.org**
-2. Download the **LTS** version (the left button — "Recommended For Most Users")
-3. Run the installer with all default settings
-4. **Close and reopen your terminal** after installation — the PATH will not
-   update in an already-open window
-5. Verify the installation worked:
-
-```bash
-node --version
-npm --version
-```
-
-Both commands should print a version number. If either is unrecognised,
-restart your terminal and try again.
-
-### 4. Install the Node.js docx package
-
-```bash
-npm install -g docx
-```
-
-This installs the `docx` package used to generate the Word report.
-You only need to do this once per machine.
-
-### 5. Run the application
+### 3. Run the application
 
 ```bash
 python app.py
 ```
 
-### 6. Open in your browser
+### 4. Open in your browser
 
 ```
 http://127.0.0.1:5000
@@ -132,7 +169,7 @@ From the **Summary** screen of any assessment:
 - **Download Report (.docx)** — generates and downloads a complete
   Word document containing the cover page, executive summary, key risks,
   section-by-section findings, action plan, and appendix. Requires
-  Node.js and the `docx` package (see Setup above).
+  Node.js and the `docx` package (see Pre-Setup above).
 
 ---
 

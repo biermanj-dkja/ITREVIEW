@@ -106,6 +106,7 @@ sections:
         answer_type: count
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -140,7 +141,6 @@ sections:
         answer_type: short_text
         status: core
         skippable: true
-        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -225,6 +225,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 1
         condition: null
@@ -279,7 +280,6 @@ sections:
         answer_type: yes_no_unknown
         status: core
         skippable: true
-        triggers_save: true
         prefill: null
         points: 4
         condition: null
@@ -500,6 +500,7 @@ sections:
         answer_type: yes_no_unknown
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 5
         has_notes: false
@@ -528,7 +529,6 @@ sections:
         answer_type: short_text
         status: core
         skippable: true
-        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -630,6 +630,7 @@ sections:
         answer_type: single_select
         status: optional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -656,7 +657,6 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
-        triggers_save: true
         prefill: null
         points: 3
         condition:
@@ -717,6 +717,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 2
         condition: null
@@ -750,7 +751,6 @@ sections:
         answer_type: single_select
         status: optional
         skippable: true
-        triggers_save: true
         prefill: null
         points: 1
         condition: null
@@ -765,6 +765,7 @@ sections:
         answer_type: single_select
         status: optional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 1
         condition: null
@@ -805,7 +806,6 @@ sections:
         answer_type: yes_no_unknown
         status: core
         skippable: true
-        triggers_save: true
         prefill: null
         points: 3
         has_notes: true
@@ -827,6 +827,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 1
         condition: null
@@ -1082,7 +1083,6 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
-        triggers_save: true
         prefill: null
         points: 4
         condition: null
@@ -1219,6 +1219,7 @@ sections:
         answer_type: single_select
         status: optional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -1245,7 +1246,6 @@ sections:
         answer_type: single_select
         status: optional
         skippable: true
-        triggers_save: true
         prefill: null
         points: 1
         condition: null
@@ -1311,6 +1311,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 4
         condition: null
@@ -1344,7 +1345,6 @@ sections:
         answer_type: list_of_items
         status: optional
         skippable: true
-        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -1447,6 +1447,7 @@ sections:
         answer_type: count
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 0
         condition: null
@@ -1475,7 +1476,6 @@ sections:
         answer_type: single_select
         status: conditional
         skippable: true
-        triggers_save: true
         prefill: null
         points: 3
         condition:
@@ -1576,8 +1576,8 @@ sections:
         help_text: >
           Choose the option that best reflects your actual confidence in the current backup status.
           This question controls the rest of this section — if you select No or Unknown,
-          the remaining backup questions will be hidden. Save your progress after answering
-          to see the full section.
+          the remaining backup questions will be hidden because they will no longer be answerable.
+          Save your progress after answering to see the full section.
         answer_type: single_select
         status: core
         skippable: true
@@ -1585,7 +1585,6 @@ sections:
         points: 5
         is_gate: true
         gate_hides_unconditional: true
-        triggers_save: true
         gate_negative_values:
           - "No"
         condition: null
@@ -1707,6 +1706,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 5
         condition: null
@@ -1742,7 +1742,6 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
-        triggers_save: true
         prefill: null
         points: 3
         condition: null
@@ -1787,6 +1786,7 @@ sections:
         answer_type: single_select
         status: core
         skippable: true
+        triggers_save: true
         prefill: null
         points: 3
         condition: null
@@ -1846,7 +1846,6 @@ sections:
         points: 5
         is_gate: true
         gate_hides_unconditional: false
-        triggers_save: true
         gate_negative_values:
           - "No"
         condition: null
@@ -1876,7 +1875,6 @@ sections:
         answer_type: single_select
         status: conditional
         skippable: true
-        triggers_save: true
         prefill: null
         points: 2
         condition:
@@ -2001,6 +1999,7 @@ sections:
         answer_type: single_select
         status: optional
         skippable: true
+        triggers_save: true
         prefill: null
         points: 1
         condition: null
@@ -2030,7 +2029,6 @@ sections:
         answer_type: single_select
         status: conditional
         skippable: true
-        triggers_save: true
         prefill: null
         points: 2
         condition:

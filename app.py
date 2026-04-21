@@ -1,8 +1,9 @@
 import uuid
 import json
+import io
 import os
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from database import (
     init_db, save_answer, get_answers, get_answer, create_session,
     get_session, mark_section_complete, get_all_sessions,
@@ -10,6 +11,7 @@ from database import (
     delete_session
 )
 from rules_engine import evaluate_all, evaluate_section, findings_to_dict
+from report_generator import generate_report, build_report_payload
 from engine import (
     load_module, get_section, get_visible_questions,
     calculate_section_score, get_section_severity_label,
@@ -318,6 +320,58 @@ def findings_section(session_id, section_id):
         sess=sess,
         report=data,
         section_label=section_label,
+    )
+
+
+
+# ── REPORT DOWNLOAD ─────────────────────────────────────────────
+
+@app.route("/session/<session_id>/report.docx")
+def download_report(session_id):
+    sess = get_session(session_id)
+    if not sess:
+        return redirect(url_for("home"))
+
+    answers = get_answers(session_id)
+    profile = get_school_profile()
+
+    # Build findings
+    report = evaluate_all(answers, session_id=session_id)
+    report_data = findings_to_dict(report)
+
+    # Build section scores for the report
+    module = load_module(MODULE_ID)
+    section_results = []
+    for sec in module["sections"]:
+        sid = sec["section_id"]
+        sec_answers = get_answers(session_id)
+        earned, max_pts, answered, skipped, total = calculate_section_score(sec, sec_answers)
+        severity = get_section_severity_label(earned, max_pts, 0, 0)
+        pct = round(earned / max_pts * 100) if max_pts > 0 else 0
+        section_results.append({
+            "section": {"section_id": sid, "title": sec["title"]},
+            "earned": int(earned),
+            "max_pts": max_pts,
+            "pct": pct,
+            "severity": severity,
+            "answered_count": answered,
+            "skipped_count": skipped,
+        })
+
+    try:
+        docx_bytes = generate_report(report_data, answers, profile, section_results)
+    except Exception as e:
+        flash(f"Report generation failed: {e}", "error")
+        return redirect(url_for("summary", session_id=session_id))
+
+    school = (profile.get("school_name") if profile else "School").replace(" ", "_")
+    filename = f"{school}_IT_Report.docx"
+
+    return send_file(
+        io.BytesIO(docx_bytes),
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        as_attachment=True,
+        download_name=filename,
     )
 
 

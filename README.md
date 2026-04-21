@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## Intake Engine — v0.1
+## v0.3.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -10,6 +10,7 @@ This tool runs entirely on your computer. No data is sent to the internet.
 
 - Python 3.10 or higher
 - pip
+- Node.js 18 or higher (required for DOCX report generation)
 
 ---
 
@@ -31,19 +32,48 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
-### 2. Install dependencies
+### 2. Install Python dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run the application
+### 3. Install Node.js (if not already installed)
+
+Node.js is required for DOCX report generation. npm (the Node.js package
+manager) comes bundled with it — you do not need to install npm separately.
+
+1. Go to **https://nodejs.org**
+2. Download the **LTS** version (the left button — "Recommended For Most Users")
+3. Run the installer with all default settings
+4. **Close and reopen your terminal** after installation — the PATH will not
+   update in an already-open window
+5. Verify the installation worked:
+
+```bash
+node --version
+npm --version
+```
+
+Both commands should print a version number. If either is unrecognised,
+restart your terminal and try again.
+
+### 4. Install the Node.js docx package
+
+```bash
+npm install -g docx
+```
+
+This installs the `docx` package used to generate the Word report.
+You only need to do this once per machine.
+
+### 5. Run the application
 
 ```bash
 python app.py
 ```
 
-### 4. Open in your browser
+### 6. Open in your browser
 
 ```
 http://127.0.0.1:5000
@@ -77,9 +107,32 @@ deactivate
 4. Each question shows its **point value** so you know its relative importance
 5. Use **Skip this question** or **I don't know the answer** controls as needed
 6. **Important:** Hit **Save Progress** after answering questions — some
-   follow-up questions only appear after saving
+   follow-up questions only appear after saving. Questions with a
+   **Save Progress to reveal follow-up questions** button next to them
+   are the ones that trigger additional questions when answered
 7. Click **Complete Section** to see your section score and severity label
-8. Your progress is saved when you hit Save Progress or Complete Section — close the browser after saving and resume anytime
+8. Your progress is saved when you hit Save Progress or Complete Section —
+   close the browser after saving and resume anytime
+9. Once all sections are complete, the assessment shows **Inspect** on the
+   home page. From the summary screen you can generate findings or
+   download the full Word report
+
+---
+
+## Generating findings and the report
+
+From the **Summary** screen of any assessment:
+
+- **Generate Full Findings** — runs the rules engine against your saved
+  answers and displays a prioritised list of gaps and recommended actions.
+  You can also generate findings for a single section using the
+  **Findings** link next to any completed section in the score table.
+  Findings are generated on demand — re-run any time after updating answers.
+
+- **Download Report (.docx)** — generates and downloads a complete
+  Word document containing the cover page, executive summary, key risks,
+  section-by-section findings, action plan, and appendix. Requires
+  Node.js and the `docx` package (see Setup above).
 
 ---
 
@@ -87,17 +140,27 @@ deactivate
 
 ```
 school_it_engine/
-├── app.py              # Flask application and routes
-├── database.py         # SQLite operations
-├── engine.py           # Module loader, scoring, gate logic
-├── test_scoring.py     # Automated scoring tests
-├── requirements.txt    # Python dependencies
-├── README.md           # This file
+├── app.py                  # Flask application and all routes
+├── database.py             # SQLite operations (sessions, answers, profile)
+├── engine.py               # Module loader, scoring, gate logic, severity labels
+├── rules_engine.py         # Deterministic findings engine (all sections)
+├── report_generator.py     # Python report assembler (calls report_script.js)
+├── report_script.js        # Node.js DOCX builder (requires npm docx package)
+├── test_scoring.py         # Automated scoring tests (31 tests)
+├── requirements.txt        # Python dependencies
+├── README.md               # This file
 ├── modules/
-│   └── module_1.yaml   # Question definitions for Module 1
-├── templates/          # HTML templates
+│   └── module_1.yaml       # Question definitions, scoring, gate logic for Module 1
+├── templates/
+│   ├── base.html           # Base layout, navigation, privacy banner
+│   ├── home.html           # Assessment list, new/resume/inspect/delete
+│   ├── setup.html          # School profile setup
+│   ├── section.html        # Question answering interface
+│   ├── section_complete.html  # Section score reveal
+│   ├── summary.html        # Assessment overview, scores, findings and report links
+│   └── findings.html       # Findings display (full or single-section)
 └── data/
-    └── assessments.db  # SQLite database (created on first run)
+    └── assessments.db      # SQLite database (created on first run)
 ```
 
 ---
@@ -114,7 +177,8 @@ To start completely fresh: delete `data/assessments.db` and restart.
 
 ## Known limitations in this version
 
-- Follow-up questions appear only after hitting Save Progress (not live)
+- Follow-up questions appear only after hitting Save Progress (not live —
+  JavaScript dynamic loading is planned for a future version)
 - Logo/crest file upload is not yet implemented
-- DOCX report generation is not yet implemented
-- The rule engine (findings and action items) is not yet implemented
+- Deprecate assessment UI is not yet implemented (the database field exists)
+- Section 1 and Section 10 generate no findings (context only by design)

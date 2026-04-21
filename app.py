@@ -211,6 +211,15 @@ def section(session_id, section_id):
     total_sections = len(module["sections"])
     complete_count = len(complete)
 
+    # Determine if any conditional questions are currently hidden
+    # (so the save-reminder banner knows whether to show)
+    all_conditional_qids = {
+        q["question_id"] for q in sec["questions"]
+        if q.get("condition") is not None
+    }
+    visible_qids = {q["question_id"] for q in visible_questions}
+    has_hidden_conditionals = bool(all_conditional_qids - visible_qids)
+
     return render_template(
         "section.html",
         session_id=session_id,
@@ -222,6 +231,7 @@ def section(session_id, section_id):
         total_sections=total_sections,
         complete_count=complete_count,
         profile=profile,
+        has_hidden_conditionals=has_hidden_conditionals,
     )
 
 

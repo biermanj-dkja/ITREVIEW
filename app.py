@@ -9,6 +9,7 @@ from database import (
     save_school_profile, get_school_profile, flag_session_incomplete,
     delete_session
 )
+from rules_engine import evaluate_all, evaluate_section, findings_to_dict
 from engine import (
     load_module, get_section, get_visible_questions,
     calculate_section_score, get_section_severity_label,
@@ -269,6 +270,45 @@ def delete_session_route(session_id):
     delete_session(session_id)
     flash("Assessment deleted.", "success")
     return redirect(url_for("home"))
+
+
+
+# ── FINDINGS / RULES ENGINE ─────────────────────────────────────
+
+@app.route("/session/<session_id>/findings")
+def findings_full(session_id):
+    sess = get_session(session_id)
+    if not sess:
+        return redirect(url_for("home"))
+    answers = get_answers(session_id)
+    completed = json.loads(sess.get("sections_complete", "[]"))
+    report = evaluate_all(answers, session_id=session_id, completed_sections=None)
+    data = findings_to_dict(report)
+    return render_template("findings.html",
+        session_id=session_id,
+        sess=sess,
+        report=data,
+        section_label=None,
+    )
+
+
+@app.route("/session/<session_id>/findings/<section_id>")
+def findings_section(session_id, section_id):
+    sess = get_session(session_id)
+    if not sess:
+        return redirect(url_for("home"))
+    answers = get_answers(session_id)
+    report = evaluate_section(answers, section_id=section_id, session_id=session_id)
+    data = findings_to_dict(report)
+    m = load_module("module_1")
+    sec = get_section(m, section_id)
+    section_label = sec["title"] if sec else f"Section {section_id}"
+    return render_template("findings.html",
+        session_id=session_id,
+        sess=sess,
+        report=data,
+        section_label=section_label,
+    )
 
 
 # ── SUMMARY ────────────────────────────────────────────────────────

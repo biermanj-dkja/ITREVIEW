@@ -45,10 +45,13 @@
         </div>
       </div>
       <div class="flex gap-8">
-        {% if sess.status == 'in_progress' %}
-        <a href="/resume/{{ sess.session_id }}" class="btn btn-primary">Resume →</a>
+        {% set complete_list = sess.sections_complete | from_json %}
+        {% if complete_list | length >= 10 %}
+          <a href="/session/{{ sess.session_id }}/summary" class="btn btn-primary">Inspect →</a>
+        {% elif sess.status == 'in_progress' %}
+          <a href="/resume/{{ sess.session_id }}" class="btn btn-primary">Resume →</a>
         {% else %}
-        <a href="/session/{{ sess.session_id }}/summary" class="btn btn-secondary">View Summary</a>
+          <a href="/session/{{ sess.session_id }}/summary" class="btn btn-secondary">View Summary</a>
         {% endif %}
         <form method="POST" action="/session/{{ sess.session_id }}/delete"
               onsubmit="return confirm('Permanently delete this assessment and all its answers? This cannot be undone.')">

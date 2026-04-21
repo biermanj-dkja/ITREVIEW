@@ -129,10 +129,16 @@
       without running the full assessment. Use the <strong>Section Findings</strong> link
       next to any completed section in the table above.
     </p>
-    <a href="/session/{{ session_id }}/findings" class="btn btn-primary"
-       style="display: block; text-align: center; padding: 12px;">
-      Generate Full Findings →
-    </a>
+    <div style="display: flex; gap: 12px; margin-top: 4px;">
+      <a href="/session/{{ session_id }}/findings" class="btn btn-primary"
+         style="flex: 1; text-align: center; padding: 12px;">
+        Generate Full Findings →
+      </a>
+      <a href="/session/{{ session_id }}/report.docx" class="btn btn-secondary"
+         style="flex: 1; text-align: center; padding: 12px;">
+        ⬇ Download Report (.docx)
+      </a>
+    </div>
   </div>
 
 

@@ -29,6 +29,7 @@ sections:
 # Discovery phase. Finds every system. Drives the dynamic sections.
 # ─────────────────────────────────────────────────────────────────
   - section_id: "DG1"
+    display_id: "1"
     title: "System Inventory — Discovery"
     estimated_minutes: 20
     estimated_minutes_note: >
@@ -111,6 +112,7 @@ sections:
 # throughout. The generated sections are numbered DG_SYS_1 … DG_SYS_N.
 # ─────────────────────────────────────────────────────────────────
   - section_id: "DG_SYS_TEMPLATE"
+    display_id: "Sys {system_index}"
     title: "System Worksheet — {system_name}"
     estimated_minutes: 30
     estimated_minutes_note: >
@@ -122,9 +124,13 @@ sections:
       Example: 5 systems = ~2.5 hours IT time; 14 systems = ~7 hours IT time.
     description: >
       Profile system {system_index} of {system_total}: {system_name}.
-      Answer every question that applies. If you do not know the answer,
-      select or type "Unknown" — an honest unknown is a finding that
-      can be fixed. Do not guess.
+      This worksheet takes approximately 30 minutes for the IT portion alone —
+      plan to save your progress and return to it across multiple sessions.
+      Questions are grouped by role: [IT], [Dept], and [Business Office] —
+      you can work through IT questions now and come back with colleagues for
+      the rest. Answer every question that applies. If you do not know the
+      answer, select or type "Unknown" — an honest unknown is a finding
+      that can be fixed. Do not guess.
     order: 100          # base order; engine adds system_index
     is_template: true   # engine skips this section in navigation; clones it
     questions:
@@ -196,11 +202,12 @@ sections:
           - Unknown
 
       - question_id: "SYS.1.1a"
-        prompt: "[IT] Are any accounts on that list belonging to staff who have left the school still active?"
+        prompt: "[IT] Do any active accounts in this system belong to people who no longer work at the school?"
         help_text: >
-          Former staff accounts are a critical security gap — they must be
-          revoked as part of offboarding. Note any names or count in the
-          notes field.
+          Check the user roster against current staff. Any account owned by
+          a former employee, contractor, or volunteer that is still enabled
+          is a critical security gap — access should have been revoked on
+          their last day. Note the number of accounts found, or names if known.
         answer_type: yes_no_unknown
         status: core
         skippable: false
@@ -362,21 +369,22 @@ sections:
           - Unknown
 
       - question_id: "SYS.2.3"
-        prompt: "[IT] When was the backup for this system last tested — meaning data was actually restored and verified?"
+        prompt: "[IT] When did the school last perform a restore test — actually restoring data from backup and verifying it was accurate?"
         help_text: >
           A backup that has never been tested is an assumption, not a safety net.
-          Testing means data was restored and confirmed accurate — not just that
-          the process completed without errors.
+          Testing means data was restored and confirmed correct — not just that
+          the backup process completed without errors. If the vendor manages the
+          backup, ask them for evidence of their last tested restore.
         answer_type: single_select
         status: core
         skippable: true
         points: 8
         condition:
-          type: answer_is_not
+          type: answer_is
           question_id: "SYS.2.1"
           value:
-            - "No — not backed up"
-            - "Unknown"
+            - "Yes — school manages the backup"
+            - "Both — school and vendor both maintain copies"
         options:
           - Within the last 12 months — documented
           - Within the last 12 months — not documented
@@ -385,37 +393,66 @@ sections:
           - Unknown
 
       - question_id: "SYS.2.4"
-        prompt: "[IT] Are backup files stored separately from the system itself — in a location that would survive the same event that damaged the original?"
+        prompt: "[IT] Are the school's backup files stored separately from the live system — in a location that would survive the same incident that damaged the original?"
         help_text: >
-          Backups stored on the same network as the original can be encrypted
-          or destroyed in the same ransomware event.
+          Backups stored on the same server or network as the original can be
+          encrypted or destroyed in the same ransomware attack or hardware failure.
+          Offsite or cloud-isolated storage is the minimum best practice.
         answer_type: yes_no_unknown
         status: core
         skippable: true
         points: 6
         condition:
-          type: answer_is_not
+          type: answer_is
           question_id: "SYS.2.1"
           value:
-            - "No — not backed up"
-            - "Unknown"
+            - "Yes — school manages the backup"
+            - "Both — school and vendor both maintain copies"
 
       - question_id: "SYS.2.5"
         prompt: "[IT] If this system became completely unavailable today, how long would it take to restore it to full operation?"
         help_text: >
-          This is the Recovery Time Objective (RTO). Note whether
-          configuration documentation exists to rebuild the system from scratch
-          — not just restore the data.
+          This is the Recovery Time Objective (RTO). Note whether configuration
+          documentation exists to rebuild the system from scratch — not just
+          restore the data.
         answer_type: single_select
         status: core
         skippable: true
         points: 3
-        condition: null
+        condition:
+          type: answer_is
+          question_id: "SYS.2.1"
+          value:
+            - "Yes — school manages the backup"
+            - "Both — school and vendor both maintain copies"
         options:
           - Less than 4 hours — documented configuration exists
           - Less than 4 hours — relies on memory
           - 4–24 hours
           - More than 24 hours
+          - Unknown
+
+      - question_id: "SYS.2.5v"
+        prompt: "[IT] If this vendor-hosted system became completely unavailable today, does the school have a documented interim process to continue working without it — and how long would it take to activate?"
+        help_text: >
+          For vendor-managed systems the school cannot control restore time —
+          but it can plan for an outage. Common interim approaches: switching
+          to paper, using a backup system, or activating a disaster recovery
+          agreement with the vendor. If no plan exists, that is a finding.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 3
+        condition:
+          type: answer_is
+          question_id: "SYS.2.1"
+          value:
+            - "Yes — vendor manages the backup"
+        options:
+          - Yes — documented continuity plan, activatable within 4 hours
+          - Yes — documented plan, but activation takes more than 4 hours
+          - Informal plan — relies on memory or ad-hoc decisions
+          - No plan — school would be unable to operate without this system
           - Unknown
 
       # ── SECTION 3: Data Flows ────────────────────────────────────
@@ -549,7 +586,7 @@ sections:
           within 30 days. The school cannot meet this obligation if vendors
           notify late. Best practice is 72 hours or less.
         answer_type: single_select
-        status: core
+        status: conditional
         skippable: true
         points: 8
         condition:
@@ -570,7 +607,7 @@ sections:
           contract ends. This obligation is only enforceable if it is in
           the contract.
         answer_type: single_select
-        status: core
+        status: conditional
         skippable: true
         points: 7
         condition:
@@ -691,6 +728,7 @@ sections:
 # Completed AFTER all per-system worksheets are done.
 # ─────────────────────────────────────────────────────────────────
   - section_id: "DG2"
+    display_id: "2"
     title: "School-Wide Data Governance"
     estimated_minutes: 30
     estimated_minutes_note: >

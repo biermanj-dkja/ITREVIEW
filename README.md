@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.5.0
+## v0.5.0.1
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -7,6 +7,8 @@ This tool runs entirely on your computer. No data is sent to the internet.
 ---
 
 ## What's in this version
+
+**v0.5.0.1** fixes question ID naming consistency across Module 2 — all per-system worksheet questions now use the same numeric scheme as Module 1 (e.g. SYS.1.1, SYS.2.3) rather than the previous lettered scheme (SYS.A1, SYS.B3).
 
 **v0.5.0** adds the Data Governance and Data Flow Audit (Module 2), a
 dynamic section engine, and a per-system report card. See the
@@ -165,11 +167,11 @@ office.
 
    | Area | What it covers |
    |------|----------------|
-   | A — Access Control | User roster, MFA, SSO, audit logs, former staff accounts |
-   | B — Backup & Recovery | Backup ownership, frequency, restore testing, offsite storage |
-   | C — Data Flows | Inbound and outbound data, automated integrations, encryption |
-   | D — Vendor & Contract | DPA status, breach notification clauses, deletion on contract end |
-   | E — Retention & Disposal | Data types held, retention periods, deletion process, decommissioning |
+   | 1 — Access Control | User roster, MFA, SSO, audit logs, former staff accounts |
+   | 2 — Backup & Recovery | Backup ownership, frequency, restore testing, offsite storage |
+   | 3 — Data Flows | Inbound and outbound data, automated integrations, encryption |
+   | 4 — Vendor & Contract | DPA status, breach notification clauses, deletion on contract end |
+   | 5 — Retention & Disposal | Data types held, retention periods, deletion process, decommissioning |
 
    Each worksheet takes approximately 30 minutes for the IT director's
    portion. Department heads, HR, and the business office contribute
@@ -186,8 +188,21 @@ office.
    recommended actions. A school-wide summary shows overall governance
    posture.
 
-**Estimated total time:** 2-4 hours depending on the number of systems,
-spread across multiple people over several days.
+**Estimated time — baseline with 5 systems discovered in DG1:**
+
+| Phase | Who | Time |
+|-------|-----|------|
+| DG1 — System Inventory | IT director | 20 min |
+| Per-system worksheets × 5 (IT portion) | IT director | 2 hr 30 min |
+| Per-system worksheets × 5 (Dept / HR / Business Office) | Multiple people, in parallel | 1–2 hr total |
+| DG2 — School-Wide Governance | IT director + leadership | 30 min |
+| **Total (IT director)** | | **~3 hr 20 min** |
+| **Total (all contributors, elapsed)** | | **~4–5 hr over several days** |
+
+Time scales directly with systems found. Each additional system in DG1 adds
+approximately 30 minutes of IT director time and 10–20 minutes across other
+contributors. A school with 14 systems should budget 7–8 hours of IT time
+spread over several days, plus a two-hour cross-team session for DG2.
 
 ---
 
@@ -318,8 +333,11 @@ or any technical setup.
 
 ## Known limitations in this version
 
-- Follow-up questions appear only after hitting Save Progress (not live —
-  JavaScript dynamic loading is planned for a future version)
+- Follow-up questions appear only after hitting Save Progress — conditional
+  question visibility is evaluated server-side on each save or page load.
+  Questions will not appear or disappear instantly as you type; hit
+  Save Progress to reveal any follow-ups. JavaScript live-update of
+  conditional questions is planned for a future version.
 - Module 2 per-system worksheets are generated after saving Section DG1;
   if you add systems to the inventory later, save again to regenerate
 - Logo/crest file upload is not yet implemented

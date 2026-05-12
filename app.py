@@ -19,6 +19,7 @@ from engine import (
     CRITICAL_QUESTIONS
 )
 from dynamic_engine import expand_dynamic_sections
+from report_generator_dg import generate_dg_report
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = BASE_DIR / "templates"
@@ -28,6 +29,7 @@ app.secret_key = "school-it-engine-dev-key-change-in-production"
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
+app.jinja_env.filters["tojson"]    = _json.dumps   # serialize condition dicts for JS data attrs
 
 def yaml_safe_str(val):
     if val is True:  return "Yes"
@@ -70,6 +72,21 @@ def setup():
 def home():
     profile  = get_school_profile()
     sessions = get_all_sessions()
+    # Annotate each session with is_complete — module-aware
+    for sess in sessions:
+        complete = json.loads(sess.get("sections_complete", "[]"))
+        mid = sess.get("module_id", MODULE_ID)
+        if mid == "module_2":
+            # Module 2 is complete when DG1 and DG2 are done,
+            # plus at least one system worksheet (DG_SYS_*).
+            # We consider it complete when DG1 and DG2 are in complete
+            # AND at least one DG_SYS_* section is complete.
+            dg1_done = "DG1" in complete
+            dg2_done = "DG2" in complete
+            sys_done = any(s.startswith("DG_SYS_") for s in complete)
+            sess["is_complete"] = dg1_done and dg2_done and sys_done
+        else:
+            sess["is_complete"] = len(complete) >= 10
     return render_template("home.html", profile=profile, sessions=sessions)
 
 
@@ -144,6 +161,7 @@ def section(session_id, section_id):
 
     # Prefill on first GET
     if request.method == "GET":
+        from datetime import date as _date
         for q in sec["questions"]:
             qid = q["question_id"]
             # Standard profile prefill
@@ -154,6 +172,19 @@ def section(session_id, section_id):
             # Dynamic template prefill (e.g. system name confirmation)
             if q.get("prefill_value") and qid not in answers:
                 save_answer(session_id, qid, q["prefill_value"], status="answered")
+            # Special: prefill today's date for DG1.2
+            if qid == "DG1.2" and qid not in answers:
+                save_answer(session_id, qid, _date.today().isoformat(), status="answered")
+            # Special: autofill DG1.4 (system count) from DG1.3 list length
+            if qid == "DG1.4":
+                inv = answers.get("DG1.3", {})
+                raw = inv.get("raw_answer") if inv else None
+                if isinstance(raw, list) and raw:
+                    save_answer(session_id, qid, len(raw), status="answered")
+                elif isinstance(raw, str) and raw.strip():
+                    count = len([s for s in raw.splitlines() if s.strip()])
+                    if count:
+                        save_answer(session_id, qid, count, status="answered")
         answers = get_answers(session_id)
 
     visible_questions = get_visible_questions(sec, answers)
@@ -247,20 +278,22 @@ def section(session_id, section_id):
     total_sections = len(module["sections"])
     complete_count = len(complete)
 
-    # Determine if any conditional questions are currently hidden
-    # (so the save-reminder banner knows whether to show)
-    all_conditional_qids = {
-        q["question_id"] for q in sec["questions"]
-        if q.get("condition") is not None
-    }
+    # For JS dynamic conditionals, we render ALL section questions in the DOM.
+    # Ones that fail their condition start hidden (display:none + aria-hidden).
+    # JS evaluates and toggles them live; server still authoritative on save.
     visible_qids = {q["question_id"] for q in visible_questions}
-    has_hidden_conditionals = bool(all_conditional_qids - visible_qids)
+    all_questions = sec["questions"]  # full list, including gate-hidden ones
+
+    # has_hidden_conditionals: true if any triggers_save questions exist
+    # (used to show the server-round-trip hint for worksheet generation)
+    has_hidden_conditionals = any(q.get("triggers_save") for q in all_questions)
 
     return render_template(
         "section.html",
         session_id=session_id,
         section=sec,
-        questions=visible_questions,
+        questions=all_questions,
+        visible_qids=visible_qids,
         answers=answers,
         module=module,
         complete=complete,
@@ -502,10 +535,7 @@ def dg_report(session_id):
 
     answers  = get_answers(session_id)
     module, gen_ids = _load_expanded_module("module_2", session_id)
-
-    # Extract system names from the expanded module
     system_names = module.get("_system_names", [])
-
     dg = evaluate_dg(answers, system_names, gen_ids)
 
     return render_template(
@@ -516,10 +546,42 @@ def dg_report(session_id):
         module=module,
     )
 
+
+@app.route("/session/<session_id>/dg_report.docx")
+def download_dg_report(session_id):
+    """Generate and download the Data Governance DOCX report."""
+    from rules_engine_dg import evaluate_dg
+    sess = get_session(session_id)
+    if not sess:
+        flash("Session not found.", "error")
+        return redirect(url_for("home"))
+
+    answers  = get_answers(session_id)
+    profile  = get_school_profile()
+    module, gen_ids = _load_expanded_module("module_2", session_id)
+    system_names = module.get("_system_names", [])
+    dg = evaluate_dg(answers, system_names, gen_ids)
+
+    try:
+        docx_bytes = generate_dg_report(dg, answers, profile, system_names, gen_ids)
+    except Exception as e:
+        flash(f"Report generation failed: {e}", "error")
+        return redirect(url_for("dg_report", session_id=session_id))
+
+    school = (profile.get("school_name") if profile else "School").replace(" ", "_")
+    filename = f"{school}_Data_Governance_Report.docx"
+
+    return send_file(
+        io.BytesIO(docx_bytes),
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        as_attachment=True,
+        download_name=filename,
+    )
+
 if __name__ == "__main__":
     init_db()
     print("\n" + "=" * 60)
-    print("  School IT Documentation Engine")
+    print("  School IT Documentation Engine v0.5.1")
     print("  Running at: http://localhost:5000")
     print("  This tool runs entirely on your computer.")
     print("  No data is sent to the internet.")

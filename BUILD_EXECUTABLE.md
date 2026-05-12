@@ -1,5 +1,5 @@
 # Building a Standalone Executable
-## School IT Engine — Tester Distribution Guide
+## School IT Engine v0.5.0 — Tester Distribution Guide
 
 This guide explains how to package the School IT Engine into a single
 double-clickable file that testers can run without installing Python,
@@ -15,13 +15,13 @@ build only runs on Mac.
 
 ---
 
-## Before you start — one-time setup
+## Before you start
 
 You need Python installed on your build machine. This is only for
 building; testers do not need Python at all.
 
-If you already have Python set up for the engine, you are ready. If not,
-install it from https://python.org and follow the README.
+If you already have Python set up for the engine (i.e. you can run
+`python app.py` successfully), you are ready to go.
 
 ---
 
@@ -44,14 +44,15 @@ You should see a version number like `6.x.x`.
 
 ---
 
-## Step 2 — Create a launcher script
+## Step 2 — Create the launcher script
 
-PyInstaller needs a single entry-point file. The engine's `app.py` uses
-`app.run()` directly, which works fine in development but needs a small
-wrapper for a packaged executable so the browser opens automatically.
+PyInstaller needs a single entry-point file. The engine's `app.py` starts
+Flask directly, which works in development but needs a small wrapper for
+a packaged executable so the browser opens automatically and the database
+ends up in the right place.
 
-Create a new file called **`launcher.py`** in the root of the project
-folder (same folder as `app.py`) with this content:
+Create a new file called **`launcher.py`** in the project root (same
+folder as `app.py`) with this content:
 
 ```python
 import sys
@@ -61,12 +62,12 @@ import webbrowser
 import time
 
 # When running as a PyInstaller bundle, sys._MEIPASS is the temp
-# folder where all bundled files are unpacked. We need to tell the
-# app where to find its templates, modules, and data folder.
+# folder where bundled files are unpacked. We tell the app where
+# to find its templates, modules, and static files.
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
-    # Put the database in the same folder as the executable,
-    # not in the temp unpacking folder (which is deleted on exit).
+    # Write the database next to the executable, not in the temp
+    # folder (which is deleted every time the app closes).
     exe_dir = os.path.dirname(sys.executable)
     os.environ['SCHOOL_IT_DATA_DIR'] = os.path.join(exe_dir, 'data')
 else:
@@ -96,34 +97,38 @@ if __name__ == '__main__':
 
 ---
 
-## Step 3 — Patch app.py and database.py for the data directory
+## Step 3 — Patch database.py and app.py
 
 The launcher sets an environment variable `SCHOOL_IT_DATA_DIR` so the
-database is written next to the executable rather than inside the
-temporary unpacking folder (which is deleted every time the app closes).
+database is saved next to the executable rather than inside the temporary
+unpacking folder (which is deleted every time the app closes).
 
-**In `database.py`**, change the `DB_PATH` line from:
+### database.py
+
+Find this line near the top:
 
 ```python
 DB_PATH = BASE_DIR / "data" / "assessments.db"
 ```
 
-to:
+Replace it with:
 
 ```python
-import os
-_data_dir = os.environ.get('SCHOOL_IT_DATA_DIR')
+import os as _os
+_data_dir = _os.environ.get('SCHOOL_IT_DATA_DIR')
 if _data_dir:
     DB_PATH = Path(_data_dir) / "assessments.db"
 else:
     DB_PATH = BASE_DIR / "data" / "assessments.db"
 ```
 
-**In `app.py`**, add this function near the top (after imports):
+### app.py
+
+Add this function near the top of `app.py`, after the imports:
 
 ```python
 def init_db_path():
-    """Called by launcher to ensure the data directory exists."""
+    """Called by the launcher to ensure the data directory exists."""
     from database import DB_PATH
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 ```
@@ -132,74 +137,62 @@ def init_db_path():
 
 ## Step 4 — Run PyInstaller
 
+Run the command for your platform from inside the project folder,
+with your virtual environment active.
+
 ### Windows
 
-```bash
-pyinstaller ^
-  --onefile ^
-  --windowed ^
-  --name "SchoolITEngine" ^
-  --add-data "templates;templates" ^
-  --add-data "modules;modules" ^
-  --add-data "static;static" ^
-  launcher.py
 ```
-
-> **Note:** If you don't have a `static` folder, remove that line.
+pyinstaller --onefile --console --name "SchoolITEngine" --add-data "templates;templates" --add-data "modules;modules" launcher.py
+```
 
 ### macOS (Intel or Apple Silicon)
 
-```bash
-pyinstaller \
-  --onefile \
-  --windowed \
-  --name "SchoolITEngine" \
-  --add-data "templates:templates" \
-  --add-data "modules:modules" \
-  launcher.py
+```
+pyinstaller --onefile --console --name "SchoolITEngine" --add-data "templates:templates" --add-data "modules:modules" launcher.py
 ```
 
-> **macOS note:** The separator in `--add-data` is a **colon** on Mac/Linux
-> and a **semicolon** on Windows. Easy to mix up.
+> **Separator difference:** `--add-data` uses a **semicolon** on Windows
+> and a **colon** on Mac/Linux. This is the most common copy-paste mistake.
 
-### What `--windowed` does
+### About --console vs --windowed
 
-On Windows it suppresses the black command-prompt window. On Mac it
-bundles as a `.app` package. If you want testers to see a terminal window
-(useful during testing to see error messages), replace `--windowed` with
-`--console`.
+`--console` keeps a terminal window visible while the app runs. Use this
+during beta testing so testers can see and copy any error messages.
 
-**Recommendation for beta testing:** Use `--console` for your first round
-so testers can copy and paste any error messages they see.
+Once the build is confirmed stable, switch to `--windowed` for the final
+distribution version. On Windows this removes the black terminal window;
+on Mac it bundles as a `.app` package.
 
 ---
 
 ## Step 5 — Find your output
 
-PyInstaller creates a `dist/` folder in your project directory.
+PyInstaller creates a `dist/` folder in your project directory:
 
 - **Windows:** `dist/SchoolITEngine.exe`
-- **macOS:** `dist/SchoolITEngine` (single binary) or `dist/SchoolITEngine.app` (app bundle)
+- **macOS:** `dist/SchoolITEngine` (binary) or `dist/SchoolITEngine.app`
 
-The `build/` folder and the `.spec` file are intermediate files — testers
-don't need them.
+The `build/` folder and the `.spec` file are intermediate — testers
+do not need them.
 
 ---
 
 ## Step 6 — Test the build before distributing
 
-Before sending to testers, run the built executable yourself:
+Before sending to testers, run the executable yourself from the `dist/`
+folder:
 
-1. Navigate to `dist/`
-2. Double-click `SchoolITEngine.exe` (or `.app` on Mac)
-3. A terminal/console window should appear (if using `--console`)
-4. Your browser should open to `http://127.0.0.1:5000` automatically
-5. Work through a full assessment and download a report
-6. Close the window — confirm the app stops
+1. Double-click `SchoolITEngine.exe` (or the `.app` on Mac)
+2. The terminal window appears and your browser opens automatically
+3. Complete a full session through both a Module 1 and Module 2 assessment
+4. Download a report from Module 1
+5. Close the terminal window — confirm the app stops
 
-Check that the `data/` folder (containing `assessments.db`) appears
-**next to the executable**, not somewhere temporary. If it appears and
-persists between runs, the data directory patch worked correctly.
+**Check the data folder:** After running, look for `dist/data/assessments.db`.
+This file should appear next to the executable (not somewhere in `%TEMP%`
+or `/var/folders`). If it is there and survives a restart, the database
+patch in Step 3 is working correctly.
 
 ---
 
@@ -207,30 +200,38 @@ persists between runs, the data directory patch worked correctly.
 
 ### Windows testers
 
-Send them `SchoolITEngine.exe`. That's it — one file.
+Send them `SchoolITEngine.exe`. One file, nothing else required.
 
-Include this note:
+Include this note with it:
 
-> Double-click SchoolITEngine.exe to start. Your browser will open
-> automatically. Do not close the black window while using the app —
-> it keeps the engine running. Close it when you are done.
+> **To start:** Double-click SchoolITEngine.exe. A window will open and
+> your browser will load the app automatically.
 >
-> Windows may show a "Windows protected your PC" warning the first time.
-> Click "More info" then "Run anyway". This appears because the file is
-> not signed with a paid code-signing certificate.
+> **To stop:** Close the black window when you are done.
+>
+> **If Windows warns you:** Click **More info**, then **Run anyway**.
+> This warning appears because the file does not have a paid code-signing
+> certificate — it is safe to dismiss.
+>
+> **Your data** is saved in a `data` folder that appears next to the .exe
+> file after the first run. Do not delete that folder.
 
 ### macOS testers
 
-Send them `SchoolITEngine` (the binary) or `SchoolITEngine.app`.
+Send them `SchoolITEngine` (the binary) or `SchoolITEngine.app` (the app bundle).
 
 Include this note:
 
-> Double-click SchoolITEngine to start. If macOS says it cannot be opened
-> because it is from an unidentified developer, right-click (or
-> Control-click) the file and choose Open, then click Open in the dialog.
-> You only need to do this once.
+> **To start:** Double-click SchoolITEngine. Your browser will open
+> automatically to the app.
 >
-> Your browser will open automatically to http://127.0.0.1:5000.
+> **If macOS says it cannot be opened:** Right-click (or Control-click)
+> the file and choose **Open**, then click **Open** in the dialog.
+> You only need to do this the first time.
+>
+> **To stop:** Close the terminal window that appeared when you launched.
+>
+> **Your data** is saved in a `data` folder next to the app file.
 
 ---
 
@@ -238,116 +239,130 @@ Include this note:
 
 ### "Failed to execute script" on launch
 
-This is almost always a missing file that PyInstaller didn't bundle.
-Switch to `--console` temporarily and look at the error in the terminal.
-The fix is usually adding another `--add-data` flag.
+Almost always a file that PyInstaller did not bundle. Switch to `--console`
+temporarily and read the error in the terminal window. The fix is usually
+one more `--add-data` flag.
 
-Common missed items:
+Common things to check:
 
 ```bash
-# If you have a static/ folder with CSS or JS
---add-data "static:static"
+# The templates folder (always required)
+--add-data "templates:templates"      # Mac
+--add-data "templates;templates"      # Windows
 
-# If you reference any files from subdirectories
---add-data "data/seed.json:data"
+# The modules folder (always required — contains the YAML files)
+--add-data "modules:modules"          # Mac
+--add-data "modules;modules"          # Windows
 ```
 
 ### Flask can't find templates
 
-PyInstaller unpacks files to `sys._MEIPASS` but Flask looks for templates
-relative to the app module's location. The `os.chdir(base_dir)` in the
-launcher handles this — confirm it's present.
+Confirm that `os.chdir(base_dir)` is present in `launcher.py`. This is
+what tells Flask to look for templates in the unpacked bundle rather than
+relative to the Python interpreter location.
 
-If templates are still missing, explicitly set the template folder in
-`app.py`:
+If templates are still not found, add this to `app.py` where the Flask
+app is created:
 
 ```python
-import sys
-_base = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-app = Flask(__name__, template_folder=os.path.join(_base, 'templates'))
+import sys as _sys, os as _os
+_base = getattr(_sys, '_MEIPASS', _os.path.dirname(_os.path.abspath(__file__)))
+app = Flask(__name__, template_folder=_os.path.join(_base, 'templates'))
 ```
 
 ### Port 5000 already in use
 
 On macOS Monterey and later, AirPlay Receiver uses port 5000 by default.
-Change the port in `launcher.py` to `5001` (or any unused port) if this
-affects your testers.
+If testers see a "port in use" error, change `PORT = 5000` to `PORT = 5001`
+in `launcher.py` and rebuild.
 
 ### Antivirus flags the .exe
 
-Common with PyInstaller-built executables because they look similar to
-packed malware to heuristic scanners. Solutions in order of effort:
+Common with PyInstaller executables — they resemble packed files that
+heuristic scanners associate with malware. Options in order of effort:
 
-1. Ask testers to add an exception (fine for a small beta group)
-2. Rebuild with `--onedir` instead of `--onefile` — a folder of files
-   is less suspicious than a single packed binary
-3. Purchase a code-signing certificate ($100–200/year) and sign the
-   executable — eliminates almost all AV false positives
+1. Ask testers to add an exception (fine for a small known group)
+2. Rebuild with `--onedir` instead of `--onefile` — a folder of files is
+   far less likely to trigger AV than a single packed binary
+3. Purchase a code-signing certificate ($100-200/year) and sign the
+   executable — eliminates almost all false positives permanently
 
 ### App works but data disappears on restart
 
-The `SCHOOL_IT_DATA_DIR` patch in Step 3 is missing or incorrect.
-Confirm the database file appears at `dist/data/assessments.db` (next
-to the .exe), not somewhere in `%TEMP%` or `/var/folders`.
+The `SCHOOL_IT_DATA_DIR` patch in Step 3 is missing or not applied
+correctly. Confirm the `data/assessments.db` file appears at
+`dist/data/assessments.db` (next to the .exe), not in `%TEMP%`
+or `/var/folders/...`.
+
+### Module 2 worksheets don't appear after saving DG1
+
+The `modules/` folder was not included in the PyInstaller bundle.
+Confirm the `--add-data "modules:modules"` (or `modules;modules` on
+Windows) flag is in your build command.
 
 ---
 
-## Using `--onedir` instead of `--onefile`
+## Using --onedir instead of --onefile
 
-`--onefile` packs everything into a single executable. It's tidy but
-slower to start (it unpacks to a temp folder on each launch) and more
-likely to trigger antivirus.
+`--onefile` packs everything into a single executable. Tidy to send but:
+- Slower to start (unpacks to a temp folder on every launch)
+- More likely to trigger antivirus
 
-`--onedir` produces a folder containing the executable plus all its
-dependencies. Faster to start, less suspicious to AV, but you have to
-zip the folder to send it.
+`--onedir` produces a folder with the executable plus its dependencies.
+Faster to start, less suspicious to AV, but you need to zip the folder
+before sending.
 
-To use it, replace `--onefile` with `--onedir` in the PyInstaller command.
-The output will be `dist/SchoolITEngine/` — zip that whole folder for
-distribution.
+To use it, replace `--onefile` with `--onedir`. The output will be
+`dist/SchoolITEngine/` — zip that whole folder for distribution.
 
 ---
 
-## Saving the build command as a .spec file
+## Saving the build command for next time
 
 After the first successful build, PyInstaller saves a `SchoolITEngine.spec`
-file. Future builds can use:
+file. Future builds can skip retyping the command:
 
 ```bash
 pyinstaller SchoolITEngine.spec
 ```
 
-This is faster and ensures the build is reproducible. Commit the `.spec`
-file to version control.
+Commit the `.spec` file to version control so builds are reproducible.
 
 ---
 
-## Build on each platform separately
+## Building for multiple platforms
 
-| Platform | Build machine needed | Output |
+| Platform | Build machine | Output |
 |---|---|---|
 | Windows 10/11 | Windows PC or VM | `SchoolITEngine.exe` |
-| macOS Intel | Intel Mac | `SchoolITEngine` |
-| macOS Apple Silicon | M1/M2/M3 Mac | `SchoolITEngine` |
+| macOS Intel | Intel Mac | `SchoolITEngine` or `.app` |
+| macOS Apple Silicon | M-series Mac | `SchoolITEngine` or `.app` |
 
-You cannot cross-compile. A Mac cannot build a Windows .exe.
-If you only have one platform, build for that and ask a colleague
-to build the others, or use a CI service (GitHub Actions has free
-Windows and macOS runners).
+You cannot cross-compile. A Mac cannot produce a Windows `.exe` and
+vice versa. If you need builds for platforms you don't have hardware for,
+GitHub Actions provides free Windows and macOS runners — ask for a CI
+workflow if you want to set that up.
 
 ---
 
-## Quick reference — full build command
+## Quick-reference build commands
 
-**Windows:**
-```
-pyinstaller --onefile --console --name "SchoolITEngine" --add-data "templates;templates" --add-data "modules;modules" launcher.py
-```
-
-**macOS / Linux:**
+**macOS / Linux — beta (console visible):**
 ```
 pyinstaller --onefile --console --name "SchoolITEngine" --add-data "templates:templates" --add-data "modules:modules" launcher.py
 ```
 
-Switch `--console` to `--windowed` for the final distribution version
-once you've confirmed the build is stable.
+**macOS / Linux — final distribution (no console):**
+```
+pyinstaller --onefile --windowed --name "SchoolITEngine" --add-data "templates:templates" --add-data "modules:modules" launcher.py
+```
+
+**Windows — beta (console visible):**
+```
+pyinstaller --onefile --console --name "SchoolITEngine" --add-data "templates;templates" --add-data "modules;modules" launcher.py
+```
+
+**Windows — final distribution (no console):**
+```
+pyinstaller --onefile --windowed --name "SchoolITEngine" --add-data "templates;templates" --add-data "modules;modules" launcher.py
+```

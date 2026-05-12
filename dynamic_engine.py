@@ -80,6 +80,12 @@ def clone_section_for_system(template_section, system_name, system_index,
     section["is_template"] = False
     section["system_name"] = system_name
     section["system_index"] = system_index
+    # Set display_id for sidebar — substitute placeholders if present
+    raw_display = section.get("display_id", "")
+    if raw_display:
+        section["display_id"] = _substitute(raw_display, system_name, system_index, system_total)
+    else:
+        section["display_id"] = f"Sys {system_index}"
 
     # Rewrite every question
     new_questions = []

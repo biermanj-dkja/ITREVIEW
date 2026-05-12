@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.5.0.1
+## v0.5.2.1
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -8,7 +8,52 @@ This tool runs entirely on your computer. No data is sent to the internet.
 
 ## What's in this version
 
-**v0.5.0.1** fixes question ID naming consistency across Module 2 — all per-system worksheet questions now use the same numeric scheme as Module 1 (e.g. SYS.1.1, SYS.2.3) rather than the previous lettered scheme (SYS.A1, SYS.B3).
+**v0.5.2.1** is a significant upgrade to Module 2 report quality, making findings more actionable and the action plan more practical to execute. Changes are entirely in `rules_engine_dg.py` and `report_generator_dg.py`.
+
+### Rules engine (`rules_engine_dg.py`)
+- **Data categories in finding detail text** — every high/critical finding now states which data types the affected system holds (e.g. "This system holds student health records and financial data"), drawn from SYS.5.1 answers. Findings about unprotected systems now communicate real stakes rather than abstract risk.
+- **New findings for audit log gaps** — SYS.1.5 answers of "logs exist but not reviewed" and "no audit logging" now generate low and medium findings respectively. Previously these answers docked points silently with no explanation.
+- **New finding for vendor security review** — SYS.4.4 "No — not reviewed" now generates a low finding pointing to SOC 2. Previously this answer docked points with no finding.
+- **New findings for retention/deletion gaps** — "Deletion occurs but is not documented" and "No deletion process" now generate low and medium findings respectively.
+- **New findings for school-wide gaps** — DG2.3 (no data register), DG2.6 (staff training), DG2.8 (vendor review process) now generate findings. The DG2.3 partial case ("exists but outdated") also now surfaces a low finding.
+- **Owner role on every finding** — each finding now carries a suggested responsible role (IT Director, Business Office, HR / IT Director, Head of School) so the action plan can be assigned immediately.
+- **Timing buckets** — every finding is tagged `immediate` (do within 30 days), `near_term` (do within 90 days), or `planned` (schedule this year), derived from severity.
+- **Per-area score breakdown** — `score_system_section()` now returns area-level earned/max scores for Access Control, Backup & Recovery, Data Flows, Vendor & Contract, and Retention & Disposal.
+- **Strength detection** — systems with few or no findings now get a list of specific things that are working well (MFA required, backups tested, DPA on file, etc.) rather than a generic "all good" message.
+- **Top priorities** — `DGSummary` now includes a list of the 5 highest-priority findings across all systems and school-wide, for the executive summary.
+- **Data-at-risk summary** — a plain-language sentence is generated when concern/urgent systems hold sensitive data categories.
+- **Getting Started checklist** — for schools grading C or below with significant school-wide gaps, a new `GettingStarted` object is populated with a five-step checklist and a 15-minute monthly governance ritual, based on the Magic EdTech K-12 data governance framework.
+
+### Report generator (`report_generator_dg.py`)
+- **Top Priorities table in executive summary** — up to 5 critical/high findings shown with owner and timing, so leadership can act from page 2 without reading the full report.
+- **Data-at-risk callout in executive summary** — flags which sensitive data categories are held by at-risk systems.
+- **Per-area score bars** — each per-system section now shows a compact area-by-area breakdown table with a visual bar, making it clear whether weaknesses are in access control, backups, contracts, or elsewhere.
+- **Strengths box for passing systems** — systems with no findings now show a green "what's working" box listing specific passing controls, replacing the generic "all clear" message.
+- **Action plan restructured into timing buckets** — the action plan is now divided into three sections (Immediate / Near-Term / Planned) with color-coded headers, making it straightforward to prioritise.
+- **Owner column in action plan and findings** — every action now shows the suggested responsible role.
+- **Timing shown in per-system finding boxes** — each finding's action box now displays Owner · Timing · Effort.
+- **Getting Started section** — new report section (shown for grade C and below) with a five-step governance checklist and 15-minute monthly meeting agenda, inspired by the Magic EdTech K-12 governance framework.
+- **Appendix now includes question prompt text** — the raw answer log table has a new "Question" column showing the human-readable prompt for each question ID, so the appendix is readable without the YAML schema.
+- **Respondent role** — the cover page now pulls `DG1.1b` (respondent role) if present alongside the existing `DG1.1` (respondent name).
+
+**v0.5.2** fixes a collection of Module 2 issues found in first-run testing:
+- Sidebar section IDs now show as "1", "Sys 1", "Sys 2", "2" instead of "DG1", "DG_SYS_1", "DG2"
+- DG1.2 (inventory date) now autofills with today's date
+- DG1.4 (system count) now autofills from the length of the DG1.3 list after saving
+- Per-system worksheet description now notes the multi-session time expectation
+- SYS.1.1a reworded to plain English: "Do any active accounts belong to people who no longer work at the school?"
+- SYS.2.3 and SYS.2.4 (restore test, offsite storage) are now conditional on the school managing the backup — these questions are not answerable when a vendor manages it
+- SYS.2.5 splits into two questions: the original RTO question for school-managed backups, and a new continuity-plan question for vendor-managed systems
+- SYS.4.2 and SYS.4.3 are now correctly labelled as conditional in the UI
+- SYS.3.1 data source count is now checked against total inventory; a school-wide warning finding is raised if any worksheet lists more sources than systems
+- Home page "Inspect" vs "Resume" now correctly reflects Module 2 completion (was hardcoded to Module 1's 10-section count)
+- Module 2 report card and DOCX no longer surface Module 1 findings links in the summary
+
+**v0.5.1** adds two major features:
+- **Module 2 DOCX report** — the Data Governance Audit now generates a full downloadable Word document with cover page, per-system grade cards, findings, action plan with effort ratings, and a raw answer appendix.
+- **Live conditional questions** — follow-up questions now appear and disappear instantly as you answer, without requiring a Save Progress round-trip. The server still validates on save; the browser now evaluates conditions client-side for immediate feedback.
+
+**v0.5.0.1** fixes question ID naming consistency across Module 2.
 
 **v0.5.0** adds the Data Governance and Data Flow Audit (Module 2), a
 dynamic section engine, and a per-system report card. See the
@@ -254,6 +299,12 @@ From the **Summary** screen:
   (A-F) with score bars, severity labels, and a full prioritised findings
   list covering all systems and school-wide governance gaps.
 
+- **Download Report (.docx)** — generates and downloads a complete Word
+  document from the report card screen. Contains: cover page, executive
+  summary with system grade table, per-system findings with effort ratings,
+  school-wide governance findings, a consolidated action plan grouped by
+  area, and a raw answer appendix per system.
+
 ---
 
 ## Effort ratings
@@ -287,7 +338,8 @@ school_it_engine/
 ├── dynamic_engine.py       # Dynamic section generator for Module 2 per-system worksheets
 ├── rules_engine.py         # Deterministic findings engine for Module 1
 ├── rules_engine_dg.py      # Findings engine for Module 2 (data governance)
-├── report_generator.py     # DOCX report builder using python-docx (pure Python)
+├── report_generator.py     # DOCX report builder for Module 1
+├── report_generator_dg.py  # DOCX report builder for Module 2 (data governance)
 ├── test_scoring.py         # Automated scoring tests
 ├── requirements.txt        # Python dependencies
 ├── README.md               # This file
@@ -333,15 +385,14 @@ or any technical setup.
 
 ## Known limitations in this version
 
-- Follow-up questions appear only after hitting Save Progress — conditional
-  question visibility is evaluated server-side on each save or page load.
-  Questions will not appear or disappear instantly as you type; hit
-  Save Progress to reveal any follow-ups. JavaScript live-update of
-  conditional questions is planned for a future version.
+- Follow-up questions now appear and disappear live as you answer —
+  no Save Progress required for question visibility. Questions with a
+  **Save Progress ↓** button still need a server round-trip for actions
+  that generate new content (e.g. the system worksheets in Module 2 DG1).
 - Module 2 per-system worksheets are generated after saving Section DG1;
-  if you add systems to the inventory later, save again to regenerate
+  if you add systems to the inventory later, return to DG1 and save again to regenerate
 - Logo/crest file upload is not yet implemented
 - Deprecate assessment UI is not yet implemented (the database field exists)
-- Module 2 does not yet produce a downloadable DOCX — the report card is
-  browser-only in this version (DOCX export is planned)
+- Module 2 DOCX report does not yet include a phased remediation timeline
+  (planned for a future version — currently produced for Module 1 only)
 - Module 1 Sections 1 and 10 generate no findings (context only by design)

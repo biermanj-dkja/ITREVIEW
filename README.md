@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.5.2.1
+## v0.5.2.2
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -8,7 +8,40 @@ This tool runs entirely on your computer. No data is sent to the internet.
 
 ## What's in this version
 
-**v0.5.2.1** is a significant upgrade to Module 2 report quality, making findings more actionable and the action plan more practical to execute. Changes are entirely in `rules_engine_dg.py` and `report_generator_dg.py`.
+**v0.5.2.2** is a significant overhaul of the Module 1 report (`report_generator.py`), making it easier to navigate, more honest about what's working, and more actionable. All changes are in `report_generator.py` only — no YAML, rules engine, or other files were modified.
+
+### Table of Contents
+- The report now opens with a native Word TOC field on page 2 (after the cover). When the document opens in Word or LibreOffice, right-click the placeholder text and choose "Update Field" to generate the live table of contents with page numbers.
+- Headings are now registered as proper Word Heading styles (Heading 1, Heading 2, Heading 3) with `outlineLevel` set in the style definition. This is what allows the TOC field to collect them. The visual appearance is unchanged.
+
+### Executive Summary overhaul
+- **Overall health verdict** — a single plain-language sentence appears at the top of the executive summary, giving the reader an honest one-line assessment before any tables. The sentence adapts based on the number and severity of findings.
+- **Data confidence callout in the body** — when confidence is moderate or low, a highlighted amber box now appears in the executive summary body. Previously the caveat was only in 7pt footer text that most readers never see.
+- **"What's Working" column in the Section Scores table** — the scores table now has a fifth column showing a plain-language status per section (✓ Healthy / Mostly good / Needs work). Sections scoring 85%+ show a green ✓ so the reader can immediately see what's performing well alongside what needs attention. Previously the report only communicated problems.
+
+### Bullet Action Plan removed — Phased Timeline is the single source
+- The old "Action Plan" section (actions as bullet points grouped by horizon then section) has been removed entirely. It duplicated the Phased Remediation Timeline that immediately followed it. The timeline is richer (includes effort, severity, dates, and now a Section column) and serves as the only action-planning section.
+- The timeline table now has a Section column (§2, §3, etc.) so readers can trace each action back to the relevant section of the report without needing the finding ID.
+
+### Section-by-Section Findings improvements
+- **Healthy section markers** — sections that were scored but produced no findings now appear with a green "✓ No findings" box rather than being silently skipped. This confirms to the reader that the section was assessed and is in good shape.
+- **Finding ID explained** — the introduction paragraph now notes that finding IDs (e.g. F3-004) are used for cross-referencing in the action plan.
+- **Visually distinct box types** — three box types now use clearly different colours:
+  - IT person notes (passthrough) → blue (`D6EAF8`)
+  - Plain-language / scoring notes → amber (`FEF9E7`)
+  - Recommended actions → pale green (`EAFAF1`) with a "Recommended actions:" header in green
+  - Previously all three used the same blue and were easy to skim past.
+- **Action arrows** — each action line now opens with `→` (or `⚠` for constrained actions) to make them visually distinct from the description text above.
+
+### Key Risks section improvements
+- **Primary finding labelled** — each risk group now identifies its primary finding (highest severity, largest effort) with a "← Start here" label. Previously the group just listed finding IDs with no indication of where to begin.
+- **Updated intro text** — the section intro now explains the "Start here" label explicitly.
+
+### Appendix improvements
+- **Unknown Answer Log promoted and reframed** — the Unknown Answer Log is now Section B (before the full response log, not after). It opens with a highlighted amber callout box explaining that each unknown answer is a gap in IT situational awareness — something the school doesn't currently know about its own environment. Previously it was a small unlabelled list buried after the response log.
+- **Question prompts in the Full Response Log** — the response log table now has a "Question" column showing the human-readable prompt for each question ID (e.g. `3.4 | AP location documented? | answered | No`). Previously the log showed only `3.4 | answered | No`, which was unreadable without the YAML schema.
+
+**v0.5.2.1** upgraded the Module 2 (Data Governance) report — see that entry for details.
 
 ### Rules engine (`rules_engine_dg.py`)
 - **Data categories in finding detail text** — every high/critical finding now states which data types the affected system holds (e.g. "This system holds student health records and financial data"), drawn from SYS.5.1 answers. Findings about unprotected systems now communicate real stakes rather than abstract risk.

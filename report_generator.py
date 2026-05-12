@@ -420,7 +420,7 @@ def _toc(doc):
     p.paragraph_format.space_after = Pt(6)
     fld_char_begin = OxmlElement("w:fldChar")
     fld_char_begin.set(qn("w:fldCharType"), "begin")
-    fld_char_begin.set(qn("w:dirty"), "true")
+    fld_char_begin.set(qn("w:dirty"), "false")
 
     instr = OxmlElement("w:instrText")
     instr.set(qn("xml:space"), "preserve")

@@ -6,94 +6,6 @@ This tool runs entirely on your computer. No data is sent to the internet.
 
 ---
 
-## What's in this version
-
-**v0.5.2.2** is a significant overhaul of the Module 1 report (`report_generator.py`), making it easier to navigate, more honest about what's working, and more actionable. All changes are in `report_generator.py` only — no YAML, rules engine, or other files were modified.
-
-### Table of Contents
-- The report now opens with a native Word TOC field on page 2 (after the cover). When the document opens in Word or LibreOffice, right-click the placeholder text and choose "Update Field" to generate the live table of contents with page numbers.
-- Headings are now registered as proper Word Heading styles (Heading 1, Heading 2, Heading 3) with `outlineLevel` set in the style definition. This is what allows the TOC field to collect them. The visual appearance is unchanged.
-
-### Executive Summary overhaul
-- **Overall health verdict** — a single plain-language sentence appears at the top of the executive summary, giving the reader an honest one-line assessment before any tables. The sentence adapts based on the number and severity of findings.
-- **Data confidence callout in the body** — when confidence is moderate or low, a highlighted amber box now appears in the executive summary body. Previously the caveat was only in 7pt footer text that most readers never see.
-- **"What's Working" column in the Section Scores table** — the scores table now has a fifth column showing a plain-language status per section (✓ Healthy / Mostly good / Needs work). Sections scoring 85%+ show a green ✓ so the reader can immediately see what's performing well alongside what needs attention. Previously the report only communicated problems.
-
-### Bullet Action Plan removed — Phased Timeline is the single source
-- The old "Action Plan" section (actions as bullet points grouped by horizon then section) has been removed entirely. It duplicated the Phased Remediation Timeline that immediately followed it. The timeline is richer (includes effort, severity, dates, and now a Section column) and serves as the only action-planning section.
-- The timeline table now has a Section column (§2, §3, etc.) so readers can trace each action back to the relevant section of the report without needing the finding ID.
-
-### Section-by-Section Findings improvements
-- **Healthy section markers** — sections that were scored but produced no findings now appear with a green "✓ No findings" box rather than being silently skipped. This confirms to the reader that the section was assessed and is in good shape.
-- **Finding ID explained** — the introduction paragraph now notes that finding IDs (e.g. F3-004) are used for cross-referencing in the action plan.
-- **Visually distinct box types** — three box types now use clearly different colours:
-  - IT person notes (passthrough) → blue (`D6EAF8`)
-  - Plain-language / scoring notes → amber (`FEF9E7`)
-  - Recommended actions → pale green (`EAFAF1`) with a "Recommended actions:" header in green
-  - Previously all three used the same blue and were easy to skim past.
-- **Action arrows** — each action line now opens with `→` (or `⚠` for constrained actions) to make them visually distinct from the description text above.
-
-### Key Risks section improvements
-- **Primary finding labelled** — each risk group now identifies its primary finding (highest severity, largest effort) with a "← Start here" label. Previously the group just listed finding IDs with no indication of where to begin.
-- **Updated intro text** — the section intro now explains the "Start here" label explicitly.
-
-### Appendix improvements
-- **Unknown Answer Log promoted and reframed** — the Unknown Answer Log is now Section B (before the full response log, not after). It opens with a highlighted amber callout box explaining that each unknown answer is a gap in IT situational awareness — something the school doesn't currently know about its own environment. Previously it was a small unlabelled list buried after the response log.
-- **Question prompts in the Full Response Log** — the response log table now has a "Question" column showing the human-readable prompt for each question ID (e.g. `3.4 | AP location documented? | answered | No`). Previously the log showed only `3.4 | answered | No`, which was unreadable without the YAML schema.
-
-**v0.5.2.1** upgraded the Module 2 (Data Governance) report — see that entry for details.
-
-### Rules engine (`rules_engine_dg.py`)
-- **Data categories in finding detail text** — every high/critical finding now states which data types the affected system holds (e.g. "This system holds student health records and financial data"), drawn from SYS.5.1 answers. Findings about unprotected systems now communicate real stakes rather than abstract risk.
-- **New findings for audit log gaps** — SYS.1.5 answers of "logs exist but not reviewed" and "no audit logging" now generate low and medium findings respectively. Previously these answers docked points silently with no explanation.
-- **New finding for vendor security review** — SYS.4.4 "No — not reviewed" now generates a low finding pointing to SOC 2. Previously this answer docked points with no finding.
-- **New findings for retention/deletion gaps** — "Deletion occurs but is not documented" and "No deletion process" now generate low and medium findings respectively.
-- **New findings for school-wide gaps** — DG2.3 (no data register), DG2.6 (staff training), DG2.8 (vendor review process) now generate findings. The DG2.3 partial case ("exists but outdated") also now surfaces a low finding.
-- **Owner role on every finding** — each finding now carries a suggested responsible role (IT Director, Business Office, HR / IT Director, Head of School) so the action plan can be assigned immediately.
-- **Timing buckets** — every finding is tagged `immediate` (do within 30 days), `near_term` (do within 90 days), or `planned` (schedule this year), derived from severity.
-- **Per-area score breakdown** — `score_system_section()` now returns area-level earned/max scores for Access Control, Backup & Recovery, Data Flows, Vendor & Contract, and Retention & Disposal.
-- **Strength detection** — systems with few or no findings now get a list of specific things that are working well (MFA required, backups tested, DPA on file, etc.) rather than a generic "all good" message.
-- **Top priorities** — `DGSummary` now includes a list of the 5 highest-priority findings across all systems and school-wide, for the executive summary.
-- **Data-at-risk summary** — a plain-language sentence is generated when concern/urgent systems hold sensitive data categories.
-- **Getting Started checklist** — for schools grading C or below with significant school-wide gaps, a new `GettingStarted` object is populated with a five-step checklist and a 15-minute monthly governance ritual, based on the Magic EdTech K-12 data governance framework.
-
-### Report generator (`report_generator_dg.py`)
-- **Top Priorities table in executive summary** — up to 5 critical/high findings shown with owner and timing, so leadership can act from page 2 without reading the full report.
-- **Data-at-risk callout in executive summary** — flags which sensitive data categories are held by at-risk systems.
-- **Per-area score bars** — each per-system section now shows a compact area-by-area breakdown table with a visual bar, making it clear whether weaknesses are in access control, backups, contracts, or elsewhere.
-- **Strengths box for passing systems** — systems with no findings now show a green "what's working" box listing specific passing controls, replacing the generic "all clear" message.
-- **Action plan restructured into timing buckets** — the action plan is now divided into three sections (Immediate / Near-Term / Planned) with color-coded headers, making it straightforward to prioritise.
-- **Owner column in action plan and findings** — every action now shows the suggested responsible role.
-- **Timing shown in per-system finding boxes** — each finding's action box now displays Owner · Timing · Effort.
-- **Getting Started section** — new report section (shown for grade C and below) with a five-step governance checklist and 15-minute monthly meeting agenda, inspired by the Magic EdTech K-12 governance framework.
-- **Appendix now includes question prompt text** — the raw answer log table has a new "Question" column showing the human-readable prompt for each question ID, so the appendix is readable without the YAML schema.
-- **Respondent role** — the cover page now pulls `DG1.1b` (respondent role) if present alongside the existing `DG1.1` (respondent name).
-
-**v0.5.2** fixes a collection of Module 2 issues found in first-run testing:
-- Sidebar section IDs now show as "1", "Sys 1", "Sys 2", "2" instead of "DG1", "DG_SYS_1", "DG2"
-- DG1.2 (inventory date) now autofills with today's date
-- DG1.4 (system count) now autofills from the length of the DG1.3 list after saving
-- Per-system worksheet description now notes the multi-session time expectation
-- SYS.1.1a reworded to plain English: "Do any active accounts belong to people who no longer work at the school?"
-- SYS.2.3 and SYS.2.4 (restore test, offsite storage) are now conditional on the school managing the backup — these questions are not answerable when a vendor manages it
-- SYS.2.5 splits into two questions: the original RTO question for school-managed backups, and a new continuity-plan question for vendor-managed systems
-- SYS.4.2 and SYS.4.3 are now correctly labelled as conditional in the UI
-- SYS.3.1 data source count is now checked against total inventory; a school-wide warning finding is raised if any worksheet lists more sources than systems
-- Home page "Inspect" vs "Resume" now correctly reflects Module 2 completion (was hardcoded to Module 1's 10-section count)
-- Module 2 report card and DOCX no longer surface Module 1 findings links in the summary
-
-**v0.5.1** adds two major features:
-- **Module 2 DOCX report** — the Data Governance Audit now generates a full downloadable Word document with cover page, per-system grade cards, findings, action plan with effort ratings, and a raw answer appendix.
-- **Live conditional questions** — follow-up questions now appear and disappear instantly as you answer, without requiring a Save Progress round-trip. The server still validates on save; the browser now evaluates conditions client-side for immediate feedback.
-
-**v0.5.0.1** fixes question ID naming consistency across Module 2.
-
-**v0.5.0** adds the Data Governance and Data Flow Audit (Module 2), a
-dynamic section engine, and a per-system report card. See the
-[Modules](#modules) section below for what each module covers.
-
----
-
 ## Requirements
 
 - Python 3.10 or higher
@@ -413,6 +325,97 @@ on packaging the engine as a standalone double-clickable executable
 (.exe on Windows, .app on macOS) using PyInstaller.
 Testers receive a single file and do not need Python, a terminal,
 or any technical setup.
+
+---
+
+
+## What's in this version
+
+**v0.5.2.2** is a significant overhaul of the Module 1 report (`report_generator.py`), making it easier to navigate, more honest about what's working, and more actionable. All changes are in `report_generator.py` only — no YAML, rules engine, or other files were modified.
+
+### Table of Contents
+- The report now opens with a native Word TOC field on page 2 (after the cover). When the document opens in Word or LibreOffice, right-click the placeholder text and choose "Update Field" to generate the live table of contents with page numbers.
+- Headings are now registered as proper Word Heading styles (Heading 1, Heading 2, Heading 3) with `outlineLevel` set in the style definition. This is what allows the TOC field to collect them. The visual appearance is unchanged.
+
+### Executive Summary overhaul
+- **Overall health verdict** — a single plain-language sentence appears at the top of the executive summary, giving the reader an honest one-line assessment before any tables. The sentence adapts based on the number and severity of findings.
+- **Data confidence callout in the body** — when confidence is moderate or low, a highlighted amber box now appears in the executive summary body. Previously the caveat was only in 7pt footer text that most readers never see.
+- **"What's Working" column in the Section Scores table** — the scores table now has a fifth column showing a plain-language status per section (✓ Healthy / Mostly good / Needs work). Sections scoring 85%+ show a green ✓ so the reader can immediately see what's performing well alongside what needs attention. Previously the report only communicated problems.
+
+### Bullet Action Plan removed — Phased Timeline is the single source
+- The old "Action Plan" section (actions as bullet points grouped by horizon then section) has been removed entirely. It duplicated the Phased Remediation Timeline that immediately followed it. The timeline is richer (includes effort, severity, dates, and now a Section column) and serves as the only action-planning section.
+- The timeline table now has a Section column (§2, §3, etc.) so readers can trace each action back to the relevant section of the report without needing the finding ID.
+
+### Section-by-Section Findings improvements
+- **Healthy section markers** — sections that were scored but produced no findings now appear with a green "✓ No findings" box rather than being silently skipped. This confirms to the reader that the section was assessed and is in good shape.
+- **Finding ID explained** — the introduction paragraph now notes that finding IDs (e.g. F3-004) are used for cross-referencing in the action plan.
+- **Visually distinct box types** — three box types now use clearly different colours:
+  - IT person notes (passthrough) → blue (`D6EAF8`)
+  - Plain-language / scoring notes → amber (`FEF9E7`)
+  - Recommended actions → pale green (`EAFAF1`) with a "Recommended actions:" header in green
+  - Previously all three used the same blue and were easy to skim past.
+- **Action arrows** — each action line now opens with `→` (or `⚠` for constrained actions) to make them visually distinct from the description text above.
+
+### Key Risks section improvements
+- **Primary finding labelled** — each risk group now identifies its primary finding (highest severity, largest effort) with a "← Start here" label. Previously the group just listed finding IDs with no indication of where to begin.
+- **Updated intro text** — the section intro now explains the "Start here" label explicitly.
+
+### Appendix improvements
+- **Unknown Answer Log promoted and reframed** — the Unknown Answer Log is now Section B (before the full response log, not after). It opens with a highlighted amber callout box explaining that each unknown answer is a gap in IT situational awareness — something the school doesn't currently know about its own environment. Previously it was a small unlabelled list buried after the response log.
+- **Question prompts in the Full Response Log** — the response log table now has a "Question" column showing the human-readable prompt for each question ID (e.g. `3.4 | AP location documented? | answered | No`). Previously the log showed only `3.4 | answered | No`, which was unreadable without the YAML schema.
+
+**v0.5.2.1** upgraded the Module 2 (Data Governance) report — see that entry for details.
+
+### Rules engine (`rules_engine_dg.py`)
+- **Data categories in finding detail text** — every high/critical finding now states which data types the affected system holds (e.g. "This system holds student health records and financial data"), drawn from SYS.5.1 answers. Findings about unprotected systems now communicate real stakes rather than abstract risk.
+- **New findings for audit log gaps** — SYS.1.5 answers of "logs exist but not reviewed" and "no audit logging" now generate low and medium findings respectively. Previously these answers docked points silently with no explanation.
+- **New finding for vendor security review** — SYS.4.4 "No — not reviewed" now generates a low finding pointing to SOC 2. Previously this answer docked points with no finding.
+- **New findings for retention/deletion gaps** — "Deletion occurs but is not documented" and "No deletion process" now generate low and medium findings respectively.
+- **New findings for school-wide gaps** — DG2.3 (no data register), DG2.6 (staff training), DG2.8 (vendor review process) now generate findings. The DG2.3 partial case ("exists but outdated") also now surfaces a low finding.
+- **Owner role on every finding** — each finding now carries a suggested responsible role (IT Director, Business Office, HR / IT Director, Head of School) so the action plan can be assigned immediately.
+- **Timing buckets** — every finding is tagged `immediate` (do within 30 days), `near_term` (do within 90 days), or `planned` (schedule this year), derived from severity.
+- **Per-area score breakdown** — `score_system_section()` now returns area-level earned/max scores for Access Control, Backup & Recovery, Data Flows, Vendor & Contract, and Retention & Disposal.
+- **Strength detection** — systems with few or no findings now get a list of specific things that are working well (MFA required, backups tested, DPA on file, etc.) rather than a generic "all good" message.
+- **Top priorities** — `DGSummary` now includes a list of the 5 highest-priority findings across all systems and school-wide, for the executive summary.
+- **Data-at-risk summary** — a plain-language sentence is generated when concern/urgent systems hold sensitive data categories.
+- **Getting Started checklist** — for schools grading C or below with significant school-wide gaps, a new `GettingStarted` object is populated with a five-step checklist and a 15-minute monthly governance ritual, based on the Magic EdTech K-12 data governance framework.
+
+### Report generator (`report_generator_dg.py`)
+- **Top Priorities table in executive summary** — up to 5 critical/high findings shown with owner and timing, so leadership can act from page 2 without reading the full report.
+- **Data-at-risk callout in executive summary** — flags which sensitive data categories are held by at-risk systems.
+- **Per-area score bars** — each per-system section now shows a compact area-by-area breakdown table with a visual bar, making it clear whether weaknesses are in access control, backups, contracts, or elsewhere.
+- **Strengths box for passing systems** — systems with no findings now show a green "what's working" box listing specific passing controls, replacing the generic "all clear" message.
+- **Action plan restructured into timing buckets** — the action plan is now divided into three sections (Immediate / Near-Term / Planned) with color-coded headers, making it straightforward to prioritise.
+- **Owner column in action plan and findings** — every action now shows the suggested responsible role.
+- **Timing shown in per-system finding boxes** — each finding's action box now displays Owner · Timing · Effort.
+- **Getting Started section** — new report section (shown for grade C and below) with a five-step governance checklist and 15-minute monthly meeting agenda, inspired by the Magic EdTech K-12 governance framework.
+- **Appendix now includes question prompt text** — the raw answer log table has a new "Question" column showing the human-readable prompt for each question ID, so the appendix is readable without the YAML schema.
+- **Respondent role** — the cover page now pulls `DG1.1b` (respondent role) if present alongside the existing `DG1.1` (respondent name).
+
+**v0.5.2** fixes a collection of Module 2 issues found in first-run testing:
+- Sidebar section IDs now show as "1", "Sys 1", "Sys 2", "2" instead of "DG1", "DG_SYS_1", "DG2"
+- DG1.2 (inventory date) now autofills with today's date
+- DG1.4 (system count) now autofills from the length of the DG1.3 list after saving
+- Per-system worksheet description now notes the multi-session time expectation
+- SYS.1.1a reworded to plain English: "Do any active accounts belong to people who no longer work at the school?"
+- SYS.2.3 and SYS.2.4 (restore test, offsite storage) are now conditional on the school managing the backup — these questions are not answerable when a vendor manages it
+- SYS.2.5 splits into two questions: the original RTO question for school-managed backups, and a new continuity-plan question for vendor-managed systems
+- SYS.4.2 and SYS.4.3 are now correctly labelled as conditional in the UI
+- SYS.3.1 data source count is now checked against total inventory; a school-wide warning finding is raised if any worksheet lists more sources than systems
+- Home page "Inspect" vs "Resume" now correctly reflects Module 2 completion (was hardcoded to Module 1's 10-section count)
+- Module 2 report card and DOCX no longer surface Module 1 findings links in the summary
+
+**v0.5.1** adds two major features:
+- **Module 2 DOCX report** — the Data Governance Audit now generates a full downloadable Word document with cover page, per-system grade cards, findings, action plan with effort ratings, and a raw answer appendix.
+- **Live conditional questions** — follow-up questions now appear and disappear instantly as you answer, without requiring a Save Progress round-trip. The server still validates on save; the browser now evaluates conditions client-side for immediate feedback.
+
+**v0.5.0.1** fixes question ID naming consistency across Module 2.
+
+**v0.5.0** adds the Data Governance and Data Flow Audit (Module 2), a
+dynamic section engine, and a per-system report card. See the
+[Modules](#modules) section below for what each module covers.
+
+---
 
 ---
 

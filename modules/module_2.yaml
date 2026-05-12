@@ -1,0 +1,837 @@
+module_id: module_2
+module_name: Data Governance and Data Flow Audit
+version: "1.0"
+target_audience: School IT Director or Technology Coordinator
+description: >
+  A structured audit of every system the school uses — mapping where data lives,
+  how it flows between systems, who has access, how it is backed up, and what
+  vendor agreements govern it. Produces a per-system report card and a
+  school-wide data governance findings report.
+
+# ─────────────────────────────────────────────────────────────────
+# MODULE-LEVEL FEATURE FLAGS
+# dynamic_sections: true enables the per-system repeating section
+#   pattern. The engine reads the system inventory collected in
+#   Section DG1 and generates one instance of the template section
+#   (section_id: "DG_SYS_TEMPLATE") for each named system.
+# ─────────────────────────────────────────────────────────────────
+dynamic_sections:
+  enabled: true
+  inventory_question_id: "DG1.3"      # list_of_items answer that names each system
+  template_section_id: "DG_SYS_TEMPLATE"
+  generated_section_id_prefix: "DG_SYS_"   # e.g. DG_SYS_1, DG_SYS_2 …
+  max_systems: 40
+
+sections:
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION DG1  —  System Inventory  (~20 min)
+# Discovery phase. Finds every system. Drives the dynamic sections.
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "DG1"
+    title: "System Inventory — Discovery"
+    estimated_minutes: 20
+    description: >
+      Identify every platform, application, and service the school uses or
+      has used. This list drives the rest of the audit: one per-system
+      worksheet will be generated for each entry.  Be thorough — free tools,
+      single-user tools, and decommissioned systems all belong on the list.
+    order: 1
+    scoring_note: >
+      This section is context only. All scoring happens in the per-system
+      worksheets generated from your inventory.
+    questions:
+
+      - question_id: "DG1.1"
+        prompt: Name of the person completing this inventory
+        help_text: e.g. Alex Smith, Director of Technology
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "DG1.2"
+        prompt: Date the inventory was started
+        help_text: Used to date-stamp the report.
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "DG1.3"
+        prompt: "List every system, platform, or service the school uses or has used"
+        help_text: >
+          Enter one system per line. Include: SIS, LMS, email, cloud storage,
+          finance, HR, admissions, parent portal, communication apps, classroom
+          tools, assessment platforms, library systems, background-check services,
+          payment processors, and any free or single-person tools. Include
+          decommissioned systems — they matter too.
+          This list generates one per-system worksheet for each entry.
+          Press Save Progress when the list is complete to generate your worksheets.
+        answer_type: list_of_items
+        status: core
+        skippable: false
+        triggers_save: true
+        points: 0
+        condition: null
+
+      - question_id: "DG1.4"
+        prompt: "How many systems are on your list?"
+        help_text: >
+          This is filled automatically from your list above. Confirm it looks right
+          before saving. This number drives how many per-system worksheets are created.
+        answer_type: count
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "DG1.5"
+        prompt: Are there any systems you know exist but could not name yet?
+        help_text: >
+          Note anything you know is in use but could not identify yet —
+          e.g. "a tool the PE department uses for tracking fitness scores."
+          These become open items in your findings report.
+        answer_type: long_text
+        status: optional
+        skippable: true
+        points: 0
+        condition: null
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION DG_SYS_TEMPLATE  —  Per-System Worksheet (repeated)
+# This section is a template. The engine clones it once per system
+# found in DG1.3, substituting {system_name} and {system_index}
+# throughout. The generated sections are numbered DG_SYS_1 … DG_SYS_N.
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "DG_SYS_TEMPLATE"
+    title: "System Worksheet — {system_name}"
+    estimated_minutes: 30
+    description: >
+      Profile system {system_index} of {system_total}: {system_name}.
+      Answer every question that applies. If you do not know the answer,
+      select or type "Unknown" — an honest unknown is a finding that
+      can be fixed. Do not guess.
+    order: 100          # base order; engine adds system_index
+    is_template: true   # engine skips this section in navigation; clones it
+    questions:
+
+      # ── System identification ────────────────────────────────────
+      - question_id: "SYS.ID.name"
+        prompt: "Confirm the system name"
+        help_text: >
+          Pre-filled with the name from your inventory. Correct it here
+          if needed (e.g. add the vendor name or full product name).
+        answer_type: short_text
+        status: core
+        skippable: false
+        points: 0
+        condition: null
+
+      - question_id: "SYS.ID.dept"
+        prompt: "Which department or team is the primary user of this system?"
+        help_text: >
+          e.g. Academics, Finance, HR, Admissions, IT, Athletics.
+          If used school-wide, write "All departments."
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "SYS.ID.status"
+        prompt: "What is the current status of this system?"
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 0
+        condition: null
+        options:
+          - Active — in regular use
+          - Active — limited or infrequent use
+          - Inactive — still accessible but not being used
+          - Decommissioned — no longer in use
+          - Unknown
+
+      - question_id: "SYS.ID.vendor"
+        prompt: "Who is the vendor or provider of this system?"
+        help_text: >
+          If school-built or internally managed, write "Internal."
+          If a free consumer tool (e.g. Google Forms), name it.
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      # ── SECTION A: Access Control ────────────────────────────────
+      - question_id: "SYS.A1"
+        prompt: "[IT] Can you generate a current list of every login account for this system — including current staff, former staff, vendors, and contractors?"
+        help_text: >
+          If the system cannot generate this list quickly, that is itself a
+          finding. Note it in the notes field below.
+        answer_type: single_select
+        status: core
+        skippable: false
+        triggers_save: true
+        points: 8
+        condition: null
+        options:
+          - Yes — complete list available
+          - Partial — list available but may be incomplete
+          - No — system does not easily provide this
+          - Unknown
+
+      - question_id: "SYS.A1a"
+        prompt: "[IT] Are any accounts on that list belonging to staff who have left the school still active?"
+        help_text: >
+          Former staff accounts are a critical security gap — they must be
+          revoked as part of offboarding. Note any names or count in the
+          notes field.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: false
+        inverted: true
+        points: 10
+        condition:
+          type: answer_is
+          question_id: "SYS.A1"
+          value:
+            - "Yes — complete list available"
+            - "Partial — list available but may be incomplete"
+
+      - question_id: "SYS.A2"
+        prompt: "[IT] Does this system use role-based access — where different staff see different data based on their role — or does everyone with a login see everything?"
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 5
+        condition: null
+        options:
+          - Role-based — different roles see different data
+          - Flat — everyone with a login sees everything
+          - Unknown
+
+      - question_id: "SYS.A2a"
+        prompt: "[IT] Are there any staff members with administrator-level access who do not need that level of access for their job?"
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        inverted: true
+        points: 5
+        condition:
+          type: answer_is
+          question_id: "SYS.A2"
+          value: "Role-based — different roles see different data"
+
+      - question_id: "SYS.A3"
+        prompt: "[IT] Is multi-factor authentication (MFA) enabled and required for this system?"
+        help_text: >
+          MFA = a second login step beyond just a password, such as a phone
+          code or authenticator app. Should be mandatory on any system holding
+          student, health, or financial data.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 10
+        condition: null
+        options:
+          - Yes — required for all users
+          - Partial — available but not required
+          - No — not available or not enabled
+          - Unknown
+
+      - question_id: "SYS.A4"
+        prompt: "[IT] Is this system connected to the school's central login (Single Sign-On / SSO)?"
+        help_text: >
+          Systems outside SSO require manual access revocation during offboarding
+          and are a common gap. If not on SSO, note how passwords are managed.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        points: 5
+        condition: null
+
+      - question_id: "SYS.A4a"
+        prompt: "[IT] Since this system is outside SSO — are any shared or generic logins in use?"
+        help_text: Shared logins prevent individual accountability and complicate offboarding.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        inverted: true
+        points: 5
+        condition:
+          type: answer_is
+          question_id: "SYS.A4"
+          value: "no"
+
+      - question_id: "SYS.A5"
+        prompt: "[IT] Does this system keep an audit log — a record of who logged in, when, and what they did?"
+        help_text: >
+          Best practice is 90 days minimum retention, ideally one year.
+          Audit logs are essential for investigating incidents.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 5
+        condition: null
+        options:
+          - Yes — logs retained 90+ days and reviewed regularly
+          - Yes — logs exist but not reviewed regularly
+          - Yes — logs exist but retention period unknown
+          - No — no audit logging
+          - Unknown
+
+      # ── SECTION B: Backup & Recovery ────────────────────────────
+      - question_id: "SYS.B1"
+        prompt: "[IT] Is the data in this system backed up?"
+        answer_type: single_select
+        is_gate: true
+        gate_negative_values:
+          - "No — not backed up"
+          - "Unknown"
+        gate_hides_unconditional: false
+        status: core
+        skippable: false
+        points: 10
+        condition: null
+        options:
+          - Yes — school manages the backup
+          - Yes — vendor manages the backup
+          - Both — school and vendor both maintain copies
+          - No — not backed up
+          - Unknown
+
+      - question_id: "SYS.B1a"
+        prompt: "[IT] Does the contract specify backup frequency, retention period, and the school's right to request a restore?"
+        help_text: >
+          Vendor backups protect the vendor's infrastructure. The school needs
+          its own independent copy for true recovery capability.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        points: 4
+        condition:
+          type: answer_is
+          question_id: "SYS.B1"
+          value:
+            - "Yes — vendor manages the backup"
+            - "Both — school and vendor both maintain copies"
+
+      - question_id: "SYS.B1b"
+        prompt: "[IT] Does the school also maintain an independent copy of this data — separate from the vendor's backup?"
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        points: 5
+        condition:
+          type: answer_is
+          question_id: "SYS.B1"
+          value: "Yes — vendor manages the backup"
+
+      - question_id: "SYS.B2"
+        prompt: "[IT] How frequently is this system backed up?"
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 3
+        condition:
+          type: answer_is_not
+          question_id: "SYS.B1"
+          value:
+            - "No — not backed up"
+            - "Unknown"
+        options:
+          - Continuously (real-time replication)
+          - Daily
+          - Weekly
+          - Less than weekly
+          - Unknown
+
+      - question_id: "SYS.B3"
+        prompt: "[IT] When was the backup for this system last tested — meaning data was actually restored and verified?"
+        help_text: >
+          A backup that has never been tested is an assumption, not a safety net.
+          Testing means data was restored and confirmed accurate — not just that
+          the process completed without errors.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 8
+        condition:
+          type: answer_is_not
+          question_id: "SYS.B1"
+          value:
+            - "No — not backed up"
+            - "Unknown"
+        options:
+          - Within the last 12 months — documented
+          - Within the last 12 months — not documented
+          - More than 12 months ago
+          - Never tested
+          - Unknown
+
+      - question_id: "SYS.B4"
+        prompt: "[IT] Are backup files stored separately from the system itself — in a location that would survive the same event that damaged the original?"
+        help_text: >
+          Backups stored on the same network as the original can be encrypted
+          or destroyed in the same ransomware event.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        points: 6
+        condition:
+          type: answer_is_not
+          question_id: "SYS.B1"
+          value:
+            - "No — not backed up"
+            - "Unknown"
+
+      - question_id: "SYS.B5"
+        prompt: "[IT] If this system became completely unavailable today, how long would it take to restore it to full operation?"
+        help_text: >
+          This is the Recovery Time Objective (RTO). Note whether
+          configuration documentation exists to rebuild the system from scratch
+          — not just restore the data.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 3
+        condition: null
+        options:
+          - Less than 4 hours — documented configuration exists
+          - Less than 4 hours — relies on memory
+          - 4–24 hours
+          - More than 24 hours
+          - Unknown
+
+      # ── SECTION C: Data Flows ────────────────────────────────────
+      - question_id: "SYS.C1"
+        prompt: "[IT / Dept] Where does data come from when it enters this system? List every source."
+        help_text: >
+          Include: other school systems (SIS, LMS, etc.), manual uploads by staff,
+          vendor feeds, external platforms, and direct user entry.
+          This builds the inbound side of your data flow map.
+        answer_type: long_text
+        status: core
+        skippable: false
+        points: 5
+        condition: null
+
+      - question_id: "SYS.C2"
+        prompt: "[IT / Dept] Where does data go when it leaves this system? List every destination."
+        help_text: >
+          Include: other school systems, vendor platforms, scheduled reports,
+          exports, external parties, and any manual extracts.
+          This builds the outbound side of your data flow map.
+        answer_type: long_text
+        status: core
+        skippable: false
+        points: 5
+        condition: null
+
+      - question_id: "SYS.C2a"
+        prompt: "[IT] For each outbound connection listed above — is the data transfer encrypted in transit (HTTPS, SFTP, or TLS)?"
+        help_text: Unencrypted transfers are a regulatory and security gap.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 8
+        condition: null
+        options:
+          - Yes — all outbound transfers are encrypted
+          - Partial — some encrypted, some not
+          - No — transfers are not encrypted
+          - Unknown
+
+      - question_id: "SYS.C3"
+        prompt: "[IT] Does this system automatically exchange data with any other system on a schedule — nightly sync, automated file transfer, or API connection?"
+        help_text: >
+          API connections may not be visible in day-to-day use. Check with
+          the vendor if unsure.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        triggers_save: true
+        points: 0
+        condition: null
+
+      - question_id: "SYS.C3a"
+        prompt: "[IT] For each automated connection: what systems are connected, what data is transferred, who set it up, and is it still needed?"
+        help_text: >
+          Unused or forgotten API connections are a common security gap.
+          List each one and confirm it is still required.
+        answer_type: long_text
+        status: conditional
+        skippable: true
+        points: 5
+        condition:
+          type: answer_is
+          question_id: "SYS.C3"
+          value: "yes"
+
+      - question_id: "SYS.C4"
+        prompt: "[Dept] Does your department manually export data from this system and share it outside the school?"
+        help_text: >
+          e.g. emailing a spreadsheet to a vendor, uploading a roster to a
+          partner platform, or sharing records with an outside organization.
+        answer_type: yes_no_unknown
+        status: core
+        skippable: true
+        triggers_save: true
+        points: 0
+        condition: null
+
+      - question_id: "SYS.C4a"
+        prompt: "[Dept] For each manual sharing: what data is shared, with whom, how often, and is there a written agreement covering that sharing?"
+        answer_type: long_text
+        status: conditional
+        skippable: true
+        points: 5
+        condition:
+          type: answer_is
+          question_id: "SYS.C4"
+          value: "yes"
+
+      - question_id: "SYS.C5"
+        prompt: "[IT / Business Office] Does the vendor sub-contract or share school data with other companies? Are those sub-processors named in the contract?"
+        help_text: >
+          Sub-processors are companies the vendor uses to deliver part of
+          their service. Your data may reach companies you have never evaluated.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 3
+        condition: null
+        options:
+          - Yes — sub-processors are named in the contract
+          - Yes — sub-processors exist but are not named
+          - No — vendor states no sub-processing
+          - Unknown
+
+      # ── SECTION D: Vendor & Contract ────────────────────────────
+      - question_id: "SYS.D1"
+        prompt: "[IT / Business Office] Is there a signed Data Processing Agreement (DPA) with this vendor?"
+        help_text: >
+          A DPA is a specific legal document — different from general terms of
+          service. It specifies what the vendor can do with school data, how
+          they protect it, and what happens if they are breached.
+          Many schools sign up for platforms without ever requesting one.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 10
+        condition: null
+        options:
+          - Yes — signed DPA on file
+          - Terms of service only — no formal DPA
+          - No agreement on file
+          - Free tool — no contract
+          - Unknown
+
+      - question_id: "SYS.D2"
+        prompt: "[IT / Business Office] Does the contract require the vendor to notify the school of a data breach — and within what timeframe?"
+        help_text: >
+          Florida law requires breach notification to affected individuals
+          within 30 days. The school cannot meet this obligation if vendors
+          notify late. Best practice is 72 hours or less.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 8
+        condition:
+          type: answer_is
+          question_id: "SYS.D1"
+          value: "Yes — signed DPA on file"
+        options:
+          - Yes — 72 hours or less
+          - Yes — more than 72 hours
+          - Yes — timeframe not specified
+          - No breach notification clause
+          - Unknown
+
+      - question_id: "SYS.D3"
+        prompt: "[Business Office] When the contract ends, is the vendor required to delete all school data and provide written confirmation?"
+        help_text: >
+          Florida SDPA requires vendors to delete student data when the
+          contract ends. This obligation is only enforceable if it is in
+          the contract.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 7
+        condition:
+          type: answer_is
+          question_id: "SYS.D1"
+          value: "Yes — signed DPA on file"
+        options:
+          - Yes — deletion required with written confirmation
+          - Yes — deletion required, no written confirmation
+          - No — contract is silent on this
+          - Unknown
+
+      - question_id: "SYS.D4"
+        prompt: "[IT] Has the school reviewed this vendor's security practices — e.g. by requesting a SOC 2 report or reviewing their published security documentation?"
+        help_text: >
+          A SOC 2 Type II report is the most common third-party security
+          audit for cloud vendors. Many will provide it on request.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 4
+        condition: null
+        options:
+          - Yes — SOC 2 or equivalent reviewed
+          - Yes — reviewed published documentation only
+          - No — not reviewed
+          - Unknown
+
+      # ── SECTION E: Retention & Disposal ─────────────────────────
+      - question_id: "SYS.E1"
+        prompt: "[Dept / IT] What types of data does this system hold? List all that apply."
+        help_text: >
+          Categories: student academic records, student health records,
+          student behavioral records, staff HR records, staff payroll data,
+          financial / billing records, parent / family contact data,
+          admissions data, authentication credentials, security logs,
+          communications (email / messages), intellectual property,
+          third-party data. Add any types not listed.
+        answer_type: multi_select
+        status: core
+        skippable: false
+        points: 0
+        condition: null
+        options:
+          - Student academic records (grades, transcripts, reports)
+          - Student health records (medical, counseling, nurse)
+          - Student behavioral records (discipline, incidents)
+          - Staff HR records (employment, performance)
+          - Staff payroll and compensation data
+          - Financial and billing records (tuition, payments)
+          - Parent and family contact data
+          - Admissions and enrollment data
+          - Authentication credentials (usernames, passwords, tokens)
+          - Security and audit logs
+          - Communications (email, messages, chat)
+          - Intellectual property (curriculum, assessments)
+          - Third-party or partner data
+          - Other
+
+      - question_id: "SYS.E2"
+        prompt: "[IT / Business Office] For each data category held in this system, what is the required retention period?"
+        help_text: >
+          Different categories have different legal minimums. Transcripts and
+          diplomas may be permanent. Health, financial, and HR records each
+          have requirements under Florida law. If retention periods are not
+          defined, write "not defined" — that is a finding.
+        answer_type: long_text
+        status: core
+        skippable: true
+        points: 5
+        condition: null
+
+      - question_id: "SYS.E3"
+        prompt: "[IT] When data reaches the end of its retention period, how is it deleted from this system?"
+        help_text: >
+          True secure deletion is not moving files to trash. Cloud platform
+          deletions should be confirmed in writing by the vendor.
+          Physical media must be wiped or destroyed.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 5
+        condition: null
+        options:
+          - Documented secure deletion process with deletion log
+          - Deletion occurs but is not documented
+          - No deletion process — data accumulates indefinitely
+          - Vendor handles deletion — confirmed in writing
+          - Vendor handles deletion — not confirmed
+          - Unknown
+
+      - question_id: "SYS.E4"
+        prompt: "[IT] If this system has been decommissioned or is inactive — was data exported before shutdown, and was vendor deletion confirmed in writing?"
+        help_text: >
+          Skip this question if the system is currently active.
+          For inactive or decommissioned systems, this is the most important
+          question in the worksheet.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        points: 15
+        condition:
+          type: answer_is
+          question_id: "SYS.ID.status"
+          value:
+            - "Inactive — still accessible but not being used"
+            - "Decommissioned — no longer in use"
+        options:
+          - Data exported and vendor deletion confirmed in writing
+          - Data exported but deletion not confirmed
+          - Data NOT exported — may still exist with vendor
+          - Accounts revoked but no export or deletion confirmation
+          - No shutdown documentation of any kind
+          - Unknown
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION DG2  —  School-Wide Governance  (~30 min)
+# Completed AFTER all per-system worksheets are done.
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "DG2"
+    title: "School-Wide Data Governance"
+    estimated_minutes: 30
+    description: >
+      These questions cover policies, processes, and governance that apply
+      across all systems rather than to any single platform.
+      Complete this section after all per-system worksheets are returned.
+    order: 200
+    questions:
+
+      - question_id: "DG2.1"
+        prompt: Does the school have a written data governance or data privacy policy?
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 10
+        condition: null
+        options:
+          - Yes — current, reviewed within 12 months
+          - Yes — exists but not reviewed recently
+          - Draft only — not formally adopted
+          - No
+          - Unknown
+
+      - question_id: "DG2.2"
+        prompt: Is there a designated person responsible for data privacy at the school?
+        help_text: >
+          This may be a Data Protection Officer, Privacy Officer, or a role
+          assigned to IT, HR, or administration. Some states require one by law.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 8
+        condition: null
+        options:
+          - Yes — named person with formal responsibility
+          - Informal — someone handles it but has no formal designation
+          - No — no one is responsible
+          - Unknown
+
+      - question_id: "DG2.3"
+        prompt: Does the school maintain a master data register — a single record of every system, what data it holds, and how long it is kept?
+        help_text: >
+          The per-system worksheets from this assessment feed into the
+          master register. A register is the foundation of data governance.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 10
+        condition: null
+        options:
+          - Yes — maintained and current
+          - Partial — exists but incomplete or outdated
+          - No — this audit is the first attempt
+          - Unknown
+
+      - question_id: "DG2.4"
+        prompt: Does the school have a documented process for responding to a data breach — who does what, in what order, and within what timeframe?
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 10
+        condition: null
+        options:
+          - Yes — documented, tested, and known to key staff
+          - Yes — documented but not tested or practiced
+          - Informal — general awareness but no written plan
+          - No
+          - Unknown
+
+      - question_id: "DG2.5"
+        prompt: Does the school have a process for reviewing and approving new software or services before staff or students start using them?
+        help_text: >
+          Shadow IT — tools adopted without IT review — is one of the most
+          common sources of data governance gaps in schools.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 8
+        condition: null
+        options:
+          - Yes — formal approval process, enforced
+          - Informal — IT is usually consulted but not required
+          - No — staff can adopt tools without IT review
+          - Unknown
+
+      - question_id: "DG2.6"
+        prompt: Does the school train staff on data privacy and responsible data handling at least once per year?
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 7
+        condition: null
+        options:
+          - Yes — annual training for all staff
+          - Partial — some staff trained, not all
+          - Ad hoc — training occurs but not on a schedule
+          - No
+          - Unknown
+
+      - question_id: "DG2.7"
+        prompt: Does the school have a documented offboarding process that ensures all system access is revoked when a staff member leaves?
+        help_text: >
+          Former staff accounts with active access are one of the most
+          commonly found vulnerabilities in school IT assessments.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 10
+        condition: null
+        options:
+          - Yes — documented checklist covering all systems
+          - Informal — process exists but relies on memory
+          - No — no formal offboarding process
+          - Unknown
+
+      - question_id: "DG2.8"
+        prompt: Does the school have a formal vendor review process — evaluating the security and privacy practices of new vendors before signing contracts?
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 7
+        condition: null
+        options:
+          - Yes — formal review including security questionnaire or SOC 2 review
+          - Informal — IT reviews but no standard criteria
+          - No — vendors are approved without security review
+          - Unknown
+
+      - question_id: "DG2.9"
+        prompt: Does the school have a written data retention schedule — a document defining how long each category of data must be kept and when it should be deleted?
+        help_text: >
+          Florida law sets minimum retention periods for student records,
+          health records, and financial records. A retention schedule is
+          required to comply.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 8
+        condition: null
+        options:
+          - Yes — written schedule aligned to Florida law
+          - Partial — exists for some data types but not all
+          - No
+          - Unknown
+
+      - question_id: "DG2.10"
+        prompt: What is the school's biggest unresolved data governance concern, in your own words?
+        help_text: >
+          Optional. Your answer is included in the report appendix and
+          used to prioritise recommendations.
+        answer_type: long_text
+        status: optional
+        skippable: true
+        points: 0
+        condition: null

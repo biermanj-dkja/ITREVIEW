@@ -31,6 +31,10 @@ sections:
   - section_id: "DG1"
     title: "System Inventory — Discovery"
     estimated_minutes: 20
+    estimated_minutes_note: >
+      Approximately 20 minutes for a school with 5-10 systems.
+      Allow extra time for larger environments — this is a discovery
+      exercise and thoroughness matters more than speed.
     description: >
       Identify every platform, application, and service the school uses or
       has used. This list drives the rest of the audit: one per-system
@@ -109,6 +113,13 @@ sections:
   - section_id: "DG_SYS_TEMPLATE"
     title: "System Worksheet — {system_name}"
     estimated_minutes: 30
+    estimated_minutes_note: >
+      Approximately 30 minutes per system for the IT director portion
+      (questions marked [IT]). Department, HR, and Business Office
+      portions add 10-20 minutes each and can be completed in parallel.
+      Total for this section scales directly with the number of systems
+      found in DG1 — budget 30 minutes per system for IT alone.
+      Example: 5 systems = ~2.5 hours IT time; 14 systems = ~7 hours IT time.
     description: >
       Profile system {system_index} of {system_total}: {system_name}.
       Answer every question that applies. If you do not know the answer,
@@ -166,8 +177,8 @@ sections:
         points: 0
         condition: null
 
-      # ── SECTION A: Access Control ────────────────────────────────
-      - question_id: "SYS.A1"
+      # ── SECTION 1: Access Control ────────────────────────────────
+      - question_id: "SYS.1.1"
         prompt: "[IT] Can you generate a current list of every login account for this system — including current staff, former staff, vendors, and contractors?"
         help_text: >
           If the system cannot generate this list quickly, that is itself a
@@ -184,7 +195,7 @@ sections:
           - No — system does not easily provide this
           - Unknown
 
-      - question_id: "SYS.A1a"
+      - question_id: "SYS.1.1a"
         prompt: "[IT] Are any accounts on that list belonging to staff who have left the school still active?"
         help_text: >
           Former staff accounts are a critical security gap — they must be
@@ -197,12 +208,12 @@ sections:
         points: 10
         condition:
           type: answer_is
-          question_id: "SYS.A1"
+          question_id: "SYS.1.1"
           value:
             - "Yes — complete list available"
             - "Partial — list available but may be incomplete"
 
-      - question_id: "SYS.A2"
+      - question_id: "SYS.1.2"
         prompt: "[IT] Does this system use role-based access — where different staff see different data based on their role — or does everyone with a login see everything?"
         answer_type: single_select
         status: core
@@ -214,7 +225,7 @@ sections:
           - Flat — everyone with a login sees everything
           - Unknown
 
-      - question_id: "SYS.A2a"
+      - question_id: "SYS.1.2a"
         prompt: "[IT] Are there any staff members with administrator-level access who do not need that level of access for their job?"
         answer_type: yes_no_unknown
         status: core
@@ -223,10 +234,10 @@ sections:
         points: 5
         condition:
           type: answer_is
-          question_id: "SYS.A2"
+          question_id: "SYS.1.2"
           value: "Role-based — different roles see different data"
 
-      - question_id: "SYS.A3"
+      - question_id: "SYS.1.3"
         prompt: "[IT] Is multi-factor authentication (MFA) enabled and required for this system?"
         help_text: >
           MFA = a second login step beyond just a password, such as a phone
@@ -243,7 +254,7 @@ sections:
           - No — not available or not enabled
           - Unknown
 
-      - question_id: "SYS.A4"
+      - question_id: "SYS.1.4"
         prompt: "[IT] Is this system connected to the school's central login (Single Sign-On / SSO)?"
         help_text: >
           Systems outside SSO require manual access revocation during offboarding
@@ -254,7 +265,7 @@ sections:
         points: 5
         condition: null
 
-      - question_id: "SYS.A4a"
+      - question_id: "SYS.1.4a"
         prompt: "[IT] Since this system is outside SSO — are any shared or generic logins in use?"
         help_text: Shared logins prevent individual accountability and complicate offboarding.
         answer_type: yes_no_unknown
@@ -264,10 +275,10 @@ sections:
         points: 5
         condition:
           type: answer_is
-          question_id: "SYS.A4"
+          question_id: "SYS.1.4"
           value: "no"
 
-      - question_id: "SYS.A5"
+      - question_id: "SYS.1.5"
         prompt: "[IT] Does this system keep an audit log — a record of who logged in, when, and what they did?"
         help_text: >
           Best practice is 90 days minimum retention, ideally one year.
@@ -284,8 +295,8 @@ sections:
           - No — no audit logging
           - Unknown
 
-      # ── SECTION B: Backup & Recovery ────────────────────────────
-      - question_id: "SYS.B1"
+      # ── SECTION 2: Backup & Recovery ────────────────────────────
+      - question_id: "SYS.2.1"
         prompt: "[IT] Is the data in this system backed up?"
         answer_type: single_select
         is_gate: true
@@ -304,7 +315,7 @@ sections:
           - No — not backed up
           - Unknown
 
-      - question_id: "SYS.B1a"
+      - question_id: "SYS.2.1a"
         prompt: "[IT] Does the contract specify backup frequency, retention period, and the school's right to request a restore?"
         help_text: >
           Vendor backups protect the vendor's infrastructure. The school needs
@@ -315,12 +326,12 @@ sections:
         points: 4
         condition:
           type: answer_is
-          question_id: "SYS.B1"
+          question_id: "SYS.2.1"
           value:
             - "Yes — vendor manages the backup"
             - "Both — school and vendor both maintain copies"
 
-      - question_id: "SYS.B1b"
+      - question_id: "SYS.2.1b"
         prompt: "[IT] Does the school also maintain an independent copy of this data — separate from the vendor's backup?"
         answer_type: yes_no_unknown
         status: core
@@ -328,10 +339,10 @@ sections:
         points: 5
         condition:
           type: answer_is
-          question_id: "SYS.B1"
+          question_id: "SYS.2.1"
           value: "Yes — vendor manages the backup"
 
-      - question_id: "SYS.B2"
+      - question_id: "SYS.2.2"
         prompt: "[IT] How frequently is this system backed up?"
         answer_type: single_select
         status: core
@@ -339,7 +350,7 @@ sections:
         points: 3
         condition:
           type: answer_is_not
-          question_id: "SYS.B1"
+          question_id: "SYS.2.1"
           value:
             - "No — not backed up"
             - "Unknown"
@@ -350,7 +361,7 @@ sections:
           - Less than weekly
           - Unknown
 
-      - question_id: "SYS.B3"
+      - question_id: "SYS.2.3"
         prompt: "[IT] When was the backup for this system last tested — meaning data was actually restored and verified?"
         help_text: >
           A backup that has never been tested is an assumption, not a safety net.
@@ -362,7 +373,7 @@ sections:
         points: 8
         condition:
           type: answer_is_not
-          question_id: "SYS.B1"
+          question_id: "SYS.2.1"
           value:
             - "No — not backed up"
             - "Unknown"
@@ -373,7 +384,7 @@ sections:
           - Never tested
           - Unknown
 
-      - question_id: "SYS.B4"
+      - question_id: "SYS.2.4"
         prompt: "[IT] Are backup files stored separately from the system itself — in a location that would survive the same event that damaged the original?"
         help_text: >
           Backups stored on the same network as the original can be encrypted
@@ -384,12 +395,12 @@ sections:
         points: 6
         condition:
           type: answer_is_not
-          question_id: "SYS.B1"
+          question_id: "SYS.2.1"
           value:
             - "No — not backed up"
             - "Unknown"
 
-      - question_id: "SYS.B5"
+      - question_id: "SYS.2.5"
         prompt: "[IT] If this system became completely unavailable today, how long would it take to restore it to full operation?"
         help_text: >
           This is the Recovery Time Objective (RTO). Note whether
@@ -407,8 +418,8 @@ sections:
           - More than 24 hours
           - Unknown
 
-      # ── SECTION C: Data Flows ────────────────────────────────────
-      - question_id: "SYS.C1"
+      # ── SECTION 3: Data Flows ────────────────────────────────────
+      - question_id: "SYS.3.1"
         prompt: "[IT / Dept] Where does data come from when it enters this system? List every source."
         help_text: >
           Include: other school systems (SIS, LMS, etc.), manual uploads by staff,
@@ -420,7 +431,7 @@ sections:
         points: 5
         condition: null
 
-      - question_id: "SYS.C2"
+      - question_id: "SYS.3.2"
         prompt: "[IT / Dept] Where does data go when it leaves this system? List every destination."
         help_text: >
           Include: other school systems, vendor platforms, scheduled reports,
@@ -432,7 +443,7 @@ sections:
         points: 5
         condition: null
 
-      - question_id: "SYS.C2a"
+      - question_id: "SYS.3.2a"
         prompt: "[IT] For each outbound connection listed above — is the data transfer encrypted in transit (HTTPS, SFTP, or TLS)?"
         help_text: Unencrypted transfers are a regulatory and security gap.
         answer_type: single_select
@@ -446,7 +457,7 @@ sections:
           - No — transfers are not encrypted
           - Unknown
 
-      - question_id: "SYS.C3"
+      - question_id: "SYS.3.3"
         prompt: "[IT] Does this system automatically exchange data with any other system on a schedule — nightly sync, automated file transfer, or API connection?"
         help_text: >
           API connections may not be visible in day-to-day use. Check with
@@ -458,7 +469,7 @@ sections:
         points: 0
         condition: null
 
-      - question_id: "SYS.C3a"
+      - question_id: "SYS.3.3a"
         prompt: "[IT] For each automated connection: what systems are connected, what data is transferred, who set it up, and is it still needed?"
         help_text: >
           Unused or forgotten API connections are a common security gap.
@@ -469,10 +480,10 @@ sections:
         points: 5
         condition:
           type: answer_is
-          question_id: "SYS.C3"
+          question_id: "SYS.3.3"
           value: "yes"
 
-      - question_id: "SYS.C4"
+      - question_id: "SYS.3.4"
         prompt: "[Dept] Does your department manually export data from this system and share it outside the school?"
         help_text: >
           e.g. emailing a spreadsheet to a vendor, uploading a roster to a
@@ -484,7 +495,7 @@ sections:
         points: 0
         condition: null
 
-      - question_id: "SYS.C4a"
+      - question_id: "SYS.3.4a"
         prompt: "[Dept] For each manual sharing: what data is shared, with whom, how often, and is there a written agreement covering that sharing?"
         answer_type: long_text
         status: conditional
@@ -492,10 +503,10 @@ sections:
         points: 5
         condition:
           type: answer_is
-          question_id: "SYS.C4"
+          question_id: "SYS.3.4"
           value: "yes"
 
-      - question_id: "SYS.C5"
+      - question_id: "SYS.3.5"
         prompt: "[IT / Business Office] Does the vendor sub-contract or share school data with other companies? Are those sub-processors named in the contract?"
         help_text: >
           Sub-processors are companies the vendor uses to deliver part of
@@ -511,8 +522,8 @@ sections:
           - No — vendor states no sub-processing
           - Unknown
 
-      # ── SECTION D: Vendor & Contract ────────────────────────────
-      - question_id: "SYS.D1"
+      # ── SECTION 4: Vendor & Contract ────────────────────────────
+      - question_id: "SYS.4.1"
         prompt: "[IT / Business Office] Is there a signed Data Processing Agreement (DPA) with this vendor?"
         help_text: >
           A DPA is a specific legal document — different from general terms of
@@ -531,7 +542,7 @@ sections:
           - Free tool — no contract
           - Unknown
 
-      - question_id: "SYS.D2"
+      - question_id: "SYS.4.2"
         prompt: "[IT / Business Office] Does the contract require the vendor to notify the school of a data breach — and within what timeframe?"
         help_text: >
           Florida law requires breach notification to affected individuals
@@ -543,7 +554,7 @@ sections:
         points: 8
         condition:
           type: answer_is
-          question_id: "SYS.D1"
+          question_id: "SYS.4.1"
           value: "Yes — signed DPA on file"
         options:
           - Yes — 72 hours or less
@@ -552,7 +563,7 @@ sections:
           - No breach notification clause
           - Unknown
 
-      - question_id: "SYS.D3"
+      - question_id: "SYS.4.3"
         prompt: "[Business Office] When the contract ends, is the vendor required to delete all school data and provide written confirmation?"
         help_text: >
           Florida SDPA requires vendors to delete student data when the
@@ -564,7 +575,7 @@ sections:
         points: 7
         condition:
           type: answer_is
-          question_id: "SYS.D1"
+          question_id: "SYS.4.1"
           value: "Yes — signed DPA on file"
         options:
           - Yes — deletion required with written confirmation
@@ -572,7 +583,7 @@ sections:
           - No — contract is silent on this
           - Unknown
 
-      - question_id: "SYS.D4"
+      - question_id: "SYS.4.4"
         prompt: "[IT] Has the school reviewed this vendor's security practices — e.g. by requesting a SOC 2 report or reviewing their published security documentation?"
         help_text: >
           A SOC 2 Type II report is the most common third-party security
@@ -588,8 +599,8 @@ sections:
           - No — not reviewed
           - Unknown
 
-      # ── SECTION E: Retention & Disposal ─────────────────────────
-      - question_id: "SYS.E1"
+      # ── SECTION 5: Retention & Disposal ─────────────────────────
+      - question_id: "SYS.5.1"
         prompt: "[Dept / IT] What types of data does this system hold? List all that apply."
         help_text: >
           Categories: student academic records, student health records,
@@ -619,7 +630,7 @@ sections:
           - Third-party or partner data
           - Other
 
-      - question_id: "SYS.E2"
+      - question_id: "SYS.5.2"
         prompt: "[IT / Business Office] For each data category held in this system, what is the required retention period?"
         help_text: >
           Different categories have different legal minimums. Transcripts and
@@ -632,7 +643,7 @@ sections:
         points: 5
         condition: null
 
-      - question_id: "SYS.E3"
+      - question_id: "SYS.5.3"
         prompt: "[IT] When data reaches the end of its retention period, how is it deleted from this system?"
         help_text: >
           True secure deletion is not moving files to trash. Cloud platform
@@ -651,7 +662,7 @@ sections:
           - Vendor handles deletion — not confirmed
           - Unknown
 
-      - question_id: "SYS.E4"
+      - question_id: "SYS.5.4"
         prompt: "[IT] If this system has been decommissioned or is inactive — was data exported before shutdown, and was vendor deletion confirmed in writing?"
         help_text: >
           Skip this question if the system is currently active.
@@ -682,6 +693,10 @@ sections:
   - section_id: "DG2"
     title: "School-Wide Data Governance"
     estimated_minutes: 30
+    estimated_minutes_note: >
+      Approximately 30 minutes, completed by the IT director and school
+      leadership together. Best done as a single sitting after all
+      per-system worksheets are returned.
     description: >
       These questions cover policies, processes, and governance that apply
       across all systems rather than to any single platform.

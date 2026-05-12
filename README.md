@@ -9,47 +9,18 @@ This tool runs entirely on your computer. No data is sent to the internet.
 ## Requirements
 
 - Python 3.10 or higher
-- Node.js 18 or higher (required for DOCX report generation)
 
-Both are free, one-time installs. See Pre-Setup below if either is not
-already on your machine.
+See Pre-Setup below if Python is not already on your machine.
+Node.js is **no longer required** — the DOCX report is now generated
+entirely within Python.
 
 ---
 
 ## Pre-Setup
 
-These steps install software on your machine. You only need to do them
-once — not every time you use the tool.
+This step installs Python on your machine. You only need to do it once.
 
-### 1. Install Node.js
-
-Node.js is required for DOCX report generation. npm (the Node.js package
-manager) comes bundled with it automatically.
-
-1. Go to **https://nodejs.org**
-2. Download the **LTS** version (the left button — "Recommended For Most Users")
-3. Run the installer with all default settings
-4. **Close and reopen your terminal** after installation — the PATH will not
-   update in an already-open window
-5. Verify the installation worked:
-
-```bash
-node --version
-npm --version
-```
-
-Both commands should print a version number. If either is unrecognised,
-close and reopen your terminal and try again.
-
-### 2. Install the docx package for Node.js
-
-```bash
-npm install -g docx
-```
-
-You only need to do this once per machine.
-
-### 3. Install Python
+### 1. Install Python
 
 1. Go to **https://www.python.org/downloads**
 2. Click the yellow **Download Python** button — it will offer the correct
@@ -168,8 +139,7 @@ From the **Summary** screen of any assessment:
 
 - **Download Report (.docx)** — generates and downloads a complete
   Word document containing the cover page, executive summary, key risks,
-  section-by-section findings, action plan, and appendix. Requires
-  Node.js and the `docx` package (see Pre-Setup above).
+  section-by-section findings, action plan, and appendix. No additional software required — generated entirely within Python.
 
 ---
 
@@ -181,8 +151,7 @@ school_it_engine/
 ├── database.py             # SQLite operations (sessions, answers, profile)
 ├── engine.py               # Module loader, scoring, gate logic, severity labels
 ├── rules_engine.py         # Deterministic findings engine (all sections)
-├── report_generator.py     # Python report assembler (calls report_script.js)
-├── report_script.js        # Node.js DOCX builder (requires npm docx package)
+├── report_generator.py     # DOCX report builder using python-docx (pure Python)
 ├── test_scoring.py         # Automated scoring tests (31 tests)
 ├── requirements.txt        # Python dependencies
 ├── README.md               # This file

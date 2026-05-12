@@ -8,16 +8,17 @@ from database import (
     init_db, save_answer, get_answers, get_answer, create_session,
     get_session, mark_section_complete, get_all_sessions,
     save_school_profile, get_school_profile, flag_session_incomplete,
-    delete_session
+    delete_session, save_session_meta, get_session_meta
 )
 from rules_engine import evaluate_all, evaluate_section, findings_to_dict
-from report_generator import generate_report, build_report_payload
+from report_generator import generate_report
 from engine import (
     load_module, get_section, get_visible_questions,
     calculate_section_score, get_section_severity_label,
     get_skip_percentage, questions_have_unknown_option,
     CRITICAL_QUESTIONS
 )
+from dynamic_engine import expand_dynamic_sections
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = BASE_DIR / "templates"
@@ -37,6 +38,25 @@ app.jinja_env.globals["yaml_safe"]  = yaml_safe_str
 app.jinja_env.globals["questions_have_unknown_option"] = questions_have_unknown_option
 
 MODULE_ID = "module_1"
+
+
+def _load_expanded_module(module_id, session_id):
+    """
+    Load a module and, if it has dynamic sections enabled, expand them
+    using the answers already saved for this session.
+    Returns (expanded_module, generated_section_ids).
+    """
+    module = load_module(module_id)
+    if not module.get("dynamic_sections", {}).get("enabled"):
+        return module, []
+    answers = get_answers(session_id)
+    return expand_dynamic_sections(module, answers)
+
+
+def _get_module_id_for_session(session_id):
+    """Return the module_id stored for a given session."""
+    sess = get_session(session_id)
+    return sess["module_id"] if sess else MODULE_ID
 
 
 @app.before_request
@@ -74,9 +94,15 @@ def new_session():
     if not profile:
         flash("Please set up your school profile first.", "error")
         return redirect(url_for("setup_profile"))
+    module_id = request.args.get("module_id", MODULE_ID)
     session_id = str(uuid.uuid4())
-    create_session(session_id, MODULE_ID, profile["school_name"])
-    return redirect(url_for("section", session_id=session_id, section_id="1"))
+    create_session(session_id, module_id, profile["school_name"])
+    module = load_module(module_id)
+    first_sec = next(
+        (s["section_id"] for s in module["sections"] if not s.get("is_template")),
+        module["sections"][0]["section_id"]
+    )
+    return redirect(url_for("section", session_id=session_id, section_id=first_sec))
 
 
 @app.route("/resume/<session_id>")
@@ -86,8 +112,11 @@ def resume(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
     complete = json.loads(sess["sections_complete"])
-    module   = load_module(MODULE_ID)
+    mid = sess.get("module_id", MODULE_ID)
+    module, _ = _load_expanded_module(mid, session_id)
     for s in module["sections"]:
+        if s.get("is_template"):
+            continue
         if s["section_id"] not in complete:
             return redirect(url_for("section", session_id=session_id,
                                     section_id=s["section_id"]))
@@ -103,7 +132,8 @@ def section(session_id, section_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
-    module = load_module(MODULE_ID)
+    mid = _get_module_id_for_session(session_id)
+    module, gen_ids = _load_expanded_module(mid, session_id)
     sec    = get_section(module, section_id)
     if not sec:
         flash("Section not found.", "error")
@@ -116,10 +146,14 @@ def section(session_id, section_id):
     if request.method == "GET":
         for q in sec["questions"]:
             qid = q["question_id"]
+            # Standard profile prefill
             if q.get("prefill") and qid not in answers and profile:
                 prefill_value = profile.get(q["prefill"])
                 if prefill_value:
                     save_answer(session_id, qid, prefill_value, status="answered")
+            # Dynamic template prefill (e.g. system name confirmation)
+            if q.get("prefill_value") and qid not in answers:
+                save_answer(session_id, qid, q["prefill_value"], status="answered")
         answers = get_answers(session_id)
 
     visible_questions = get_visible_questions(sec, answers)
@@ -244,7 +278,8 @@ def section_complete(session_id, section_id):
     severity = request.args.get("severity", "unknown")
     skip_pct = int(float(request.args.get("skip_pct", 0)))
 
-    module   = load_module(MODULE_ID)
+    mid = _get_module_id_for_session(session_id)
+    module, gen_ids = _load_expanded_module(mid, session_id)
     sec      = get_section(module, section_id)
     sess     = get_session(session_id)
     complete = json.loads(sess["sections_complete"])
@@ -312,7 +347,8 @@ def findings_section(session_id, section_id):
     answers = get_answers(session_id)
     report = evaluate_section(answers, section_id=section_id, session_id=session_id)
     data = findings_to_dict(report)
-    m = load_module("module_1")
+    mid = _get_module_id_for_session(session_id)
+    m, _ = _load_expanded_module(mid, session_id)
     sec = get_section(m, section_id)
     section_label = sec["title"] if sec else f"Section {section_id}"
     return render_template("findings.html",
@@ -326,11 +362,29 @@ def findings_section(session_id, section_id):
 
 # ── REPORT DOWNLOAD ─────────────────────────────────────────────
 
+@app.route("/session/<session_id>/report-setup", methods=["GET", "POST"])
+def report_setup(session_id):
+    sess = get_session(session_id)
+    if not sess:
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        start_date = request.form.get("start_date", "").strip()
+        if not start_date:
+            flash("Please enter a start date.", "error")
+            return redirect(url_for("report_setup", session_id=session_id))
+        return redirect(url_for("download_report", session_id=session_id, start_date=start_date))
+    from datetime import date
+    today = date.today().isoformat()
+    return render_template("report_setup.html", session_id=session_id, today=today)
+
+
 @app.route("/session/<session_id>/report.docx")
 def download_report(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
+
+    start_date = request.args.get("start_date", "").strip() or None
 
     answers = get_answers(session_id)
     profile = get_school_profile()
@@ -340,7 +394,8 @@ def download_report(session_id):
     report_data = findings_to_dict(report)
 
     # Build section scores for the report
-    module = load_module(MODULE_ID)
+    mid = _get_module_id_for_session(session_id)
+    module, gen_ids = _load_expanded_module(mid, session_id)
     section_results = []
     for sec in module["sections"]:
         sid = sec["section_id"]
@@ -359,7 +414,8 @@ def download_report(session_id):
         })
 
     try:
-        docx_bytes = generate_report(report_data, answers, profile, section_results)
+        docx_bytes = generate_report(report_data, answers, profile, section_results,
+                                     start_date=start_date)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("summary", session_id=session_id))
@@ -384,7 +440,8 @@ def summary(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
-    module  = load_module(MODULE_ID)
+    mid = _get_module_id_for_session(session_id)
+    module, gen_ids = _load_expanded_module(mid, session_id)
     answers = get_answers(session_id)
     complete = json.loads(sess["sections_complete"])
     flagged  = json.loads(sess.get("sections_flagged", "[]"))
@@ -429,6 +486,35 @@ def summary(session_id):
         flagged=flagged,
     )
 
+
+
+
+# ── DATA GOVERNANCE (module_2) — Report Card & Findings ────────────
+
+@app.route("/session/<session_id>/dg_report")
+def dg_report(session_id):
+    """Data Governance report card — per-system grades and school-wide findings."""
+    from rules_engine_dg import evaluate_dg
+    sess = get_session(session_id)
+    if not sess:
+        flash("Session not found.", "error")
+        return redirect(url_for("home"))
+
+    answers  = get_answers(session_id)
+    module, gen_ids = _load_expanded_module("module_2", session_id)
+
+    # Extract system names from the expanded module
+    system_names = module.get("_system_names", [])
+
+    dg = evaluate_dg(answers, system_names, gen_ids)
+
+    return render_template(
+        "dg_report.html",
+        session_id=session_id,
+        sess=sess,
+        dg=dg,
+        module=module,
+    )
 
 if __name__ == "__main__":
     init_db()

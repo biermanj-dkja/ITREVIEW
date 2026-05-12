@@ -232,3 +232,13 @@ def deprecate_session(session_id):
     )
     db.commit()
     db.close()
+
+
+def save_session_meta(session_id, key, value):
+    """Save arbitrary key-value metadata for a session (future use)."""
+    pass  # Stub — extend with a metadata table if needed
+
+
+def get_session_meta(session_id, key):
+    """Retrieve metadata for a session."""
+    return None

@@ -29,6 +29,7 @@ class Action:
     schedule_category: Optional[int] = None
     constraint_flag: bool = False
     user_confirmed: bool = False
+    effort: Optional[str] = None   # S / S+ / M / M+ / L
 
 
 @dataclass
@@ -199,8 +200,123 @@ def finding(fid, rule_id, section_id, title, severity, description,
 
 def action(aid, description, time_horizon, schedule_category=None):
     return Action(action_id=aid, description=description,
-                  time_horizon=time_horizon, schedule_category=schedule_category)
+                  time_horizon=time_horizon, schedule_category=schedule_category,
+                  effort=ACTION_EFFORT.get(aid))
 
+
+
+# ─────────────────────────────────────────────────────────────────
+# EFFORT RATINGS
+# Agreed effort estimate per action. Used by the phased timeline.
+# S=half day, S+=1 day, M=3 days, M+=5 days, L=10 days
+# ─────────────────────────────────────────────────────────────────
+ACTION_EFFORT = {
+    "A2-001a": "S",
+    "A2-002a": "S",
+    "A2-003a": "M",
+    "A2-004a": "S",
+    "A2-005-Wa": "M",
+    "A2-005a": "L",
+    "A2-007a": "S",
+    "A2-007b": "S+",
+    "A2-008a": "S",
+    "A2-008b": "M",
+    "A2-009a": "S",
+    "A2-010a": "M",
+    "A3-001a": "M",
+    "A3-002a": "M",
+    "A3-003a": "S+",
+    "A3-004a": "S",
+    "A3-004b": "L",
+    "A3-006a": "S",
+    "A3-007a": "S",
+    "A3-008a": "S",
+    "A3-009a": "S",
+    "A3-010a": "S",
+    "A3-011a": "M",
+    "A3-012a": "S+",
+    "A3-015a": "M+",
+    "A3-017a": "M+",
+    "A3-017b": "M",
+    "A4-002a": "S",
+    "A4-003a": "S",
+    "A4-003b": "S+",
+    "A4-004a": "S",
+    "A4-005a": "S+",
+    "A4-006a": "S+",
+    "A4-006b": "S",
+    "A4-006c": "S",
+    "A4-007a": "S+",
+    "A4-008a": "S",
+    "A5-001a": "M+",
+    "A5-002a": "S",
+    "A5-003a": "M+",
+    "A5-003b": "L",
+    "A5-004a": "S",
+    "A5-005a": "M+",
+    "A5-005b": "M",
+    "A5-006a": "M+",
+    "A5-006b": "M",
+    "A6-001a": "S",
+    "A6-003a": "S",
+    "A6-004a": "M",
+    "A6-005a": "S",
+    "A6-006a": "S",
+    "A6-007a": "M",
+    "A6-009a": "S",
+    "A6-010a": "M",
+    "A6-010b": "S",
+    "A6-011a": "S",
+    "A6-012a": "S",
+    "A6-013a": "S",
+    "A6-013b": "S+",
+    "A7-001a": "S",
+    "A7-001b": "M",
+    "A7-002a": "S",
+    "A7-004a": "M",
+    "A7-005a": "S",
+    "A7-006a": "M",
+    "A7-007a": "S",
+    "A7-007b": "S",
+    "A7-007b-a": "S+",
+    "A7-008a": "S+",
+    "A7-008b": "S",
+    "A7-010a": "S",
+    "A7-011a": "S+",
+    "A7-012a": "S",
+    "A7-012b": "S+",
+    "A7-012c": "S",
+    "A7-013a": "S",
+    "A7-013b": "S",
+    "A7-014a": "S",
+    "A7-C02a": "S+",
+    "A8-001a": "M",
+    "A8-001b-a": "S",
+    "A8-001b-b": "M+",
+    "A8-002a": "S",
+    "A8-003a": "M+",
+    "A8-003b": "S",
+    "A8-004a": "M",
+    "A8-004b": "S+",
+    "A8-005a": "S",
+    "A8-006a": "M",
+    "A8-007a": "S",
+    "A8-008a": "M+",
+    "A8-008b": "L",
+    "A9-001a": "S",
+    "A9-001b": "S+",
+    "A9-002a": "M",
+    "A9-003a": "S+",
+    "A9-004a": "S",
+    "A9-005a": "M",
+    "A9-006a": "M",
+    "A9-006b": "S",
+    # Secondary actions not in core 72 — estimated
+    "A2-011a": "S",    # Define software approval process
+    "A4-001a": "M",    # Evaluate identity platform options
+    "A4-005b": "S+",   # Audit all privileged accounts for MFA status
+
+}
 
 # ─────────────────────────────────────────────────────────────────
 # SECTION 2: Governance, Budget, Staffing, and Ownership
@@ -1656,6 +1772,7 @@ def findings_to_dict(report):
                 "schedule_category": a.schedule_category,
                 "constraint_flag": a.constraint_flag,
                 "user_confirmed": a.user_confirmed,
+                "effort": a.effort,
             } for a in f.actions],
             "risk_category": f.risk_category,
             "affected_entity": f.affected_entity,

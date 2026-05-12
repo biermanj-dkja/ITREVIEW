@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Data Governance Report Card — {{ sess.school_name }}{% endblock %}
+
+{% block content %}
+<style>
+  .dg-hero {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 24px;
+  }
+  .dg-hero h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+  .dg-hero p  { color: var(--text-dim); font-size: 0.9rem; }
+
+  .dg-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 28px 40px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .stat-card .stat-num {
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card .stat-label { font-size: 0.78rem; color: var(--text-dim); }
+  .stat-card.grade   .stat-num { color: var(--accent); }
+  .stat-card.urgent  .stat-num { color: var(--urgent); }
+  .stat-card.concern .stat-num { color: var(--concern); }
+  .stat-card.watch   .stat-num { color: var(--watch); }
+  .stat-card.healthy .stat-num { color: var(--healthy); }
+
+  .section-head {
+    padding: 24px 40px 8px;
+    border-top: 1px solid var(--border);
+  }
+  .section-head h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* System grid */
+  .sys-grid {
+    padding: 12px 40px 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .sys-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .sys-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sys-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    flex: 1;
+    margin-right: 12px;
+    word-break: break-word;
+  }
+  .grade-badge {
+    font-family: var(--mono);
+    font-size: 1.4rem;
+    font-weight: 700;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .grade-A { background: rgba(52,211,153,0.15); color: var(--healthy); }
+  .grade-B { background: rgba(79,142,247,0.15); color: var(--accent); }
+  .grade-C { background: rgba(251,191,36,0.15); color: var(--watch); }
+  .grade-D { background: rgba(248,113,113,0.15); color: var(--concern); }
+  .grade-F { background: rgba(239,68,68,0.2);   color: var(--urgent); }
+
+  .sys-card-body { padding: 14px 16px; }
+  .sys-score-bar-wrap {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .sys-score-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  .bar-healthy { background: var(--healthy); }
+  .bar-watch   { background: var(--watch); }
+  .bar-concern { background: var(--concern); }
+  .bar-urgent  { background: var(--urgent); }
+
+  .sys-meta { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 10px; }
+  .finding-count {
+    font-size: 0.78rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-right: 4px;
+  }
+  .fc-critical { background: rgba(239,68,68,0.15);   color: var(--urgent); }
+  .fc-high     { background: rgba(248,113,113,0.15); color: var(--concern); }
+  .fc-medium   { background: rgba(251,191,36,0.15);  color: var(--watch); }
+  .fc-none     { background: var(--surface2); color: var(--text-faint); }
+
+  /* Findings list */
+  .findings-section { padding: 12px 40px 40px; }
+  .finding-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+  }
+  .finding-item.sev-critical { border-left-color: var(--urgent); }
+  .finding-item.sev-high     { border-left-color: var(--concern); }
+  .finding-item.sev-medium   { border-left-color: var(--watch); }
+  .finding-item.sev-low      { border-left-color: var(--healthy); }
+
+  .finding-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .sev-pill {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pill-critical { background: rgba(239,68,68,0.15);   color: var(--urgent); }
+  .pill-high     { background: rgba(248,113,113,0.15); color: var(--concern); }
+  .pill-medium   { background: rgba(251,191,36,0.15);  color: var(--watch); }
+  .pill-low      { background: rgba(52,211,153,0.15);  color: var(--healthy); }
+
+  .finding-title { font-weight: 600; font-size: 0.95rem; }
+  .finding-system { font-size: 0.8rem; color: var(--accent); font-family: var(--mono); margin-bottom: 6px; }
+  .finding-detail { font-size: 0.88rem; color: var(--text-dim); margin-bottom: 8px; }
+  .finding-action {
+    font-size: 0.85rem;
+    background: var(--surface2);
+    border-radius: 4px;
+    padding: 8px 12px;
+  }
+  .finding-action strong { color: var(--accent); }
+
+  .actions-bar {
+    padding: 20px 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn { padding: 10px 20px; border-radius: 6px; font-weight: 600;
+         font-size: 0.88rem; cursor: pointer; text-decoration: none;
+         display: inline-block; border: 1px solid transparent; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-outline { background: transparent; border-color: var(--border);
+                 color: var(--text); }
+
+  .no-systems {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-dim);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+</style>
+
+<div class="dg-hero">
+  <h1>📊 Data Governance Report Card</h1>
+  <p>{{ sess.school_name }} &nbsp;·&nbsp; {{ dg.summary.total_systems }} system{{ 's' if dg.summary.total_systems != 1 else '' }} audited</p>
+</div>
+
+<!-- Overview stats -->
+<div class="dg-overview">
+  <div class="stat-card grade">
+    <div class="stat-num">{{ dg.summary.overall_grade }}</div>
+    <div class="stat-label">Overall Grade</div>
+  </div>
+  <div class="stat-card urgent">
+    <div class="stat-num">{{ dg.summary.critical_finding_count }}</div>
+    <div class="stat-label">Critical Findings</div>
+  </div>
+  <div class="stat-card concern">
+    <div class="stat-num">{{ dg.summary.high_finding_count }}</div>
+    <div class="stat-label">High Findings</div>
+  </div>
+  {% if dg.summary.systems_urgent > 0 %}
+  <div class="stat-card urgent">
+    <div class="stat-num">{{ dg.summary.systems_urgent }}</div>
+    <div class="stat-label">Urgent Systems</div>
+  </div>
+  {% endif %}
+  {% if dg.summary.systems_concern > 0 %}
+  <div class="stat-card concern">
+    <div class="stat-num">{{ dg.summary.systems_concern }}</div>
+    <div class="stat-label">Concern</div>
+  </div>
+  {% endif %}
+  <div class="stat-card watch">
+    <div class="stat-num">{{ dg.summary.systems_watch }}</div>
+    <div class="stat-label">Watch</div>
+  </div>
+  <div class="stat-card healthy">
+    <div class="stat-num">{{ dg.summary.systems_healthy }}</div>
+    <div class="stat-label">Healthy</div>
+  </div>
+</div>
+
+<!-- Per-system report cards -->
+<div class="section-head">
+  <h2>Per-System Report Cards</h2>
+</div>
+
+{% if dg.per_system_results %}
+<div class="sys-grid">
+  {% for r in dg.per_system_results %}
+  {% set critical_n = r.findings | selectattr('severity', 'eq', 'critical') | list | length %}
+  {% set high_n     = r.findings | selectattr('severity', 'eq', 'high')     | list | length %}
+  {% set medium_n   = r.findings | selectattr('severity', 'eq', 'medium')   | list | length %}
+  <div class="sys-card">
+    <div class="sys-card-header">
+      <div class="sys-name">{{ r.system_name }}</div>
+      <div class="grade-badge grade-{{ r.grade_label }}">{{ r.grade_label }}</div>
+    </div>
+    <div class="sys-card-body">
+      <div class="sys-score-bar-wrap">
+        <div class="sys-score-bar bar-{{ r.severity }}" style="width: {{ r.score_pct }}%"></div>
+      </div>
+      <div class="sys-meta">{{ r.score_pct }}% &nbsp;·&nbsp; {{ r.earned | int }}/{{ r.max_pts }} pts &nbsp;·&nbsp; {{ r.severity | title }}</div>
+      {% if r.findings %}
+        {% if critical_n > 0 %}
+          <span class="finding-count fc-critical">{{ critical_n }} critical</span>
+        {% endif %}
+        {% if high_n > 0 %}
+          <span class="finding-count fc-high">{{ high_n }} high</span>
+        {% endif %}
+        {% if medium_n > 0 %}
+          <span class="finding-count fc-medium">{{ medium_n }} medium</span>
+        {% endif %}
+      {% else %}
+        <span class="finding-count fc-none">No findings</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="no-systems">
+  <div class="empty-icon">📋</div>
+  <p>No system worksheets have been completed yet.<br>
+  Return to the assessment and complete the per-system sections.</p>
+</div>
+{% endif %}
+
+<!-- School-wide findings -->
+{% if dg.school_wide_results %}
+<div class="section-head">
+  <h2>School-Wide Governance Findings</h2>
+</div>
+<div class="findings-section">
+  {% for f in dg.school_wide_results | sort(attribute='severity') %}
+  <div class="finding-item sev-{{ f.severity }}">
+    <div class="finding-top">
+      <span class="sev-pill pill-{{ f.severity }}">{{ f.severity }}</span>
+      <span class="finding-title">{{ f.title }}</span>
+    </div>
+    <div class="finding-detail">{{ f.detail }}</div>
+    <div class="finding-action"><strong>Action:</strong> {{ f.action }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- All per-system findings sorted by severity -->
+{% set all_findings = [] %}
+{% for r in dg.per_system_results %}
+  {% for f in r.findings %}
+    {% if all_findings.append(f) %}{% endif %}
+  {% endfor %}
+{% endfor %}
+
+{% if all_findings %}
+<div class="section-head">
+  <h2>All System Findings ({{ all_findings | length }} total)</h2>
+</div>
+<div class="findings-section">
+  {% for f in all_findings | sort(attribute='severity') %}
+  <div class="finding-item sev-{{ f.severity }}">
+    <div class="finding-top">
+      <span class="sev-pill pill-{{ f.severity }}">{{ f.severity }}</span>
+      <span class="finding-title">{{ f.title }}</span>
+    </div>
+    {% if f.system_name %}
+    <div class="finding-system">{{ f.system_name }}</div>
+    {% endif %}
+    <div class="finding-detail">{{ f.detail }}</div>
+    <div class="finding-action"><strong>Action:</strong> {{ f.action }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="actions-bar">
+  <a href="{{ url_for('summary', session_id=session_id) }}" class="btn btn-outline">← Back to Summary</a>
+  <a href="{{ url_for('home') }}" class="btn btn-outline">Home</a>
+</div>
+{% endblock %}

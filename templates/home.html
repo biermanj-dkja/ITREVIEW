@@ -26,7 +26,8 @@
 
   <div class="flex-between mt-24 mb-8">
     <h2>Assessments</h2>
-    <a href="/new_session" class="btn btn-primary">+ New Assessment</a>
+    <a href="/new_session?module_id=module_1" class="btn btn-primary">+ IT Assessment</a>
+    <a href="/new_session?module_id=module_2" class="btn btn-secondary" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:6px;font-weight:600;font-size:0.88rem;text-decoration:none;display:inline-block;">+ Data Governance Audit</a>
   </div>
 
   {% if sessions %}
@@ -69,7 +70,7 @@
     <div style="font-size: 32px; margin-bottom: 12px;">📋</div>
     <h3>No assessments yet</h3>
     <p class="mt-8">Start your first assessment to evaluate your school's IT environment.</p>
-    <a href="/new_session" class="btn btn-primary mt-16">Start Assessment →</a>
+    <a href="/new_session?module_id=module_1" class="btn btn-primary mt-16">Start IT Assessment →</a>
   </div>
   {% endif %}
   {% endif %}

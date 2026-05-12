@@ -151,6 +151,15 @@
       </a>
       {% endif %}
     </div>
+    {% if sess.module_id != 'module_2' %}
+    <p class="text-sm" style="margin-top: 12px; line-height: 1.6; padding: 10px 14px;
+       background: var(--surface2); border-radius: 6px;
+       border-left: 3px solid var(--accent); color: var(--text-dim);">
+      💡 <strong>Table of contents tip:</strong> After opening the .docx file,
+      right-click the contents page and choose <strong>Update Field</strong>
+      to generate the table of contents with live page numbers.
+    </p>
+    {% endif %}
   </div>
   {% endif %}
 

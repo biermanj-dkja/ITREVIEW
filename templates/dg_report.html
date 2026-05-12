@@ -344,6 +344,16 @@
 </div>
 {% endif %}
 
+<div style="padding: 0 40px 4px;">
+  <p style="margin: 0; padding: 10px 14px; line-height: 1.6;
+     background: var(--surface2); border-radius: 6px;
+     border-left: 3px solid var(--accent);
+     font-size: 0.85rem; color: var(--text-dim);">
+    💡 <strong>Opening tip:</strong> After downloading and opening the .docx file,
+    right-click the contents page and choose <strong>Update Field</strong>
+    to generate the table of contents with live page numbers.
+  </p>
+</div>
 <div class="actions-bar">
   <a href="{{ url_for('download_dg_report', session_id=session_id) }}" class="btn btn-primary">⬇ Download Report (.docx)</a>
   <a href="{{ url_for('summary', session_id=session_id) }}" class="btn btn-outline">← Back to Summary</a>

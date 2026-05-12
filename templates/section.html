@@ -24,8 +24,12 @@
   {% set is_unknown = cur_status == "unknown" %}
   {# A question is "answered" if it has any non-unanswered status — including context questions #}
   {% set is_answered = cur_status in ("answered", "unknown", "skipped") and cur_status != "unanswered" and cur_val is not none or (cur_status == "answered" and cur_val is not none) %}
+  {% set initially_hidden = q.condition is not none and qid not in visible_qids %}
   <div class="question-card {{ 'answered' if cur_status == 'answered' and cur_val is not none else ('skipped' if is_skipped else ('unknown-ans' if is_unknown else '')) }}"
-       id="qcard_{{ fkey }}">
+       id="qcard_{{ fkey }}"
+       data-qfkey="{{ fkey }}"
+       data-condition="{{ q.condition | tojson if q.condition else 'null' }}"
+       {% if initially_hidden %}style="display:none;" aria-hidden="true"{% endif %}>
 
     <div class="q-header">
       <div>
@@ -141,8 +145,9 @@
       {% if q.get("triggers_save") %}
       <button type="submit" name="action" value="save"
               class="btn btn-secondary"
-              style="padding: 5px 12px; font-size: 12px; margin-left: auto;">
-        Save Progress to reveal follow-up questions ↓
+              style="padding: 5px 12px; font-size: 12px; margin-left: auto;"
+              title="Some server-side follow-ups (e.g. dynamic worksheets) require a save to generate">
+        Save Progress ↓
       </button>
       {% endif %}
     </div>
@@ -165,7 +170,11 @@
             {{ 'complete' if s.section_id in complete else
                ('active' if s.section_id == section.section_id else 'pending') }}">
             {% if s.section_id in complete %}✓ {% endif %}
-            {{ s.section_id }}. {{ s.title }}
+            {% if s.get('display_id') %}
+              {{ s.display_id }}. {{ s.title }}
+            {% else %}
+              {{ s.section_id }}. {{ s.title }}
+            {% endif %}
             {% if s.estimated_minutes %}
             <span class="text-faint" style="font-size: 10px; display: block; margin-top: 2px;">
               ~{{ s.estimated_minutes }} min
@@ -188,7 +197,7 @@
     {# ── Main content ── #}
     <div>
       <div style="margin-bottom: 4px;">
-        <span class="text-xs text-faint">SECTION {{ section.section_id }} OF {{ total_sections }}</span>
+        <span class="text-xs text-faint">SECTION {{ section.get('display_id', section.section_id) }} OF {{ total_sections }}</span>
         {% if section.estimated_minutes %}
         <span class="text-xs text-faint"> · ~{{ section.estimated_minutes }} min</span>
         {% endif %}
@@ -198,7 +207,7 @@
 
       <div class="card card-sm flex-between mb-24" style="padding: 12px 16px;">
         <div class="text-sm text-dim">
-          {{ questions | length }} question{{ 's' if questions | length != 1 }} visible in this section
+          {{ questions | length }} question{{ 's' if questions | length != 1 }} in this section
         </div>
         <div class="text-xs text-faint mono">
           Point values shown next to each question · Score revealed on completion
@@ -213,9 +222,8 @@
 
         <hr class="divider">
         {% if has_hidden_conditionals %}
-        <div style="margin-bottom: 16px; padding: 12px 16px; background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.3); border-radius: 6px;">
-          <strong style="color: var(--accent);">Save your progress before moving on.</strong>
-          <span style="color: var(--text-dim); font-size: 13px;"> Some questions only appear after saving — hit Save Progress and review the page to make sure you have not missed any follow-up questions.</span>
+        <div style="margin-bottom: 16px; padding: 10px 14px; background: rgba(79,142,247,0.06); border: 1px solid rgba(79,142,247,0.2); border-radius: 6px; font-size: 12px; color: var(--text-dim);">
+          Follow-up questions appear automatically as you answer. If you see a <strong>Save Progress ↓</strong> button on any question, click it — some actions (like generating system worksheets) require a server round-trip.
         </div>
         {% endif %}
 
@@ -237,6 +245,8 @@
 </div>
 
 <script>
+  // ── Card state helpers ──────────────────────────────────────────
+
   function markAnswered(fkey) {
     const card = document.getElementById('qcard_' + fkey);
     if (card) card.classList.add('answered');
@@ -248,6 +258,7 @@
       card.classList.remove('skipped', 'unknown-ans');
       card.classList.add('answered');
     }
+    evaluateAllConditions();
   }
 
   function toggleSkip(cb, fkey) {
@@ -262,6 +273,7 @@
       inputs.forEach(el => { el.disabled = false; el.style.opacity = ''; });
       if (card) card.classList.remove('skipped');
     }
+    evaluateAllConditions();
   }
 
   function toggleUnknown(cb, fkey) {
@@ -276,9 +288,130 @@
       inputs.forEach(el => { el.disabled = false; el.style.opacity = ''; });
       if (card) card.classList.remove('unknown-ans');
     }
+    evaluateAllConditions();
   }
 
-  // Option item visual selection for radio buttons
+  // ── Dynamic conditional logic ────────────────────────────────────
+  // Conditions are embedded as JSON in data-condition on each card.
+  // Re-evaluated on every input change so questions appear/disappear
+  // without requiring a Save Progress round-trip to the server.
+
+  function getFieldValue(fkey) {
+    // Returns the current value of a question field as a string,
+    // or null if the field has no answer yet.
+    const radios = document.querySelectorAll(`input[type="radio"][name="${fkey}"]:checked`);
+    if (radios.length > 0) return radios[0].value;
+
+    const checkboxes = document.querySelectorAll(
+      `input[type="checkbox"][name="${fkey}"]:not([name$="_skip"]):not([name$="_unknown"]):checked`
+    );
+    if (checkboxes.length > 0) return Array.from(checkboxes).map(c => c.value).join(',');
+
+    const textInput = document.querySelector(`input[type="text"][name="${fkey}"],
+                                               input[type="number"][name="${fkey}"],
+                                               textarea[name="${fkey}"]`);
+    if (textInput && textInput.value.trim()) return textInput.value.trim();
+
+    return null;
+  }
+
+  function evaluateCondition(condition, allFkeys) {
+    if (!condition) return true;
+
+    const depFkey = 'q_' + condition.question_id.replace(/\./g, '_');
+    const currentVal = getFieldValue(depFkey);
+
+    // If the dependent question is itself hidden, this question is also hidden
+    const depCard = document.getElementById('qcard_' + depFkey);
+    if (depCard && depCard.getAttribute('aria-hidden') === 'true') return false;
+
+    if (condition.type === 'answer_is') {
+      if (currentVal === null) return false;
+      const expected = condition.value;
+      if (Array.isArray(expected)) {
+        return expected.some(v => currentVal === String(v) ||
+          // yes_no_unknown stores 'yes'/'no' lowercase
+          currentVal.toLowerCase() === String(v).toLowerCase());
+      }
+      return currentVal === String(expected) ||
+             currentVal.toLowerCase() === String(expected).toLowerCase();
+    }
+
+    if (condition.type === 'answer_is_not') {
+      if (currentVal === null) return true;  // unanswered = not excluded
+      const excluded = condition.value;
+      if (Array.isArray(excluded)) {
+        return !excluded.some(v => currentVal === String(v) ||
+          currentVal.toLowerCase() === String(v).toLowerCase());
+      }
+      return currentVal !== String(excluded) &&
+             currentVal.toLowerCase() !== String(excluded).toLowerCase();
+    }
+
+    if (condition.type === 'value_comparison') {
+      if (currentVal === null) return false;
+      const num = parseFloat(currentVal);
+      if (isNaN(num)) return false;
+      const threshold = condition.value;
+      if (condition.operator === 'greater_than')          return num > threshold;
+      if (condition.operator === 'greater_than_or_equal') return num >= threshold;
+      if (condition.operator === 'equal')                 return num === threshold;
+      if (condition.operator === 'less_than')             return num < threshold;
+    }
+
+    return true;  // unknown condition type — show by default
+  }
+
+  function evaluateAllConditions() {
+    const cards = document.querySelectorAll('.question-card[data-condition]');
+    // Two passes: first pass hides/shows based on own condition,
+    // second pass cascades (questions depending on now-hidden questions).
+    // Repeat until stable (handles chains of 3+ levels).
+    let changed = true;
+    let passes = 0;
+    while (changed && passes < 10) {
+      changed = false;
+      passes++;
+      cards.forEach(card => {
+        const condStr = card.getAttribute('data-condition');
+        if (!condStr || condStr === 'null') return;
+        let condition;
+        try { condition = JSON.parse(condStr); } catch(e) { return; }
+
+        const shouldShow = evaluateCondition(condition);
+        const isHidden = card.getAttribute('aria-hidden') === 'true';
+
+        if (shouldShow && isHidden) {
+          card.style.display = '';
+          card.removeAttribute('aria-hidden');
+          // Re-enable inputs (but respect skip/unknown state)
+          card.querySelectorAll('input, textarea, select').forEach(el => {
+            if (!el.name.endsWith('_skip') && !el.name.endsWith('_unknown')) {
+              const fkey = card.getAttribute('data-qfkey');
+              const isSkipped = card.querySelector(`input[name="${fkey}_skip"]`)?.checked;
+              const isUnknown = card.querySelector(`input[name="${fkey}_unknown"]`)?.checked;
+              if (!isSkipped && !isUnknown) {
+                el.disabled = false;
+                el.style.opacity = '';
+              }
+            }
+          });
+          changed = true;
+        } else if (!shouldShow && !isHidden) {
+          card.style.display = 'none';
+          card.setAttribute('aria-hidden', 'true');
+          // Disable all inputs in hidden cards so they don't submit
+          card.querySelectorAll('input, textarea, select').forEach(el => {
+            el.disabled = true;
+          });
+          changed = true;
+        }
+      });
+    }
+  }
+
+  // ── Option item visual selection ─────────────────────────────────
+
   document.querySelectorAll('.option-item input[type="radio"]').forEach(radio => {
     radio.addEventListener('change', () => {
       const group = radio.closest('.option-group');
@@ -289,15 +422,21 @@
     });
   });
 
-  // Option item visual selection for checkboxes
   document.querySelectorAll('.option-item input[type="checkbox"]:not([name$="_skip"]):not([name$="_unknown"])').forEach(cb => {
     cb.addEventListener('change', () => {
       cb.closest('.option-item').classList.toggle('selected', cb.checked);
       markAnswered(cb.name);
+      evaluateAllConditions();
     });
   });
 
-  // Restore disabled state for already-skipped/unknown questions on page load
+  // Text/number/textarea inputs
+  document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => {
+    el.addEventListener('input', () => evaluateAllConditions());
+  });
+
+  // ── Restore disabled state on page load ──────────────────────────
+
   document.querySelectorAll('input[name$="_skip"]:checked').forEach(cb => {
     const fkey = cb.name.replace('_skip', '');
     document.querySelectorAll(`[name="${fkey}"]`).forEach(el => {
@@ -310,5 +449,10 @@
       el.disabled = true; el.style.opacity = '0.3';
     });
   });
+
+  // ── Run on page load ─────────────────────────────────────────────
+  // Show/hide conditional questions based on already-saved answers.
+  evaluateAllConditions();
+
 </script>
 {% endblock %}

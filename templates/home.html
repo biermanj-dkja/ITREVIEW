@@ -47,7 +47,7 @@
       </div>
       <div class="flex gap-8">
         {% set complete_list = sess.sections_complete | from_json %}
-        {% if complete_list | length >= 10 %}
+        {% if sess.is_complete %}
           <a href="/session/{{ sess.session_id }}/summary" class="btn btn-primary">Inspect →</a>
         {% elif sess.status == 'in_progress' %}
           <a href="/resume/{{ sess.session_id }}" class="btn btn-primary">Resume →</a>

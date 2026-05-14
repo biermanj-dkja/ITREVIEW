@@ -3,14 +3,25 @@
 {% block content %}
 <div class="container" style="padding-top: 48px;">
 
+  <div style="margin-bottom: 24px;">
+    <a href="/session/{{ session_id }}/summary" class="text-dim text-sm" style="text-decoration: none;">← Summary</a>
+  </div>
+
   <div style="text-align: center; margin-bottom: 40px;">
-    <div style="font-size: 48px; margin-bottom: 8px;">
-      {% if severity == "context_only" %}✅
-      {% elif severity == "healthy" %}✅
-      {% elif severity == "watch" %}👁
-      {% elif severity == "concern" %}⚠️
-      {% elif severity == "urgent" %}🚨
-      {% else %}❓{% endif %}
+    <div style="margin-bottom: 12px;">
+      {% if severity == "context_only" %}
+        <span class="badge" style="font-size:13px; padding: 6px 18px; background: var(--accent-dim); color: var(--accent); border: 1px solid var(--border);">Context Section</span>
+      {% elif severity == "healthy" %}
+        <span class="badge badge-healthy" style="font-size:13px; padding: 6px 18px;">Healthy</span>
+      {% elif severity == "watch" %}
+        <span class="badge badge-watch" style="font-size:13px; padding: 6px 18px;">Watch</span>
+      {% elif severity == "concern" %}
+        <span class="badge badge-concern" style="font-size:13px; padding: 6px 18px;">Concern</span>
+      {% elif severity == "urgent" %}
+        <span class="badge badge-urgent" style="font-size:13px; padding: 6px 18px;">Urgent</span>
+      {% else %}
+        <span class="badge badge-unknown" style="font-size:13px; padding: 6px 18px;">Unknown</span>
+      {% endif %}
     </div>
     <h1>Section {{ section.section_id }} complete</h1>
     <p class="mt-8">{{ section.title }}</p>
@@ -18,8 +29,9 @@
 
   {# SC3 — soft skip warning (5–20%) #}
   {% if skip_pct >= 5 %}
-  <div class="alert alert-error" style="margin-bottom: 24px;">
-    <strong>{{ skip_pct }}% of questions were skipped.</strong>
+  <div style="padding: 12px 16px; border-radius: 6px; margin-bottom: 24px; font-size: 14px;
+              background: var(--surface2); border: 1px solid var(--watch); border-left: 3px solid var(--watch); color: var(--text-dim);">
+    <strong style="color: var(--watch);">{{ skip_pct }}% of questions were skipped.</strong>
     Are you sure you want to move on? There is a meaningful amount of skipped information here.
     You can go back and fill in more answers before continuing — skipped questions reduce the
     accuracy of your findings.
@@ -33,7 +45,7 @@
     <div style="padding: 20px 0;">
       <div style="font-family: var(--mono); font-size: 36px; font-weight: 500; color: var(--accent);">Complete</div>
       <div class="mt-16">
-        <span class="badge" style="background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); font-size: 13px; padding: 4px 14px;">
+        <span class="badge" style="background: var(--accent-dim); color: var(--accent); border: 1px solid var(--border); font-size: 13px; padding: 4px 14px;">
           Context only — no scored questions
         </span>
       </div>
@@ -68,15 +80,21 @@
       <strong>Urgent gaps identified.</strong> This section contains findings that require immediate attention.
     </div>
     {% elif severity == "concern" %}
-    <div style="padding: 12px 16px; background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.2); border-radius: 6px; text-align: left; font-size: 13px; color: var(--text-dim); margin-top: 8px;">
+    <div style="padding: 12px 16px; background: var(--surface2); border: 1px solid var(--concern);
+                border-left: 3px solid var(--concern); border-radius: 6px; text-align: left;
+                font-size: 13px; color: var(--text-dim); margin-top: 8px;">
       Material gaps were identified in this section. These will appear in your action plan.
     </div>
     {% elif severity == "watch" %}
-    <div style="padding: 12px 16px; background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.2); border-radius: 6px; text-align: left; font-size: 13px; color: var(--text-dim); margin-top: 8px;">
+    <div style="padding: 12px 16px; background: var(--surface2); border: 1px solid var(--watch);
+                border-left: 3px solid var(--watch); border-radius: 6px; text-align: left;
+                font-size: 13px; color: var(--text-dim); margin-top: 8px;">
       Some areas to monitor or improve were identified. These will appear in your action plan.
     </div>
     {% elif severity == "healthy" %}
-    <div style="padding: 12px 16px; background: rgba(52,211,153,0.07); border: 1px solid rgba(52,211,153,0.2); border-radius: 6px; text-align: left; font-size: 13px; color: var(--text-dim); margin-top: 8px;">
+    <div style="padding: 12px 16px; background: var(--surface2); border: 1px solid var(--healthy);
+                border-left: 3px solid var(--healthy); border-radius: 6px; text-align: left;
+                font-size: 13px; color: var(--text-dim); margin-top: 8px;">
       This section is well covered. Continue to the next section.
     </div>
     {% endif %}

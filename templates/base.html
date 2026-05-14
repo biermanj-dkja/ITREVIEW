@@ -9,22 +9,78 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:         #0f1117;
-      --surface:    #181c27;
-      --surface2:   #1e2333;
-      --border:     #2a3050;
-      --accent:     #4f8ef7;
-      --accent-dim: #2a4a8a;
-      --text:       #d4daf0;
-      --text-dim:   #7a85a8;
-      --text-faint: #404868;
-      --healthy:    #34d399;
-      --watch:      #fbbf24;
-      --concern:    #f87171;
-      --urgent:     #ef4444;
+    /* ── Theme: Light — Slate Blue (default) ── */
+    :root, [data-theme="light-slate"] {
+      --bg:         #f4f6f9;
+      --surface:    #ffffff;
+      --surface2:   #edf1f7;
+      --border:     #d0d9e8;
+      --accent:     #1a56a0;
+      --accent-dim: #d0e2f7;
+      --text:       #1e2a3a;
+      --text-dim:   #556070;
+      --text-faint: #9aaabb;
+      --healthy:    #0f7b55;
+      --watch:      #a05c00;
+      --concern:    #c0392b;
+      --urgent:     #921f1f;
+      --accent-selected-bg: rgba(26,86,160,0.08);
       --mono:       'IBM Plex Mono', monospace;
       --sans:       'IBM Plex Sans', sans-serif;
+    }
+
+    /* ── Theme: Light — Forest ── */
+    [data-theme="light-forest"] {
+      --bg:         #f5f3ee;
+      --surface:    #ffffff;
+      --surface2:   #edeae2;
+      --border:     #cdc9bc;
+      --accent:     #2a7a50;
+      --accent-dim: #d4ece0;
+      --text:       #1e251a;
+      --text-dim:   #526050;
+      --text-faint: #99aa94;
+      --healthy:    #1a6640;
+      --watch:      #9a5a00;
+      --concern:    #c03030;
+      --urgent:     #8f1f1f;
+      --accent-selected-bg: rgba(42,122,80,0.08);
+    }
+
+    /* ── Theme: Dark — Refined ── */
+    [data-theme="dark-refined"] {
+      --bg:         #141b22;
+      --surface:    #1c2530;
+      --surface2:   #233040;
+      --border:     #324458;
+      --accent:     #40a898;
+      --accent-dim: #1c3d3a;
+      --text:       #d8e4ec;
+      --text-dim:   #8098b0;
+      --text-faint: #445870;
+      --healthy:    #36c898;
+      --watch:      #f0b840;
+      --concern:    #f07050;
+      --urgent:     #f04030;
+      --accent-selected-bg: rgba(64,168,152,0.10);
+    }
+
+    /* ── Theme: Dark — Warm Ink ── */
+    [data-theme="dark-ink"] {
+      --bg:         #181510;
+      --surface:    #221e18;
+      --surface2:   #2a2620;
+      --border:     #3e3830;
+      --accent:     #c8943a;
+      --accent-dim: #3a2e18;
+      --text:       #e0d8cc;
+      --text-dim:   #9a9080;
+      --text-faint: #5a5040;
+      --healthy:    #4ac098;
+      --watch:      #e8a820;
+      --concern:    #e86848;
+      --urgent:     #e04828;
+      --accent-selected-bg: rgba(200,148,58,0.10);
     }
 
     body {
@@ -113,12 +169,12 @@
       transition: all 0.15s;
     }
     .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #6fa3ff; }
+    .btn-primary:hover { filter: brightness(1.12); }
     .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
     .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
     .btn-ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
     .btn-ghost:hover { color: var(--text); border-color: var(--text-dim); }
-    .btn-danger { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+    .btn-danger { background: rgba(192,57,43,0.12); color: var(--concern); border: 1px solid var(--concern); }
 
     /* Forms */
     .form-group { margin-bottom: 20px; }
@@ -167,7 +223,7 @@
       cursor: pointer;
       accent-color: var(--accent);
     }
-    .option-item.selected { border-color: var(--accent); background: rgba(79,142,247,0.08); }
+    .option-item.selected { border-color: var(--accent); background: var(--accent-selected-bg); }
 
     /* Severity badges */
     .badge {
@@ -202,10 +258,9 @@
     .point-chip.critical { color: var(--urgent); border-color: rgba(239,68,68,0.4); }
     .point-chip.zero { color: var(--text-faint); }
 
-    /* Alerts */
     .alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
-    .alert-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
-    .alert-success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); color: var(--healthy); }
+    .alert-error { background: rgba(192,57,43,0.10); border: 1px solid rgba(192,57,43,0.30); color: var(--concern); }
+    .alert-success { background: rgba(15,123,85,0.10); border: 1px solid rgba(15,123,85,0.30); color: var(--healthy); }
 
     /* Progress bar */
     .progress-track {
@@ -261,7 +316,7 @@
       cursor: default;
     }
     .sidebar-section.complete { border-color: var(--border); color: var(--text-dim); }
-    .sidebar-section.active { background: rgba(79,142,247,0.1); border-color: var(--accent); color: var(--accent); }
+    .sidebar-section.active { background: var(--accent-selected-bg); border-color: var(--accent); color: var(--accent); }
     .sidebar-section.pending { color: var(--text-faint); }
 
     /* Skip/unknown row */
@@ -344,9 +399,74 @@
     }
     .score-fraction .max { font-size: 28px; color: var(--text-dim); }
 
+    /* Theme picker */
+    .theme-picker-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px 9px;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .theme-picker-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .theme-picker-panel {
+      display: none;
+      position: fixed;
+      top: 88px;
+      right: 24px;
+      z-index: 200;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      min-width: 200px;
+    }
+    .theme-picker-panel.open { display: block; }
+    .theme-picker-label {
+      font-size: 10px;
+      font-family: var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 10px;
+    }
+    .theme-picker-options { display: flex; flex-direction: column; gap: 4px; }
+    .theme-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-dim);
+      font-family: var(--sans);
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.1s, border-color 0.1s;
+      width: 100%;
+    }
+    .theme-option:hover { background: var(--surface2); border-color: var(--border); }
+    .theme-option.active { border-color: var(--accent); color: var(--text); background: var(--accent-selected-bg); }
+    .theme-swatch {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
     @media (max-width: 700px) {
       .layout-with-sidebar { grid-template-columns: 1fr; }
       .sidebar { display: none; }
+      .theme-picker-panel { right: 12px; }
     }
   </style>
 </head>
@@ -354,7 +474,7 @@
   <div class="privacy-banner">
     🔒 <span>This tool runs entirely on your computer. No data is sent to the internet.</span>
     &nbsp;·&nbsp; localhost:5000
-    &nbsp;·&nbsp; <span style="opacity:0.5;">v0.5.3</span>
+    &nbsp;·&nbsp; <span style="opacity:0.5;">v{{ app_version }}</span>
   </div>
 
   <nav>
@@ -362,8 +482,33 @@
     <div class="nav-links">
       <a href="/">Home</a>
       <a href="/setup">School Profile</a>
+      <button class="theme-picker-btn" onclick="document.getElementById('theme-picker').classList.toggle('open')" title="Change theme" aria-label="Change theme">
+        <span id="theme-icon">☀</span>
+      </button>
     </div>
   </nav>
+
+  <div id="theme-picker" class="theme-picker-panel">
+    <div class="theme-picker-label">Appearance</div>
+    <div class="theme-picker-options">
+      <button class="theme-option" data-theme="light-slate" onclick="setTheme('light-slate')">
+        <span class="theme-swatch" style="background:linear-gradient(135deg,#f4f6f9 50%,#1a56a0 50%);"></span>
+        Light — Slate Blue
+      </button>
+      <button class="theme-option" data-theme="light-forest" onclick="setTheme('light-forest')">
+        <span class="theme-swatch" style="background:linear-gradient(135deg,#f5f3ee 50%,#2a7a50 50%);"></span>
+        Light — Forest
+      </button>
+      <button class="theme-option" data-theme="dark-refined" onclick="setTheme('dark-refined')">
+        <span class="theme-swatch" style="background:linear-gradient(135deg,#141b22 50%,#40a898 50%);"></span>
+        Dark — Refined
+      </button>
+      <button class="theme-option" data-theme="dark-ink" onclick="setTheme('dark-ink')">
+        <span class="theme-swatch" style="background:linear-gradient(135deg,#181510 50%,#c8943a 50%);"></span>
+        Dark — Warm Ink
+      </button>
+    </div>
+  </div>
 
   <div>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -378,5 +523,40 @@
 
     {% block content %}{% endblock %}
   </div>
+  <script>
+    // ── Theme switcher ────────────────────────────────────────────────
+    var THEMES = ['light-slate','light-forest','dark-refined','dark-ink'];
+    var DARK_THEMES = ['dark-refined','dark-ink'];
+
+    function applyTheme(t) {
+      if (!THEMES.includes(t)) t = 'light-slate';
+      document.documentElement.setAttribute('data-theme', t);
+      var icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = DARK_THEMES.includes(t) ? '☾' : '☀';
+      document.querySelectorAll('.theme-option').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-theme') === t);
+      });
+    }
+
+    function setTheme(t) {
+      try { localStorage.setItem('sie-theme', t); } catch(e) {}
+      applyTheme(t);
+      document.getElementById('theme-picker').classList.remove('open');
+    }
+
+    (function() {
+      var saved = 'light-slate';
+      try { saved = localStorage.getItem('sie-theme') || 'light-slate'; } catch(e) {}
+      applyTheme(saved);
+    })();
+
+    document.addEventListener('click', function(e) {
+      var panel = document.getElementById('theme-picker');
+      if (!panel) return;
+      if (!panel.contains(e.target) && !e.target.closest('.theme-picker-btn')) {
+        panel.classList.remove('open');
+      }
+    });
+  </script>
 </body>
 </html>

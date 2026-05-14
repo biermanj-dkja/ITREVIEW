@@ -26,10 +26,23 @@
 
   <div class="flex-between mt-24 mb-8">
     <h2>Assessments</h2>
-    <div class="flex gap-8">
-      <a href="/new_session?module_id=module_1" class="btn btn-primary">+ IT Assessment</a>
-      <a href="/new_session?module_id=module_2" class="btn btn-primary">+ Data Governance Audit</a>
+    <div class="flex gap-8" style="align-items: center;">
       <a href="/import-session" class="btn btn-ghost" title="Restore a session from a JSON export file">⬆ Import</a>
+    </div>
+  </div>
+
+  <div class="flex gap-16 mb-16" style="flex-wrap: wrap;">
+    <div class="card card-sm" style="flex: 1; min-width: 260px;">
+      <div class="text-xs text-faint mono mb-6" style="color: var(--accent);">MODULE 1</div>
+      <div style="font-weight: 600; margin-bottom: 6px;">IT Assessment</div>
+      <p class="text-sm text-dim" style="margin-bottom: 16px; line-height: 1.5;">Evaluates your school's core IT environment across nine areas — staffing, network, devices, security, backups, and more. You'll finish with a prioritized findings report and a downloadable action plan organized by urgency and effort.</p>
+      <a href="/new_session?module_id=module_1" class="btn btn-primary">+ Start IT Assessment</a>
+    </div>
+    <div class="card card-sm" style="flex: 1; min-width: 260px;">
+      <div class="text-xs text-faint mono mb-6" style="color: var(--watch);">MODULE 2</div>
+      <div style="font-weight: 600; margin-bottom: 6px;">Data Governance Audit</div>
+      <p class="text-sm text-dim" style="margin-bottom: 16px; line-height: 1.5;">Maps every system your school uses: where student and staff data lives, who can access it, what your vendors have agreed to, and how data is retained or deleted. Produces a per-system report card and a school-wide governance findings report.</p>
+      <a href="/new_session?module_id=module_2" class="btn btn-primary">+ Start Data Governance Audit</a>
     </div>
   </div>
 

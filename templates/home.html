@@ -26,8 +26,11 @@
 
   <div class="flex-between mt-24 mb-8">
     <h2>Assessments</h2>
-    <a href="/new_session?module_id=module_1" class="btn btn-primary">+ IT Assessment</a>
-    <a href="/new_session?module_id=module_2" class="btn btn-secondary" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:6px;font-weight:600;font-size:0.88rem;text-decoration:none;display:inline-block;">+ Data Governance Audit</a>
+    <div class="flex gap-8">
+      <a href="/new_session?module_id=module_1" class="btn btn-primary">+ IT Assessment</a>
+      <a href="/new_session?module_id=module_2" class="btn btn-secondary">+ Data Governance Audit</a>
+      <a href="/import-session" class="btn btn-ghost" title="Restore a session from a JSON export file">⬆ Import</a>
+    </div>
   </div>
 
   {% if sessions %}
@@ -37,7 +40,15 @@
   <div class="card card-sm" style="margin-bottom: 12px;">
     <div class="flex-between">
       <div>
-        <div class="text-xs text-faint mono mb-4">{{ sess.session_id[:8] }}…</div>
+        <div class="text-xs text-faint mono mb-4">
+          {{ sess.session_id[:8] }}…
+          &nbsp;·&nbsp;
+          {% if sess.module_id == 'module_2' %}
+            <span style="color: var(--watch); font-family: var(--mono);">DATA GOVERNANCE</span>
+          {% else %}
+            <span style="color: var(--accent); font-family: var(--mono);">IT ASSESSMENT</span>
+          {% endif %}
+        </div>
         <div style="font-weight: 500;">{{ sess.school_name }}</div>
         <div class="text-sm text-dim mt-4">
           {{ complete | length }} section{{ 's' if complete | length != 1 }} complete
@@ -54,6 +65,12 @@
         {% else %}
           <a href="/session/{{ sess.session_id }}/summary" class="btn btn-secondary">View Summary</a>
         {% endif %}
+        <form method="POST" action="/session/{{ sess.session_id }}/deprecate"
+              onsubmit="return confirm('Archive this assessment? It will be hidden from the list but kept in the database.')">
+          <button type="submit" class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;">
+            Archive
+          </button>
+        </form>
         <form method="POST" action="/session/{{ sess.session_id }}/delete"
               onsubmit="return confirm('Permanently delete this assessment and all its answers? This cannot be undone.')">
           <button type="submit" class="btn btn-danger" style="padding: 8px 14px; font-size: 13px;">

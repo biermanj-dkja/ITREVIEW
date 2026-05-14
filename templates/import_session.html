@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Import Assessment{% endblock %}
+{% block content %}
+<div class="container">
+
+  <div style="margin-bottom: 8px;">
+    <a href="/" class="text-dim text-sm" style="text-decoration: none;">← Home</a>
+  </div>
+
+  <h1>Import Assessment</h1>
+  <p>Restore a session from a previously exported JSON file. All answers, section
+     completion status, and session metadata will be restored exactly as they were
+     at the time of export.</p>
+
+  <div class="card mt-24">
+    <h2 class="mb-16">Upload Export File</h2>
+
+    <div style="padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border);
+                border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: var(--text-dim);
+                border-left: 3px solid var(--accent);">
+      <strong style="color: var(--text);">What gets imported:</strong> all answers, section completion
+      flags, and session metadata. The school profile is restored only if no profile is currently set.
+      If a session with the same ID already exists, the import will be rejected without making any
+      changes to your data.
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label class="field-label">Session Export File (.json)</label>
+        <input type="file" name="session_file" accept=".json"
+               style="padding: 10px 14px; cursor: pointer;">
+      </div>
+      <div style="display: flex; gap: 12px; margin-top: 8px;">
+        <button type="submit" class="btn btn-primary">Import Session →</button>
+        <a href="/" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

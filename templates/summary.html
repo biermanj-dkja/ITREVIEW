@@ -163,5 +163,66 @@
   </div>
   {% endif %}
 
+  {# ── UNKNOWNS PANEL ───────────────────────────────────────────────── #}
+  {% if total_unknowns > 0 %}
+  <div class="card mt-16" style="border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.03);">
+    <div class="flex-between mb-16">
+      <div>
+        <h2 style="color: var(--watch); margin-bottom: 4px;">
+          ⚠ {{ total_unknowns }} Unknown Answer{{ 's' if total_unknowns != 1 }}
+        </h2>
+        <p class="text-sm text-dim" style="margin: 0; line-height: 1.6;">
+          These questions were marked <em>I don't know</em>. Unknown answers score zero and
+          may cause findings to be understated. Revisit any you can now answer with more
+          confidence — even a partial answer is more useful than unknown.
+        </p>
+      </div>
+    </div>
+    {% for sec in unknown_summary %}
+    <div style="margin-bottom: 16px;">
+      <div class="text-xs text-faint mb-8" style="text-transform: uppercase; letter-spacing: 0.07em;">
+        Section {{ sec.section_id }} — {{ sec.section_title }}
+        <span style="color: var(--watch);">({{ sec.unknowns | length }} unknown{{ 's' if sec.unknowns | length != 1 }})</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        {% for u in sec.unknowns %}
+        <div style="display: flex; justify-content: space-between; align-items: center;
+                    padding: 8px 12px; background: var(--surface2);
+                    border: 1px solid var(--border); border-radius: 6px; gap: 12px;">
+          <div>
+            <span class="mono text-xs" style="color: var(--text-faint); margin-right: 8px;">{{ u.question_id }}</span>
+            <span class="text-sm" style="color: var(--text-dim);">{{ u.prompt }}</span>
+          </div>
+          <a href="/session/{{ session_id }}/section/{{ sec.section_id }}"
+             class="btn btn-ghost" style="padding: 3px 10px; font-size: 11px; white-space: nowrap;">
+            Revisit →
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ── EXPORT PANEL ─────────────────────────────────────────────────── #}
+  {% if section_results %}
+  <div class="card mt-16" style="background: var(--surface2); border-color: var(--border);">
+    <div class="flex-between">
+      <div>
+        <h3 style="margin-bottom: 4px;">Export / Backup</h3>
+        <p class="text-sm text-dim" style="margin: 0; line-height: 1.6;">
+          Download a JSON snapshot of this entire assessment — all answers, section status, and
+          session metadata. Use it to back up your work or transfer to another machine.
+        </p>
+      </div>
+      <a href="{{ url_for('export_session', session_id=session_id) }}"
+         class="btn btn-secondary" style="white-space: nowrap; margin-left: 16px;">
+        ⬇ Export JSON
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

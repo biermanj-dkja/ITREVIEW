@@ -205,11 +205,18 @@
       <h1 style="margin-bottom: 4px;">{{ section.title }}</h1>
       <p style="margin-bottom: 28px;">{{ section.description }}</p>
 
-      <div class="card card-sm flex-between mb-24" style="padding: 12px 16px;">
-        <div class="text-sm text-dim">
-          {{ questions | length }} question{{ 's' if questions | length != 1 }} in this section
+      {# ── Live section progress bar ── #}
+      <div class="card card-sm mb-24" style="padding: 12px 16px;" id="section-progress-card">
+        <div class="flex-between mb-8">
+          <div class="text-sm text-dim" id="progress-label">
+            {{ questions | length }} question{{ 's' if questions | length != 1 }} in this section
+          </div>
+          <div class="text-xs text-faint mono" id="progress-counts"></div>
         </div>
-        <div class="text-xs text-faint mono">
+        <div class="progress-track">
+          <div id="section-progress-fill" class="progress-fill" style="width: 0%; background: var(--healthy); transition: width 0.25s ease;"></div>
+        </div>
+        <div class="text-xs text-faint mt-4">
           Point values shown next to each question · Score revealed on completion
         </div>
       </div>
@@ -453,6 +460,69 @@
   // ── Run on page load ─────────────────────────────────────────────
   // Show/hide conditional questions based on already-saved answers.
   evaluateAllConditions();
+
+  // ── Section progress bar ─────────────────────────────────────────
+  // Counts visible question cards by state and updates the live bar.
+  // States: answered (blue accent left-border), unknown-ans (grey),
+  //         skipped (dimmed), or none of the above (unanswered).
+
+  function updateProgressBar() {
+    const cards = Array.from(
+      document.querySelectorAll('.question-card')
+    ).filter(c => c.getAttribute('aria-hidden') !== 'true'
+                  && c.style.display !== 'none');
+
+    let answered = 0, unknown = 0, skipped = 0;
+    cards.forEach(c => {
+      if (c.classList.contains('answered'))    answered++;
+      else if (c.classList.contains('unknown-ans')) unknown++;
+      else if (c.classList.contains('skipped'))    skipped++;
+    });
+
+    const total     = cards.length;
+    const responded = answered + unknown + skipped;
+    const pct       = total > 0 ? Math.round(responded / total * 100) : 0;
+
+    const fill  = document.getElementById('section-progress-fill');
+    const label = document.getElementById('progress-label');
+    const counts = document.getElementById('progress-counts');
+
+    if (fill)  fill.style.width = pct + '%';
+    if (label) label.textContent =
+      responded + ' of ' + total + ' question' + (total !== 1 ? 's' : '') + ' addressed';
+
+    let parts = [];
+    if (answered > 0) parts.push(answered + ' answered');
+    if (unknown  > 0) parts.push(unknown  + ' unknown');
+    if (skipped  > 0) parts.push(skipped  + ' skipped');
+    if (counts)  counts.textContent = parts.join(' · ');
+
+    // Colour the bar: red below 45%, yellow 45–75%, green above 75%
+    if (fill) {
+      if (pct > 75)       fill.style.background = 'var(--healthy)';
+      else if (pct >= 45) fill.style.background = 'var(--watch)';
+      else                fill.style.background = 'var(--concern)';
+    }
+  }
+
+  // Hook into every existing event path so the bar stays live
+  const _origMarkAnswered = markAnswered;
+  markAnswered = function(fkey) { _origMarkAnswered(fkey); updateProgressBar(); };
+
+  const _origUpdateCard = updateCard;
+  updateCard = function(fkey) { _origUpdateCard(fkey); updateProgressBar(); };
+
+  const _origToggleSkip = toggleSkip;
+  toggleSkip = function(cb, fkey) { _origToggleSkip(cb, fkey); updateProgressBar(); };
+
+  const _origToggleUnknown = toggleUnknown;
+  toggleUnknown = function(cb, fkey) { _origToggleUnknown(cb, fkey); updateProgressBar(); };
+
+  const _origEvalAll = evaluateAllConditions;
+  evaluateAllConditions = function() { _origEvalAll(); updateProgressBar(); };
+
+  // Initial render
+  updateProgressBar();
 
 </script>
 {% endblock %}

@@ -1,6 +1,6 @@
 """
 Report Generator for Module 1 — School IT State of the System Report
-v0.5.2.2
+v0.5.4.0
 
 Uses python-docx to produce the DOCX entirely in Python.
 
@@ -336,6 +336,58 @@ def _get(answers, qid):
     return ", ".join(str(x) for x in r) if isinstance(r, list) else (str(r) if r else "")
 
 
+def _cost_tier(actions):
+    """
+    Derive a budget signal from a finding's action list.
+    Returns (label, hex_color) based on the highest-effort action and
+    whether any constraint_flag is set.
+    Tiers:
+      Staff time only  — all actions S or S+, no purchase keywords
+      Moderate budget  — at least one M or M+ action, or purchase keyword but no L
+      Significant investment — at least one L action, or constraint_flag on any action
+    """
+    if not actions:
+        return None, None
+    purchase_kw = ("purchase", "procure", "buy", "invest", "replac", "licens", "subscri", "vendor")
+    has_L        = any(a.get("effort") == "L"  for a in actions)
+    has_M        = any(a.get("effort") in ("M", "M+") for a in actions)
+    has_purchase = any(any(kw in (a.get("description") or "").lower() for kw in purchase_kw)
+                       for a in actions)
+    has_constraint = any(a.get("constraint_flag") for a in actions)
+
+    if has_L or has_constraint:
+        return "Significant investment", "C0392B"   # red-ish
+    elif has_M or has_purchase:
+        return "Moderate budget",       "E67E22"   # orange
+    else:
+        return "Staff time only",       "1A7A4A"   # green
+
+
+def _scope_box(doc, sections_covered, skipped_section_ids):
+    """
+    Render a light-blue 'Assessment scope' callout near the top of the
+    Executive Summary.  Lists which sections were completed and which
+    (if any) were not assessed.
+    """
+    skipped_names = [SECTION_NAMES.get(s, f"Section {s}") for s in sorted(skipped_section_ids)]
+
+    def builder(cell):
+        p1 = _cp(cell, sb=3, sa=2)
+        _run(p1, "Assessment scope:  ", bold=True, size=10, color=C.accent)
+        _run(p1,
+             f"This report covers {sections_covered} of {len(SECTION_NAMES)} assessed sections.",
+             size=10)
+        if skipped_names:
+            p2 = _cp(cell, sb=2, sa=3)
+            _run(p2, "Not assessed in this session:  ", bold=True, size=9, color=C.faint)
+            _run(p2, "; ".join(skipped_names), italic=True, size=9)
+        else:
+            p2 = _cp(cell, sb=2, sa=3)
+            _run(p2, "All assessed sections were completed.", italic=True, size=9, color=C.faint)
+
+    _box(doc, "D6EAF8", builder)   # light blue
+
+
 def _set_hf(doc, school, report_date, caveat):
     sec = doc.sections[0]
     hdr = sec.header
@@ -485,6 +537,85 @@ def _health_verdict(summary, scores):
         )
 
 
+# ── Staffing stub ─────────────────────────────────────────────────
+
+def _staffing_stub(doc, answers):
+    """
+    Render a short narrative paragraph about the IT staffing model drawn
+    directly from Section 2 answers.  Used in the Executive Summary.
+    Reads: 2.1 (model), 2.2 (named lead), 2.2b (lead name/title),
+           2.3 (day-to-day assigned), 2.7 (known constraints),
+           2.9 (continuity).
+    """
+    model       = _get(answers, "2.1")
+    has_lead    = _get(answers, "2.2")
+    lead_name   = _get(answers, "2.2b")
+    day_to_day  = _get(answers, "2.3")
+    constraints = _get(answers, "2.7")
+    continuity  = _get(answers, "2.9")
+
+    # Skip entirely if we have almost nothing to say
+    if not any([model, has_lead, lead_name]):
+        return
+
+    # ── Build sentence fragments ──────────────────────────────────
+    if model:
+        model_clean = model.strip().rstrip(".")
+        model_sent = f"IT support is currently structured as: {model_clean}."
+    else:
+        model_sent = "The IT staffing model was not specified."
+
+    if has_lead == "yes" and lead_name:
+        lead_sent = f"{lead_name.strip()} serves as the named IT lead."
+    elif has_lead == "yes":
+        lead_sent = "A named IT lead is in place."
+    elif has_lead == "no":
+        lead_sent = "No single named person is currently accountable for IT leadership."
+    else:
+        lead_sent = ""
+
+    if day_to_day == "yes":
+        dod_sent = "Day-to-day support responsibilities are clearly assigned."
+    elif day_to_day == "no":
+        dod_sent = "Day-to-day IT support responsibilities are not formally assigned."
+    else:
+        dod_sent = ""
+
+    continuity_map = {
+        "Yes — another person could cover fully":
+            "If the primary lead were unavailable, another person could cover operations.",
+        "Partially — some things would be managed, others would not":
+            "Partial coverage exists if the primary lead were unavailable; some tasks would go unmanaged.",
+        "No — operations would be significantly disrupted":
+            "There is currently no continuity plan — operations would be significantly disrupted "
+            "if the IT lead were unavailable.",
+    }
+    cont_sent = continuity_map.get(continuity, "")
+
+    if constraints and constraints.lower() not in ("no", "n/a", "none", ""):
+        constraint_sent = (
+            f"Known constraint: {constraints.strip().rstrip('.')}."
+            if constraints.lower() not in ("yes",)
+            else "Known budget or staffing constraints are noted for this year."
+        )
+    else:
+        constraint_sent = ""
+
+    # ── Render ────────────────────────────────────────────────────
+    _h(doc, "IT Staffing Overview", 2)
+
+    def builder(cell):
+        sentences = [s for s in [model_sent, lead_sent, dod_sent, cont_sent] if s]
+        p = _cp(cell, sb=4, sa=4)
+        _run(p, "  ".join(sentences), size=10)
+        if constraint_sent:
+            p2 = _cp(cell, sb=2, sa=4)
+            _run(p2, "\u26a0  ", bold=True, size=9, color=C.concern)
+            _run(p2, constraint_sent, italic=True, size=9, color=C.concern)
+
+    _box(doc, "EBF5FB", builder)
+
+
 # ── Cover ─────────────────────────────────────────────────────────
 
 def _cover(doc, meta):
@@ -546,9 +677,87 @@ def _cover(doc, meta):
     _run(pd, meta.get("report_date", date.today().isoformat()), size=9, color=C.faint)
 
 
+# ── Condition Summary table ───────────────────────────────────────
+
+def _condition_summary(doc, findings):
+    """
+    3-column table: Area | Current State | Recommended Change.
+    Shows the top 5 findings by severity, giving the reader an
+    instant before/after picture of the most important issues.
+    Appears inside the Executive Summary, after the Section Scores table.
+    """
+    # Pick up to 5: urgent first, then concern, then watch
+    ranked = sorted(
+        [f for f in findings if f.get("severity") in ("urgent", "concern", "watch")],
+        key=lambda x: (SEV_ORDER.get(x["severity"], 9), x["finding_id"])
+    )[:5]
+
+    if not ranked:
+        return
+
+    _h(doc, "Current Conditions vs. Recommended Changes", 2)
+    _para(doc,
+          "The table below captures the most significant gaps identified in this assessment "
+          "and the primary recommended change for each.",
+          size=10, sb=4, sa=6, color=C.faint)
+
+    tbl = doc.add_table(rows=1, cols=3)
+    tbl.style = "Table Grid"
+
+    for i, txt in enumerate(["Area", "Current Condition", "Recommended Change"]):
+        c = tbl.rows[0].cells[i]
+        _cell_bg(c, _hex(C.accent))
+        c.paragraphs[0].clear()
+        r = c.paragraphs[0].add_run(txt)
+        r.bold = True
+        r.font.size = Pt(9)
+        r.font.color.rgb = C.white
+
+    for idx, f in enumerate(ranked):
+        row = tbl.add_row().cells
+        fill = "FFFFFF" if idx % 2 == 0 else "F8F9FA"
+        for c in row:
+            _cell_bg(c, fill)
+
+        sev_col = SEV_COLOR.get(f["severity"], C.text)
+
+        # Area cell: finding title + severity badge
+        row[0].paragraphs[0].clear()
+        r0 = row[0].paragraphs[0].add_run(f["title"])
+        r0.font.size = Pt(9)
+        r0.font.color.rgb = C.text
+        r0.bold = True
+        p0b = row[0].add_paragraph()
+        r0b = p0b.add_run(SEV_LABEL.get(f["severity"], f["severity"]))
+        r0b.font.size = Pt(8)
+        r0b.font.color.rgb = sev_col
+        r0b.bold = True
+
+        # Current condition cell: first ~160 chars of description
+        desc = (f.get("description") or "")[:160].rstrip()
+        if len(f.get("description") or "") > 160:
+            desc += "…"
+        row[1].paragraphs[0].clear()
+        r1 = row[1].paragraphs[0].add_run(desc)
+        r1.font.size = Pt(9)
+        r1.font.color.rgb = C.text
+
+        # Recommended change cell: first action description
+        first_action = (f.get("actions") or [{}])[0]
+        act_txt = (first_action.get("description") or "See findings section.")[:160].rstrip()
+        if len(first_action.get("description") or "") > 160:
+            act_txt += "…"
+        row[2].paragraphs[0].clear()
+        r2 = row[2].paragraphs[0].add_run(act_txt)
+        r2.font.size = Pt(9)
+        r2.font.color.rgb = C.text
+
+    doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+
 # ── Executive Summary ─────────────────────────────────────────────
 
-def _exec_summary(doc, meta, summary, findings, scores):
+def _exec_summary(doc, meta, summary, findings, scores, answers=None):
     _page_break(doc)
     _h(doc, "Executive Summary", 1)
 
@@ -562,14 +771,24 @@ def _exec_summary(doc, meta, summary, findings, scores):
             "EAF4FB")
     _box(doc, fill, verdict_builder)
 
+    # ── Assessment scope callout ─────────────────────────────────
+    all_section_ids = set(SECTION_NAMES.keys())
+    scored_ids = {str(s["section"]["section_id"]) for s in scores if s.get("max_pts", 0) > 0}
+    skipped_ids = all_section_ids - scored_ids
+    _scope_box(doc, len(scored_ids), skipped_ids)
+
     # ── Data confidence callout (in body, not just footer) ───────
     caveat = meta.get("confidence_caveat", "")
     if caveat:
         def conf_builder(cell):
             p = _cp(cell, sb=3, sa=3)
-            _run(p, "⚠  Data confidence note:  ", bold=True, size=10, color=C.concern)
+            _run(p, "\u26a0  Data confidence note:  ", bold=True, size=10, color=C.concern)
             _run(p, caveat, size=10, italic=True)
         _box(doc, "FEF9E7", conf_builder)
+
+    # ── IT Staffing stub ─────────────────────────────────────────
+    if answers:
+        _staffing_stub(doc, answers)
 
     # ── Finding count overview ───────────────────────────────────
     _h(doc, "Assessment Overview", 2)
@@ -637,6 +856,9 @@ def _exec_summary(doc, meta, summary, findings, scores):
 
         doc.add_paragraph().paragraph_format.space_after = Pt(6)
 
+    # ── Current conditions vs. recommended changes ───────────────
+    _condition_summary(doc, findings)
+
     # ── Priority Findings boxes ──────────────────────────────────
     mandatory = {"F2-C01", "F7-C01", "F3-C01", "F3-C02", "F5-C02",
                  "F6-C01", "F6-C02", "F8-C01", "F8-008", "F9-C01"}
@@ -648,11 +870,16 @@ def _exec_summary(doc, meta, summary, findings, scores):
               size=11, sb=4, sa=8)
         for f in exec_f:
             fill = "FDEDEC" if f["severity"] == "urgent" else "FEF9E7"
-            def builder(cell, f=f):
-                p1 = _cp(cell, sb=2, sa=4)
+            cost_label, cost_color_hex = _cost_tier(f.get("actions") or [])
+            def builder(cell, f=f, cost_label=cost_label, cost_color_hex=cost_color_hex):
+                p1 = _cp(cell, sb=2, sa=2)
                 _run(p1, f"[{SEV_LABEL.get(f['severity'], f['severity'])}]  ",
                      bold=True, size=10, color=SEV_COLOR.get(f["severity"], C.text))
                 _run(p1, f["title"], bold=True, size=11)
+                if cost_label:
+                    _run(p1, f"   \u25cf {cost_label}",
+                         bold=False, size=8,
+                         color=RGBColor.from_string(cost_color_hex))
                 _cp(cell, f["description"], size=10, sb=2, sa=2)
                 if f.get("notes_passthrough"):
                     p3 = _cp(cell, sb=4, sa=2)
@@ -765,6 +992,10 @@ def _section_findings(doc, sections_with_findings, all_scored_sections):
                  bold=True, size=10, color=SEV_COLOR.get(f["severity"], C.text))
             _run(tp, f["title"], bold=True, size=11)
             _run(tp, f"  {f['finding_id']}", size=8, color=C.faint)
+            cost_label, cost_color_hex = _cost_tier(f.get("actions") or [])
+            if cost_label:
+                _run(tp, f"   \u25cf {cost_label}", size=8,
+                     color=RGBColor.from_string(cost_color_hex))
 
             dp = doc.add_paragraph()
             dp.paragraph_format.space_before = Pt(2)
@@ -1115,7 +1346,7 @@ def generate_report(report_data, answers, profile, section_results=None, start_d
     _set_hf(doc, school_name, report_date, confidence_caveat)
     _cover(doc, meta)
     _toc(doc)
-    _exec_summary(doc, meta, summary, findings, section_results or [])
+    _exec_summary(doc, meta, summary, findings, section_results or [], answers=answers)
     _key_risks(doc, key_risks, findings)
     _section_findings(doc, sections_with_findings, all_scored_ids)
     # Note: bullet Action Plan section removed — Phased Timeline is the single source

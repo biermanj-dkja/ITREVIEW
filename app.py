@@ -41,8 +41,15 @@ app.jinja_env.globals["yaml_safe"]  = yaml_safe_str
 app.jinja_env.globals["questions_have_unknown_option"] = questions_have_unknown_option
 
 @app.context_processor
-def inject_version():
-    return dict(app_version=app.config['VERSION'])
+def inject_globals():
+    from flask import request as _req
+    # Show the full privacy banner only on home and setup pages
+    show_banner = _req.endpoint in ('home', 'setup')
+    return dict(
+        app_version=app.config['VERSION'],
+        show_privacy_banner=show_banner,
+        session_breadcrumb=None,  # overridden by individual views when inside a session
+    )
 
 MODULE_ID = "module_1"
 
@@ -97,7 +104,15 @@ def setup():
 def home():
     profile  = get_school_profile()
     sessions = get_all_sessions()
-    # Annotate each session with is_complete and total_sections — module-aware
+    # Annotate each session with is_complete, total_sections, and a human label
+    # Sort by created_at ascending so we can assign stable numbers
+    visible = [s for s in sessions if s.get("status") != "deprecated"]
+    visible_sorted = sorted(visible, key=lambda s: s.get("created_on", s.get("last_modified", "")))
+    label_counter = {}
+    for i, sess in enumerate(visible_sorted, 1):
+        mid = sess.get("module_id", MODULE_ID)
+        label_counter[sess["session_id"]] = i
+
     for sess in sessions:
         complete = json.loads(sess.get("sections_complete", "[]"))
         mid = sess.get("module_id", MODULE_ID)
@@ -110,6 +125,10 @@ def home():
         else:
             sess["is_complete"] = len(complete) >= 10
             sess["total_sections"] = 10
+        # Human label: "Assessment #N · Started YYYY-MM-DD"
+        n = label_counter.get(sess["session_id"], "")
+        started = sess.get("created_on", sess.get("last_modified", ""))[:10]
+        sess["human_label"] = f"#{n} · Started {started}" if n else f"Started {started}"
     return render_template("home.html", profile=profile, sessions=sessions)
 
 
@@ -323,6 +342,10 @@ def section(session_id, section_id):
     # (used to show the server-round-trip hint for worksheet generation)
     has_hidden_conditionals = any(q.get("triggers_save") for q in all_questions)
 
+    module_label = "IT Assessment" if mid == "module_1" else "Data Governance"
+    section_label_bc = f"Section {sec.get('display_id', section_id)}: {sec['title']}"
+    breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=section_label_bc)
+
     return render_template(
         "section.html",
         session_id=session_id,
@@ -336,6 +359,7 @@ def section(session_id, section_id):
         complete_count=complete_count,
         profile=profile,
         has_hidden_conditionals=has_hidden_conditionals,
+        session_breadcrumb=breadcrumb,
     )
 
 
@@ -362,6 +386,10 @@ def section_complete(session_id, section_id):
 
     pct = round((earned / max_pts * 100) if max_pts > 0 else 0)
 
+    mid_bc = _get_module_id_for_session(session_id)
+    module_label_bc = "IT Assessment" if mid_bc == "module_1" else "Data Governance"
+    breadcrumb = dict(session_id=session_id, module_label=module_label_bc, section_label=None)
+
     return render_template(
         "section_complete.html",
         session_id=session_id,
@@ -374,6 +402,7 @@ def section_complete(session_id, section_id):
         next_section=next_section,
         complete=complete,
         module=module,
+        session_breadcrumb=breadcrumb,
     )
 
 
@@ -576,6 +605,9 @@ def summary(session_id):
             })
             total_unknowns += len(unknowns)
 
+    module_label = "IT Assessment" if mid == "module_1" else "Data Governance"
+    breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=None)
+
     return render_template(
         "summary.html",
         session_id=session_id,
@@ -585,6 +617,7 @@ def summary(session_id):
         flagged=flagged,
         unknown_summary=unknown_summary,
         total_unknowns=total_unknowns,
+        session_breadcrumb=breadcrumb,
     )
 
 

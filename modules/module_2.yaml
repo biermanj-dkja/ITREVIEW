@@ -56,6 +56,15 @@ sections:
         points: 0
         condition: null
 
+      - question_id: "DG1.1b"
+        prompt: Role or title of the person completing this inventory
+        help_text: "e.g. Director of Technology, IT Coordinator, Head of IT."
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
       - question_id: "DG1.2"
         prompt: Date the inventory was started
         help_text: Used to date-stamp the report.

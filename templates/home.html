@@ -25,7 +25,7 @@
   </div>
 
   <div class="flex-between mt-24 mb-8">
-    <h2>Assessments</h2>
+    <h2>Start a New Assessment</h2>
     <div class="flex gap-8" style="align-items: center;">
       <a href="/import-session" class="btn btn-ghost" title="Restore a session from a JSON export file">⬆ Import</a>
     </div>
@@ -47,6 +47,7 @@
   </div>
 
   {% if sessions %}
+  <h2 style="margin-top: 32px; margin-bottom: 12px;">Saved Assessments</h2>
   {% for sess in sessions %}
   {% if sess.status != 'deprecated' %}
   {% set complete = sess.sections_complete | from_json %}
@@ -56,7 +57,7 @@
     <div class="flex-between">
       <div style="flex: 1; min-width: 0; margin-right: 16px;">
         <div class="text-xs text-faint mono mb-4">
-          {{ sess.session_id[:8] }}…
+          {{ sess.human_label }}
           &nbsp;·&nbsp;
           {% if sess.module_id == 'module_2' %}
             <span style="color: var(--watch); font-family: var(--mono);">DATA GOVERNANCE</span>

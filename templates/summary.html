@@ -42,7 +42,13 @@
       </thead>
       <tbody>
         {% for r in section_results %}
-        <tr style="border-bottom: 1px solid var(--border);">
+        <tr style="border-bottom: 1px solid var(--border); border-left: 3px solid
+          {% if r.severity == 'healthy' %}var(--healthy)
+          {% elif r.severity == 'watch' %}var(--watch)
+          {% elif r.severity == 'concern' %}var(--concern)
+          {% elif r.severity == 'urgent' %}var(--urgent)
+          {% elif r.severity == 'context_only' %}var(--accent)
+          {% else %}transparent{% endif %};">
           <td style="padding: 12px; color: var(--text-faint); font-family: var(--mono); font-size: 12px;">{{ r.section.section_id }}</td>
           <td style="padding: 12px;">
             <div style="font-weight: 500; font-size: 14px;">{{ r.section.title }}</div>
@@ -132,7 +138,7 @@
       without running the full assessment. Use the <strong>Section Findings</strong> link
       next to any completed section in the table above.
     </p>
-    <div style="display: flex; gap: 12px; margin-top: 4px;">
+    <div style="margin-top: 4px;">
       {% if sess.module_id == 'module_2' %}
       <a href="/session/{{ session_id }}/dg_report" class="btn btn-primary"
          style="text-decoration:none; display:inline-block;">
@@ -140,15 +146,16 @@
       </a>
       {% else %}
       <a href="/session/{{ session_id }}/findings" class="btn btn-primary"
-         style="flex: 1; text-align: center; padding: 12px;">
+         style="display: block; text-align: center; padding: 12px;">
         Generate Full Findings →
       </a>
-      {% endif %}
-      {% if sess.module_id != 'module_2' %}
       <a href="{{ url_for('report_setup', session_id=session_id) }}" class="btn btn-secondary"
-         style="flex: 1; text-align: center; padding: 12px;">
+         style="display: block; text-align: center; padding: 10px; margin-top: 8px;">
         ⬇ Download Report (.docx)
       </a>
+      <p class="text-xs text-faint" style="margin-top: 6px; text-align: center;">
+        View findings first to verify before downloading
+      </p>
       {% endif %}
     </div>
     {% if sess.module_id != 'module_2' %}

@@ -3,13 +3,13 @@
 
 {% macro point_chip(pts) %}
   {% if pts == 0 %}
-    <span class="point-chip zero">context</span>
+    <span class="point-chip zero" title="Context only — this question informs your report but does not affect your score">context</span>
   {% elif pts >= 5 %}
-    <span class="point-chip critical">{{ pts }} pts</span>
+    <span class="point-chip critical" title="High weight — {{ pts }} points. This question has a large impact on your section score.">{{ pts }} pts</span>
   {% elif pts >= 3 %}
-    <span class="point-chip high">{{ pts }} pts</span>
+    <span class="point-chip high" title="Medium-high weight — {{ pts }} points. This question significantly affects your section score.">{{ pts }} pts</span>
   {% else %}
-    <span class="point-chip">{{ pts }} pts</span>
+    <span class="point-chip" title="{{ pts }} point{{ 's' if pts != 1 }} — contributes to your section score">{{ pts }} pts</span>
   {% endif %}
 {% endmacro %}
 
@@ -127,18 +127,18 @@
     {% endif %}
 
     <div class="answer-meta">
-      <label>
+      <label title="Skip this question for now — you can come back to it later. Skipped questions are excluded from scoring.">
         <input type="checkbox" name="{{ fkey }}_skip" value="1"
                {{ 'checked' if is_skipped }}
                onchange="toggleSkip(this, '{{ fkey }}')">
-        Skip this question
+        Skip for now
       </label>
       {% if q.answer_type not in ["yes_no_unknown"] %}
-      <label>
+      <label title="Mark this as unknown — you genuinely don't know the answer. Unknown answers score zero and may surface a finding.">
         <input type="checkbox" name="{{ fkey }}_unknown" value="1"
                {{ 'checked' if is_unknown }}
                onchange="toggleUnknown(this, '{{ fkey }}')">
-        I don't know the answer
+        I don't know <span style="color: var(--watch); font-size: 10px; margin-left: 2px;" title="Unknown answers affect your score">⚠</span>
       </label>
       {% endif %}
       {# D2: Inline save button for questions that trigger conditional questions #}
@@ -214,7 +214,7 @@
           <div class="text-xs text-faint mono" id="progress-counts"></div>
         </div>
         <div class="progress-track">
-          <div id="section-progress-fill" class="progress-fill" style="width: 0%; background: var(--healthy); transition: width 0.25s ease;"></div>
+          <div id="section-progress-fill" class="progress-fill" style="width: 0%; background: var(--accent); transition: width 0.25s ease;"></div>
         </div>
         <div class="text-xs text-faint mt-4">
           Point values shown next to each question · Score revealed on completion
@@ -236,7 +236,8 @@
 
         <div class="flex-between">
           <a href="/" class="btn btn-ghost">← Save &amp; Exit</a>
-          <div class="flex gap-12">
+          <div class="flex gap-12" style="align-items: center;">
+            <span id="unsaved-indicator" style="display:none; font-size:12px; color:var(--watch); font-family:var(--mono);">● unsaved changes</span>
             <button type="submit" name="action" value="save" class="btn btn-secondary">
               Save Progress
             </button>
@@ -497,11 +498,10 @@
     if (skipped  > 0) parts.push(skipped  + ' skipped');
     if (counts)  counts.textContent = parts.join(' · ');
 
-    // Colour the bar: red below 45%, yellow 45–75%, green above 75%
+    // Colour the bar: accent throughout, green only at 100%
     if (fill) {
-      if (pct > 75)       fill.style.background = 'var(--healthy)';
-      else if (pct >= 45) fill.style.background = 'var(--watch)';
-      else                fill.style.background = 'var(--concern)';
+      if (pct >= 100)     fill.style.background = 'var(--healthy)';
+      else                fill.style.background = 'var(--accent)';
     }
   }
 
@@ -524,5 +524,46 @@
   // Initial render
   updateProgressBar();
 
+  // ── Unsaved-changes guard ─────────────────────────────────────────
+  // Sets a dirty flag on any input change; warns before navigating away.
+  // Cleared on any form submit so Save Progress / Complete Section don't trigger it.
+
+  var _formDirty = false;
+
+  function _setDirty() {
+    if (!_formDirty) {
+      _formDirty = true;
+      var indicator = document.getElementById('unsaved-indicator');
+      if (indicator) indicator.style.display = 'inline';
+    }
+  }
+
+  document.getElementById('section-form').addEventListener('change', _setDirty);
+  document.getElementById('section-form').addEventListener('input',  _setDirty);
+
+  document.getElementById('section-form').addEventListener('submit', function() {
+    _formDirty = false;
+  });
+
+  // Sidebar links: intercept navigation away when dirty
+  document.querySelectorAll('.sidebar-section').forEach(function(el) {
+    var link = el.closest('a');
+    if (link) {
+      link.addEventListener('click', function(e) {
+        if (_formDirty) {
+          if (!confirm('You have unsaved changes. Leave this section without saving?')) {
+            e.preventDefault();
+          }
+        }
+      });
+    }
+  });
+
+  window.addEventListener('beforeunload', function(e) {
+    if (_formDirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
 </script>
-{% endblock %}

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
 
-  <div style="margin-bottom: 32px;">
+  <div style="margin-bottom: 28px;">
     <h1>School IT Assessment Engine</h1>
     <p>A structured assessment tool for small private school IT environments.</p>
   </div>
@@ -15,7 +15,9 @@
     <a href="/setup" class="btn btn-primary mt-16">Set Up School Profile →</a>
   </div>
   {% else %}
-  <div class="card card-sm flex-between mb-4">
+
+  {# ── School profile strip #}
+  <div class="card card-sm flex-between mb-4" style="margin-bottom: 28px;">
     <div>
       <div class="text-xs text-faint mb-4">SCHOOL PROFILE</div>
       <div style="font-weight: 500;">{{ profile.school_name }}</div>
@@ -24,112 +26,162 @@
     <a href="/setup" class="btn btn-ghost text-sm">Edit</a>
   </div>
 
-  <div class="flex-between mt-24 mb-8">
-    <h2>Start a New Assessment</h2>
-    <div class="flex gap-8" style="align-items: center;">
-      <a href="/import-session" class="btn btn-ghost" title="Restore a session from a JSON export file">⬆ Import</a>
-    </div>
-  </div>
+  {# ── Tab bar #}
+  {% set has_sessions = sessions | selectattr('status', 'ne', 'deprecated') | list | length > 0 %}
 
-  <div class="flex gap-16 mb-16" style="flex-wrap: wrap; align-items: stretch;">
-    <div class="card card-sm" style="flex: 1; min-width: 260px; display: flex; flex-direction: column;">
-      <div class="text-xs text-faint mono mb-6">MODULE 1</div>
-      <div style="font-weight: 600; margin-bottom: 6px;">IT Assessment</div>
-      <p class="text-sm text-dim" style="margin-bottom: 16px; line-height: 1.5; flex: 1;">Evaluates your school's core IT environment across nine areas — staffing, network, devices, security, backups, and more. You'll finish with a prioritized findings report and a downloadable action plan organized by urgency and effort.</p>
-      <a href="/new_session?module_id=module_1" class="btn btn-primary">+ Start IT Assessment</a>
-    </div>
-    <div class="card card-sm" style="flex: 1; min-width: 260px; display: flex; flex-direction: column;">
-      <div class="text-xs text-faint mono mb-6">MODULE 2</div>
-      <div style="font-weight: 600; margin-bottom: 6px;">Data Governance Audit</div>
-      <p class="text-sm text-dim" style="margin-bottom: 16px; line-height: 1.5; flex: 1;">Maps every system your school uses: where student and staff data lives, who can access it, what your vendors have agreed to, and how data is retained or deleted. Produces a per-system report card and a school-wide governance findings report.</p>
-      <a href="/new_session?module_id=module_2" class="btn btn-primary">+ Start Data Governance Audit</a>
-    </div>
-  </div>
-
-  {% if sessions %}
-  <h2 style="margin-top: 32px; margin-bottom: 12px;">Saved Assessments</h2>
-  {% for sess in sessions %}
-  {% if sess.status != 'deprecated' %}
-  {% set complete = sess.sections_complete | from_json %}
-  {% set total = sess.total_sections %}
-  {% set pct = ((complete | length) / total * 100) | int if total else 0 %}
-  <div class="card card-sm" style="margin-bottom: 12px;">
-    <div class="flex-between">
-      <div style="flex: 1; min-width: 0; margin-right: 16px;">
-        <div class="text-xs text-faint mono mb-4">
-          {{ sess.human_label }}
-          &nbsp;·&nbsp;
-          {% if sess.module_id == 'module_2' %}
-            <span style="color: var(--watch); font-family: var(--mono);">DATA GOVERNANCE</span>
-          {% else %}
-            <span style="color: var(--accent); font-family: var(--mono);">IT ASSESSMENT</span>
-          {% endif %}
-        </div>
-        <div style="font-weight: 500;">{{ sess.school_name }}</div>
-        <div class="text-sm text-dim mt-4">
-          {% if total %}
-            {{ complete | length }} of {{ total }} sections complete
-          {% else %}
-            {{ complete | length }} section{{ 's' if complete | length != 1 }} complete
-          {% endif %}
-          &nbsp;·&nbsp;
-          Last saved {{ sess.last_modified[:10] }}
-        </div>
-        <div class="progress-track mt-8" style="max-width: 320px;">
-          {% if total %}
-            <div class="progress-fill" style="width: {{ pct }}%;
-              {% if sess.is_complete %}background: var(--healthy);{% endif %}">
-            </div>
-          {% else %}
-            {# DG sessions: show a filled bar if complete, else proportional to sections done #}
-            {% if sess.is_complete %}
-              <div class="progress-fill" style="width: 100%; background: var(--healthy);"></div>
-            {% else %}
-              {# Cap visual at 90% so it never looks "done" while in progress #}
-              {% set dg_pct = [((complete | length) * 25), 90] | min %}
-              <div class="progress-fill" style="width: {{ dg_pct }}%;"></div>
-            {% endif %}
-          {% endif %}
-        </div>
-      </div>
-      <div class="flex gap-8" style="flex-shrink: 0; align-items: center;">
-        {% set complete_list = sess.sections_complete | from_json %}
-        {% if sess.is_complete %}
-          <a href="/session/{{ sess.session_id }}/summary" class="btn btn-primary">Inspect →</a>
-        {% elif sess.status == 'in_progress' %}
-          <a href="/resume/{{ sess.session_id }}" class="btn btn-primary">Resume →</a>
-        {% else %}
-          <a href="/session/{{ sess.session_id }}/summary" class="btn btn-secondary">View Summary</a>
+  <div id="home-tabs">
+    <div style="display: flex; border-bottom: 2px solid var(--border); margin-bottom: 24px;">
+      <button class="home-tab" data-tab="new"
+              style="padding: 10px 20px; font-size: 14px; font-weight: 500; font-family: var(--sans);
+                     background: none; border: none; cursor: pointer; color: var(--text-dim);
+                     border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s;">
+        + New Assessment
+      </button>
+      <button class="home-tab" data-tab="saved"
+              style="padding: 10px 20px; font-size: 14px; font-weight: 500; font-family: var(--sans);
+                     background: none; border: none; cursor: pointer; color: var(--text-dim);
+                     border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s;">
+        Saved Assessments
+        {% if has_sessions %}
+          {% set count = sessions | selectattr('status', 'ne', 'deprecated') | list | length %}
+          <span style="margin-left: 6px; font-size: 11px; font-family: var(--mono);
+                       background: var(--surface2); border: 1px solid var(--border);
+                       border-radius: 3px; padding: 1px 6px; color: var(--text-faint);">{{ count }}</span>
         {% endif %}
-        <a href="/session/{{ sess.session_id }}/export"
-           class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;"
-           title="Download a JSON backup of this assessment">⬇ Export</a>
-        <form method="POST" action="/session/{{ sess.session_id }}/deprecate"
-              onsubmit="return confirm('Archive this assessment? It will be hidden from the list but kept in the database.')">
-          <button type="submit" class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;">
-            Archive
-          </button>
-        </form>
-        <form method="POST" action="/session/{{ sess.session_id }}/delete"
-              onsubmit="return confirm('Permanently delete this assessment and all its answers? This cannot be undone.')">
-          <button type="submit" class="btn btn-danger" style="padding: 8px 14px; font-size: 13px;">
-            Delete
-          </button>
-        </form>
+      </button>
+    </div>
+
+    {# ── New Assessment tab panel #}
+    <div id="tab-new" class="tab-panel">
+      <div class="flex gap-16" style="flex-wrap: wrap; align-items: stretch;">
+        <div class="card card-sm" style="flex: 1; min-width: 260px; display: flex; flex-direction: column;">
+          <div class="text-xs text-faint mono mb-6">MODULE 1</div>
+          <div style="font-weight: 600; margin-bottom: 6px;">IT Assessment</div>
+          <p class="text-sm text-dim" style="margin-bottom: 16px; line-height: 1.5; flex: 1;">
+            Evaluates your school's core IT environment across nine areas — staffing, network,
+            devices, security, backups, and more. Produces a prioritized findings report and
+            a downloadable action plan organized by urgency and effort.
+          </p>
+          <div class="text-xs text-faint mb-12">~45–60 minutes · 9 sections</div>
+          <a href="/new_session?module_id=module_1" class="btn btn-primary">+ Start IT Assessment</a>
+        </div>
+        <div class="card card-sm" style="flex: 1; min-width: 260px; display: flex; flex-direction: column;">
+          <div class="text-xs text-faint mono mb-6">MODULE 2</div>
+          <div style="font-weight: 600; margin-bottom: 6px;">Data Governance Audit</div>
+          <p class="text-sm text-dim" style="margin-bottom: 16px; line-height: 1.5; flex: 1;">
+            Maps every system your school uses: where student and staff data lives, who can
+            access it, what your vendors have agreed to, and how data is retained or deleted.
+            Produces a per-system report card and a school-wide governance findings report.
+          </p>
+          <div class="text-xs text-faint mb-12">~3–5 hours · scales with system count</div>
+          <a href="/new_session?module_id=module_2" class="btn btn-primary">+ Start Data Governance Audit</a>
+        </div>
       </div>
     </div>
+
+    {# ── Saved Assessments tab panel #}
+    <div id="tab-saved" class="tab-panel">
+      <div class="flex-between mb-16">
+        <div class="text-sm text-dim">Your saved assessment sessions.</div>
+        <a href="/import-session" class="btn btn-ghost" title="Restore a session from a JSON export file">⬆ Import</a>
+      </div>
+
+      {% set visible_sessions = sessions | selectattr('status', 'ne', 'deprecated') | list %}
+      {% if visible_sessions %}
+        {% for sess in visible_sessions %}
+        {% set complete = sess.sections_complete | from_json %}
+        {% set total = sess.total_sections %}
+        {% set pct = ((complete | length) / total * 100) | int if total else 0 %}
+        <div class="card card-sm" style="margin-bottom: 12px;">
+          <div class="flex-between">
+            <div style="flex: 1; min-width: 0; margin-right: 16px;">
+              <div class="text-xs text-faint mono mb-4">
+                {{ sess.human_label }}
+                &nbsp;·&nbsp;
+                {% if sess.module_id == 'module_2' %}
+                  <span style="color: var(--watch); font-family: var(--mono);">DATA GOVERNANCE</span>
+                {% else %}
+                  <span style="color: var(--accent); font-family: var(--mono);">IT ASSESSMENT</span>
+                {% endif %}
+              </div>
+              <div style="font-weight: 500;">{{ sess.school_name }}</div>
+              <div class="text-sm text-dim mt-4">
+                {% if total %}
+                  {{ complete | length }} of {{ total }} sections complete
+                {% else %}
+                  {{ complete | length }} section{{ 's' if complete | length != 1 }} complete
+                {% endif %}
+                &nbsp;·&nbsp;
+                Last saved {{ sess.last_modified[:10] }}
+              </div>
+              <div class="progress-track mt-8" style="max-width: 320px;">
+                {% if total %}
+                  <div class="progress-fill" style="width: {{ pct }}%;
+                    {% if sess.is_complete %}background: var(--healthy);{% else %}background: var(--accent);{% endif %}">
+                  </div>
+                {% else %}
+                  {% if sess.is_complete %}
+                    <div class="progress-fill" style="width: 100%; background: var(--healthy);"></div>
+                  {% else %}
+                    {% set dg_pct = [((complete | length) * 25), 90] | min %}
+                    <div class="progress-fill" style="width: {{ dg_pct }}%; background: var(--accent);"></div>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+            <div class="flex gap-8" style="flex-shrink: 0; align-items: center;">
+              {% if sess.is_complete %}
+                <a href="/session/{{ sess.session_id }}/summary" class="btn btn-primary">Inspect →</a>
+              {% elif sess.status == 'in_progress' %}
+                <a href="/resume/{{ sess.session_id }}" class="btn btn-primary">Resume →</a>
+              {% else %}
+                <a href="/session/{{ sess.session_id }}/summary" class="btn btn-secondary">View Summary</a>
+              {% endif %}
+              <a href="/session/{{ sess.session_id }}/manage"
+                 class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;"
+                 title="Archive, export, or delete this assessment">⋯ Manage</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="card" style="text-align: center; padding: 48px;">
+          <div style="font-size: 32px; margin-bottom: 12px;">📋</div>
+          <h3>No saved assessments yet</h3>
+          <p class="mt-8">Switch to the New Assessment tab to start your first session.</p>
+          <button onclick="switchTab('new')" class="btn btn-primary mt-16">+ Start an Assessment</button>
+        </div>
+      {% endif %}
+    </div>
+
   </div>
-  {% endif %}
-  {% endfor %}
-  {% else %}
-  <div class="card" style="text-align: center; padding: 48px;">
-    <div style="font-size: 32px; margin-bottom: 12px;">📋</div>
-    <h3>No assessments yet</h3>
-    <p class="mt-8">Start your first assessment to evaluate your school's IT environment.</p>
-    <a href="/new_session?module_id=module_1" class="btn btn-primary mt-16">Start IT Assessment →</a>
-  </div>
-  {% endif %}
   {% endif %}
 
 </div>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.style.display = 'none'; });
+    document.querySelectorAll('.home-tab').forEach(function(b) {
+      var active = b.getAttribute('data-tab') === name;
+      b.style.color = active ? 'var(--accent)' : 'var(--text-dim)';
+      b.style.borderBottomColor = active ? 'var(--accent)' : 'transparent';
+    });
+    var panel = document.getElementById('tab-' + name);
+    if (panel) panel.style.display = 'block';
+    try { localStorage.setItem('home-tab', name); } catch(e) {}
+  }
+
+  document.querySelectorAll('.home-tab').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchTab(btn.getAttribute('data-tab')); });
+  });
+
+  (function() {
+    var saved;
+    try { saved = localStorage.getItem('home-tab'); } catch(e) {}
+    var hasSessions = {{ 'true' if has_sessions else 'false' }};
+    var defaultTab = hasSessions ? 'saved' : 'new';
+    switchTab(saved || defaultTab);
+  })();
+</script>
 {% endblock %}

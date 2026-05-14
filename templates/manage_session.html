@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Manage Assessment — {{ sess.school_name }}{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 600px; padding-top: 32px;">
+
+  <div style="margin-bottom: 24px;">
+    <a href="/" class="text-dim text-sm" style="text-decoration: none;">← Back to Home</a>
+  </div>
+
+  <h1 style="margin-bottom: 4px;">Manage Assessment</h1>
+  <p class="text-dim text-sm" style="margin-bottom: 32px;">
+    {{ sess.school_name }}
+    &nbsp;·&nbsp;
+    <span class="mono" style="font-size: 11px; color: var(--text-faint);">{{ module_label }}</span>
+    &nbsp;·&nbsp;
+    <span class="mono" style="font-size: 11px; color: var(--text-faint);">{{ sess.human_label if sess.human_label else 'Started ' + sess.last_modified[:10] }}</span>
+  </p>
+
+  {# ── ARCHIVE ─────────────────────────────────────────────────── #}
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="flex-between" style="align-items: flex-start; gap: 24px;">
+      <div style="flex: 1;">
+        <h2 style="margin-bottom: 6px;">Archive this assessment</h2>
+        <p class="text-sm text-dim" style="line-height: 1.6; margin-bottom: 0;">
+          Hides this assessment from the home page list. All answers and data are kept
+          in the database — you can still export a JSON backup from here. Archiving is
+          reversible if you re-import the exported file.
+        </p>
+      </div>
+    </div>
+    <div style="margin-top: 20px;">
+      <form method="POST" action="/session/{{ session_id }}/deprecate">
+        <button type="submit" class="btn btn-secondary">
+          Archive Assessment
+        </button>
+      </form>
+    </div>
+  </div>
+
+  {# ── EXPORT ──────────────────────────────────────────────────── #}
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="flex-between" style="align-items: flex-start; gap: 24px;">
+      <div style="flex: 1;">
+        <h2 style="margin-bottom: 6px;">Export a backup</h2>
+        <p class="text-sm text-dim" style="line-height: 1.6; margin-bottom: 0;">
+          Download a JSON snapshot of this assessment — all answers, section status,
+          and session metadata. Use it to back up your work, move it to another machine,
+          or restore it later via the Import button on the home page.
+        </p>
+      </div>
+    </div>
+    <div style="margin-top: 20px;">
+      <a href="/session/{{ session_id }}/export" class="btn btn-secondary">
+        ⬇ Export JSON
+      </a>
+    </div>
+  </div>
+
+  {# ── DELETE ──────────────────────────────────────────────────── #}
+  <div class="card" style="border-color: var(--concern); margin-bottom: 16px;">
+    <h2 style="margin-bottom: 6px; color: var(--concern);">Delete this assessment</h2>
+    <p class="text-sm text-dim" style="line-height: 1.6; margin-bottom: 16px;">
+      Permanently removes this assessment and <strong>all of its answers</strong> from
+      the database. This cannot be undone. Export a JSON backup first if you want
+      to keep the data.
+    </p>
+
+    {# Two-step confirmation: show warning then confirm button #}
+    <div id="delete-step-1">
+      <button type="button" class="btn btn-danger"
+              onclick="document.getElementById('delete-step-1').style.display='none';
+                       document.getElementById('delete-step-2').style.display='block';">
+        Delete Permanently…
+      </button>
+    </div>
+
+    <div id="delete-step-2" style="display: none;">
+      <div style="padding: 14px 16px; background: rgba(192,57,43,0.08);
+                  border: 1px solid var(--concern); border-radius: 6px; margin-bottom: 16px;">
+        <strong style="color: var(--concern);">Are you sure?</strong>
+        <p class="text-sm" style="margin-top: 6px; margin-bottom: 0; color: var(--text-dim); line-height: 1.5;">
+          Deleting will permanently erase all answers and progress for
+          <strong>{{ sess.school_name }}</strong> — {{ module_label }}.
+          This cannot be reversed.
+        </p>
+      </div>
+      <div class="flex gap-12">
+        <form method="POST" action="/session/{{ session_id }}/delete">
+          <button type="submit" class="btn btn-danger">Yes, delete permanently</button>
+        </form>
+        <button type="button" class="btn btn-ghost"
+                onclick="document.getElementById('delete-step-1').style.display='block';
+                         document.getElementById('delete-step-2').style.display='none';">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-16">
+    <a href="/" class="btn btn-ghost">← Back to Home</a>
+  </div>
+
+</div>
+{% endblock %}

@@ -61,13 +61,22 @@
           &nbsp;·&nbsp;
           Last saved {{ sess.last_modified[:10] }}
         </div>
-        {% if total %}
         <div class="progress-track mt-8" style="max-width: 320px;">
-          <div class="progress-fill" style="width: {{ pct }}%;
-            {% if sess.is_complete %}background: var(--healthy);{% endif %}">
-          </div>
+          {% if total %}
+            <div class="progress-fill" style="width: {{ pct }}%;
+              {% if sess.is_complete %}background: var(--healthy);{% endif %}">
+            </div>
+          {% else %}
+            {# DG sessions: show a filled bar if complete, else proportional to sections done #}
+            {% if sess.is_complete %}
+              <div class="progress-fill" style="width: 100%; background: var(--healthy);"></div>
+            {% else %}
+              {# Cap visual at 90% so it never looks "done" while in progress #}
+              {% set dg_pct = [((complete | length) * 25), 90] | min %}
+              <div class="progress-fill" style="width: {{ dg_pct }}%;"></div>
+            {% endif %}
+          {% endif %}
         </div>
-        {% endif %}
       </div>
       <div class="flex gap-8" style="flex-shrink: 0; align-items: center;">
         {% set complete_list = sess.sections_complete | from_json %}
@@ -78,6 +87,9 @@
         {% else %}
           <a href="/session/{{ sess.session_id }}/summary" class="btn btn-secondary">View Summary</a>
         {% endif %}
+        <a href="/session/{{ sess.session_id }}/export"
+           class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;"
+           title="Download a JSON backup of this assessment">⬇ Export</a>
         <form method="POST" action="/session/{{ sess.session_id }}/deprecate"
               onsubmit="return confirm('Archive this assessment? It will be hidden from the list but kept in the database.')">
           <button type="submit" class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;">

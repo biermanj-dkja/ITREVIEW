@@ -58,6 +58,33 @@ Ideas captured during development. Not prioritised — reference for future road
   currently in Module 1. Recommend doing Module 1 first as the harder case, then verifying
   Module 2 ports cleanly before retiring the Python engines.
 
+- **Whole-school export / import** — a single "Export School" action that bundles all
+  non-deprecated sessions plus the school profile into one JSON file, allowing complete
+  migration to a new machine or a full point-in-time backup without touching the SQLite file
+  directly.
+
+  Current per-session export (`/session/<id>/export`) produces `export_format:
+  school_it_engine_session_v1` and can be re-imported one session at a time. A school-level
+  export needs a distinct format key (`school_it_engine_school_v1`) so the import route can
+  detect it and iterate.
+
+  Required changes:
+  1. **`app.py` — new export route** `/export-school`: calls `get_all_sessions()`, filters
+     out deprecated, fetches answers for each via `get_answers()`, and writes a single JSON
+     with `{ "export_format": "school_it_engine_school_v1", "school_profile": …,
+     "sessions": [ { session, answers }, … ] }`.
+  2. **`app.py` — update import route** `/import-session`: detect the new format key and
+     loop through the `sessions` array, re-using the existing per-session restore logic for
+     each entry. Reject duplicate session IDs the same way the single-session importer does
+     (skip with a warning rather than aborting the whole import).
+  3. **`home.html` — new button** in the top action bar alongside `⬆ Import`, e.g.
+     `⬇ Export School` as a `btn btn-ghost` link. Only render if at least one non-deprecated
+     session exists.
+  4. **`import_session.html` — update copy** to note that both single-session and whole-school
+     export files are accepted.
+
+  No schema changes needed. Scope: S — self-contained to `app.py` and two templates.
+
 - **Email delivery** — send the DOCX directly to a specified address after generation.
 - **Module 2 DOCX report** ✓ *Implemented in v0.5.1* — Data Governance Audit now
   generates a full Word document with per-system findings, action plan, and appendix.

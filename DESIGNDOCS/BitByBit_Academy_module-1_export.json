@@ -1,0 +1,963 @@
+{
+  "export_format": "school_it_engine_session_v1",
+  "exported_on": "2025-05-14T10:00:00.000000Z",
+  "engine_version": "0.5.3",
+  "school_profile": {
+    "school_name": "Bit-By-Bit Academy",
+    "school_website": "bitbybitacademy.org"
+  },
+  "session": {
+    "session_id": "bba-m1-test-2025-0514-001",
+    "module_id": "module_1",
+    "school_name": "Bit-By-Bit Academy",
+    "created_on": "2025-05-14T09:00:00.000000",
+    "last_modified": "2025-05-14T10:00:00.000000",
+    "status": "complete",
+    "sections_complete": "[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\"]",
+    "sections_skipped": "[]",
+    "sections_flagged": "[]",
+    "overall_completion_percentage": 100.0
+  },
+  "answers": {
+    "1.1": {
+      "raw_answer": "Bit-By-Bit Academy",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:01:00.000000"
+    },
+    "1.2": {
+      "raw_answer": "4200 Logic Lane, Silicon Heights, CA 94102",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:01:30.000000"
+    },
+    "1.3": {
+      "raw_answer": "(415) 555-0199",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:01:45.000000"
+    },
+    "1.4": {
+      "raw_answer": "bitbybitacademy.org",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:02:00.000000"
+    },
+    "1.5": {
+      "raw_answer": "At Bit-By-Bit Academy, our mission is to program the leaders of tomorrow for a lifetime of success. We are dedicated to syncing academic rigor with personal growth, ensuring every student has the bandwidth to reach their full potential. We strive to:\n\n- Link curiosity with discovery in every classroom.\n- Download a passion for lifelong learning into every heart.\n- Monitor student progress to ensure no one feels like they are in sleep mode.\n- Process challenges with resilience and logic.\n\nBy fostering a secure environment with no firewalls between students and their dreams, we help our community upgrade their skills and interface with the world with confidence and kindness.\n\nSlogan: Bit-By-Bit Academy: Coding the future, one byte at a time.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:02:20.000000"
+    },
+    "1.6": {
+      "raw_answer": "yes",
+      "notes": "Logo is stored on the shared drive at IT/Branding/logo_official.png",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:02:45.000000"
+    },
+    "1.7a": {
+      "raw_answer": "Rhoda Report",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:03:00.000000"
+    },
+    "1.7b": {
+      "raw_answer": "Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:03:15.000000"
+    },
+    "1.8": {
+      "raw_answer": 2,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:03:30.000000"
+    },
+    "1.9": {
+      "raw_answer": 5,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:03:45.000000"
+    },
+    "1.10": {
+      "raw_answer": ["Main Campus — 4 buildings", "Athletics Annex — 1 building"],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:04:00.000000"
+    },
+    "1.11": {
+      "raw_answer": "K-8",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:04:15.000000"
+    },
+    "1.12": {
+      "raw_answer": 340,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:04:30.000000"
+    },
+    "1.13": {
+      "raw_answer": 52,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:04:45.000000"
+    },
+    "1.14": {
+      "raw_answer": 420,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:05:00.000000"
+    },
+    "1.15": {
+      "raw_answer": [
+        "Staff laptops or desktops",
+        "Student laptops or tablets",
+        "Printers and copiers",
+        "Network infrastructure (switches, APs, firewall)",
+        "Classroom AV and displays"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:05:20.000000"
+    },
+    "1.16": {
+      "raw_answer": [
+        "Summer device refresh — Chromebook fleet for grades 3-5 (June-July)",
+        "New student onboarding and device deployment (August)",
+        "WASC accreditation prep visit (October)",
+        "Winter break network closet maintenance window (December)"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:05:45.000000"
+    },
+    "2.1": {
+      "raw_answer": "Single IT director (one person responsible for everything)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:06:00.000000"
+    },
+    "2.2": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:06:15.000000"
+    },
+    "2.2b": {
+      "raw_answer": "Rhoda Report, Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:06:30.000000"
+    },
+    "2.3": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:06:45.000000"
+    },
+    "2.4": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:07:00.000000"
+    },
+    "2.5": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:07:15.000000"
+    },
+    "2.6": {
+      "raw_answer": "Yes — but informal or ad hoc",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:07:30.000000"
+    },
+    "2.7": {
+      "raw_answer": "yes",
+      "notes": "Budget is flat year-over-year; no new FTE approved for IT. Device refresh for grades 3-5 is funded but all other discretionary spend is under review.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:07:50.000000"
+    },
+    "2.8": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:08:05.000000"
+    },
+    "2.9": {
+      "raw_answer": "Partially — some things would be managed, others would not",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:08:20.000000"
+    },
+    "2.10": {
+      "raw_answer": "Partially — some tasks tracked, others rely on memory",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:08:35.000000"
+    },
+    "2.11": {
+      "raw_answer": "Yes — but limited or inconsistent use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:08:50.000000"
+    },
+    "2.12": {
+      "raw_answer": "IT director or technology coordinator",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:09:05.000000"
+    },
+    "3.1": {
+      "raw_answer": "Partial — some buildings or areas covered",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:09:20.000000"
+    },
+    "3.2": {
+      "raw_answer": "Yes — but outdated",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:09:35.000000"
+    },
+    "3.3": {
+      "raw_answer": "Partial — some locations documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:09:50.000000"
+    },
+    "3.4": {
+      "raw_answer": "Partial — most are known, some are not",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:10:05.000000"
+    },
+    "3.5": {
+      "raw_answer": "Ubiquiti UniFi",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:10:20.000000"
+    },
+    "3.6": {
+      "raw_answer": "Partial — some information documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:10:35.000000"
+    },
+    "3.7": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:10:50.000000"
+    },
+    "3.7b": {
+      "raw_answer": "Sophos XGS",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:11:05.000000"
+    },
+    "3.8": {
+      "raw_answer": "Ubiquiti UniFi switches",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:11:20.000000"
+    },
+    "3.9": {
+      "raw_answer": "Partial — some information documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:11:35.000000"
+    },
+    "3.10": {
+      "raw_answer": "Partial — some connections documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:11:50.000000"
+    },
+    "3.11": {
+      "raw_answer": "Partial — some information documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:12:05.000000"
+    },
+    "3.12": {
+      "raw_answer": "Yes — full admin access to all infrastructure",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:12:20.000000"
+    },
+    "3.13": {
+      "raw_answer": 1,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:12:35.000000"
+    },
+    "3.14": {
+      "raw_answer": ["Comcast Business"],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:12:50.000000"
+    },
+    "3.15": {
+      "raw_answer": "No — single connection with no backup",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:13:05.000000"
+    },
+    "3.16": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:13:20.000000"
+    },
+    "3.17": {
+      "raw_answer": "Partial — some information known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:13:35.000000"
+    },
+    "3.18": {
+      "raw_answer": "Partial — some devices backed up, others not",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:13:50.000000"
+    },
+    "3.19": {
+      "raw_answer": "Mixed — some areas have coverage problems",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:14:05.000000"
+    },
+    "3.20": {
+      "raw_answer": "Partial — some segments documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:14:20.000000"
+    },
+    "3.21": {
+      "raw_answer": "Partial — some equipment protected, some not",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:14:35.000000"
+    },
+    "3.22": {
+      "raw_answer": "Estimated only — not formally tested",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:14:50.000000"
+    },
+    "3.23": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:15:05.000000"
+    },
+    "3.24": {
+      "raw_answer": "Occasionally — ad hoc or infrequent",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:15:20.000000"
+    },
+    "3.25": {
+      "raw_answer": "Ad hoc — no regular schedule",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:15:35.000000"
+    },
+    "3.26": {
+      "raw_answer": "yes",
+      "notes": "The gymnasium wing of the Main Campus building B has consistent dead spots; staff in the front administrative office report intermittent drops during high-occupancy periods.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:15:50.000000"
+    },
+    "4.1": {
+      "raw_answer": "Google Workspace",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:16:05.000000"
+    },
+    "4.1b": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:16:20.000000"
+    },
+    "4.2": {
+      "raw_answer": "Yes — cloud-based (Azure AD, Google Directory, etc.)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:16:35.000000"
+    },
+    "4.3": {
+      "raw_answer": "Informal — process exists but is either not documented or not always followed or both",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:16:50.000000"
+    },
+    "4.4": {
+      "raw_answer": "Informal — process exists but is either not documented or not always followed or both",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:17:05.000000"
+    },
+    "4.5": {
+      "raw_answer": "Informal — process exists but is either not documented or not always followed or both",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:17:20.000000"
+    },
+    "4.6": {
+      "raw_answer": "Partial — some privileged accounts have MFA",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:17:35.000000"
+    },
+    "4.6b": {
+      "raw_answer": "Partial — encouraged but not enforced for all staff",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:17:50.000000"
+    },
+    "4.7": {
+      "raw_answer": "Yes — but outdated (not reviewed in over 12 months)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:18:05.000000"
+    },
+    "4.8": {
+      "raw_answer": "Partially — some shared accounts exist without formal justification",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:18:20.000000"
+    },
+    "4.9": {
+      "raw_answer": "Partial — documented for some platforms",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:18:35.000000"
+    },
+    "4.10": {
+      "raw_answer": "Partial — some devices or some folders only",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:18:50.000000"
+    },
+    "5.1": {
+      "raw_answer": "Partial — exists but incomplete or outdated",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:19:05.000000"
+    },
+    "5.2": {
+      "raw_answer": "Partial — some fields missing",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:19:20.000000"
+    },
+    "5.3": {
+      "raw_answer": "Partial — some grades are 1:1",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:19:35.000000"
+    },
+    "5.4": {
+      "raw_answer": "Some — take-home for some grades or programs",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:19:50.000000"
+    },
+    "5.5": {
+      "raw_answer": "Partial — some devices managed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:20:05.000000"
+    },
+    "5.6": {
+      "raw_answer": "Partial — informal preference but not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:20:20.000000"
+    },
+    "5.7": {
+      "raw_answer": "Partially — mostly standardized with some exceptions",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:20:35.000000"
+    },
+    "5.8": {
+      "raw_answer": "Partially — possible but inconsistent",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:20:50.000000"
+    },
+    "5.9": {
+      "raw_answer": "Informal — refresh cycle defined but not followed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:21:05.000000"
+    },
+    "5.10": {
+      "raw_answer": "Some — a small number of unsupported devices in use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:21:20.000000"
+    },
+    "5.11": {
+      "raw_answer": "Partial — tracked for some devices",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:21:35.000000"
+    },
+    "5.12": {
+      "raw_answer": "Partial — some spares available but no formal process",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:21:50.000000"
+    },
+    "5.13": {
+      "raw_answer": "Partial — informal process",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:22:05.000000"
+    },
+    "5.14": {
+      "raw_answer": "4-5 years for staff laptops; 3-4 years for student Chromebooks",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:22:20.000000"
+    },
+    "5.15": {
+      "raw_answer": "Yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:22:35.000000"
+    },
+    "5.16": {
+      "raw_answer": "Lower school (K-2) uses iPads for age-appropriate touch-first learning. Middle grades (3-5) use Chromebooks. Upper school (6-8) uses MacBooks for more advanced curriculum and creative work.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:22:50.000000"
+    },
+    "5.17": {
+      "raw_answer": "Partial — some tracked",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:23:05.000000"
+    },
+    "5.18": {
+      "raw_answer": 4,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:23:20.000000"
+    },
+    "5.19": {
+      "raw_answer": 11,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:23:35.000000"
+    },
+    "6.1": {
+      "raw_answer": "Veracross",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:23:50.000000"
+    },
+    "6.2": {
+      "raw_answer": "Google Classroom",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:24:05.000000"
+    },
+    "6.3": {
+      "raw_answer": "Partial — incomplete or informal list",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:24:20.000000"
+    },
+    "6.4": {
+      "raw_answer": "Partial — some fields missing",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:24:35.000000"
+    },
+    "6.5": {
+      "raw_answer": [
+        "Google Workspace for Education Plus",
+        "Veracross SIS",
+        "Seesaw (lower school)",
+        "Panorama Education (SEL surveys)",
+        "Kami (PDF annotation)",
+        "Bark for Schools (student safety monitoring)",
+        "Comcast Business (ISP)",
+        "Sophos Central (endpoint + firewall management)",
+        "Lightspeed Filter",
+        "Veeam Backup"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:24:55.000000"
+    },
+    "6.6": {
+      "raw_answer": "Partial — some information tracked",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:25:10.000000"
+    },
+    "6.7": {
+      "raw_answer": "Partial — reviewed for some",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:25:25.000000"
+    },
+    "6.8": {
+      "raw_answer": "Partial — some renewals tracked, others not",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:25:40.000000"
+    },
+    "6.9": {
+      "raw_answer": "Partial — documented for some vendors",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:25:55.000000"
+    },
+    "6.10": {
+      "raw_answer": "yes",
+      "notes": "Veracross admin access is only known to the Director of Technology. Phone system configuration is managed solely by the original installation vendor with no documented escalation path for the school.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:26:10.000000"
+    },
+    "6.11": {
+      "raw_answer": "yes",
+      "notes": "A legacy Adobe Creative Cloud subscription (5 seats) remains active but those devices are no longer in use. A Zoom Pro account from COVID-era is still auto-renewing.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:26:25.000000"
+    },
+    "6.12": {
+      "raw_answer": "8x8 (VoIP)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:26:40.000000"
+    },
+    "6.13": {
+      "raw_answer": 1,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:26:55.000000"
+    },
+    "6.14": {
+      "raw_answer": "Partial — some information documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:27:10.000000"
+    },
+    "6.15": {
+      "raw_answer": "Yes — all servers have documented purposes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:27:25.000000"
+    },
+    "6.16": {
+      "raw_answer": "Partial — some access methods documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:27:40.000000"
+    },
+    "6.17": {
+      "raw_answer": "Informal — patching happens but on no defined schedule",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:27:55.000000"
+    },
+    "6.18": {
+      "raw_answer": "Yes — known for all servers",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:28:10.000000"
+    },
+    "6.19": {
+      "raw_answer": "Informal — planned informally",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:28:25.000000"
+    },
+    "7.1": {
+      "raw_answer": "Maybe or assumed — believed to be in place but not verified",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:28:40.000000"
+    },
+    "7.2": {
+      "raw_answer": "Veeam (on-premises server) + Google Vault for Workspace data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:28:55.000000"
+    },
+    "7.3": {
+      "raw_answer": "Partial — some systems documented, others not",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:29:10.000000"
+    },
+    "7.4": {
+      "raw_answer": "Partial — some servers backed up",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:29:25.000000"
+    },
+    "7.5": {
+      "raw_answer": "Not applicable — staff work entirely in cloud storage",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:29:40.000000"
+    },
+    "7.6": {
+      "raw_answer": "Partial — some cloud data backed up",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:29:55.000000"
+    },
+    "7.7": {
+      "raw_answer": "Irregularly — checked occasionally but not on a schedule",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:30:10.000000"
+    },
+    "7.7b": {
+      "raw_answer": "Both — onsite and offsite copies maintained",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:30:25.000000"
+    },
+    "7.8": {
+      "raw_answer": "More than 12 months ago",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:30:40.000000"
+    },
+    "7.9": {
+      "raw_answer": "Less than annually",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:30:55.000000"
+    },
+    "7.10": {
+      "raw_answer": "Partial — informally understood but not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:31:10.000000"
+    },
+    "7.11": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:31:25.000000"
+    },
+    "7.12": {
+      "raw_answer": "Partially — some credentials accessible, others not",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:31:40.000000"
+    },
+    "7.13": {
+      "raw_answer": "2 to 4 weeks",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:31:55.000000"
+    },
+    "7.14": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:32:10.000000"
+    },
+    "8.1": {
+      "raw_answer": "Yes — deployed on most managed devices",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:32:25.000000"
+    },
+    "8.2": {
+      "raw_answer": "Sophos Intercept X",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:32:40.000000"
+    },
+    "8.2b": {
+      "raw_answer": "Sometimes — reviewed occasionally but not consistently",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:32:55.000000"
+    },
+    "8.3": {
+      "raw_answer": "Informal — patching happens but not on a defined schedule",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:33:10.000000"
+    },
+    "8.4": {
+      "raw_answer": "Irregularly — reviewed occasionally",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:33:25.000000"
+    },
+    "8.5": {
+      "raw_answer": "Yes — for students only",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:33:40.000000"
+    },
+    "8.6": {
+      "raw_answer": "yes",
+      "notes": "Bark for Schools — monitors student Google Workspace activity.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:33:55.000000"
+    },
+    "8.7": {
+      "raw_answer": "Partial — some documentation exists",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:34:10.000000"
+    },
+    "8.8": {
+      "raw_answer": "Partial — informal notes or partial documentation",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:34:25.000000"
+    },
+    "8.9": {
+      "raw_answer": "Sometimes — reviewed occasionally",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:34:40.000000"
+    },
+    "8.10": {
+      "raw_answer": "Yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:34:55.000000"
+    },
+    "8.10b": {
+      "raw_answer": "Yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:35:10.000000"
+    },
+    "8.10c": {
+      "raw_answer": "Partial — some of our steps match their requirements",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:35:25.000000"
+    },
+    "8.11": {
+      "raw_answer": "yes",
+      "notes": "A staff laptop was reported missing last month — it is unclear if it was lost or stolen. The device was not encrypted and did not have remote wipe configured. This has not yet been formally reported or documented.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:35:40.000000"
+    },
+    "9.1": {
+      "raw_answer": "Yes — but used inconsistently",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:35:55.000000"
+    },
+    "9.2": {
+      "raw_answer": "Partly — some is current, some is outdated",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:36:10.000000"
+    },
+    "9.3": {
+      "raw_answer": "Partial — some tasks are documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:36:25.000000"
+    },
+    "9.4": {
+      "raw_answer": "Informal — sometimes documented, sometimes not",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:36:40.000000"
+    },
+    "9.5": {
+      "raw_answer": "Partially — they could understand some areas but not others",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:36:55.000000"
+    },
+    "9.6": {
+      "raw_answer": "yes",
+      "notes": "Firewall configuration — only the Director of Technology knows the full rule set and admin credentials. Phone system (8x8) — configuration history and admin portal access are not documented. Veeam backup jobs — only one person has ever logged into the management console.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:37:10.000000"
+    },
+    "10.1": {
+      "raw_answer": [
+        "MFA enforcement for all staff accounts — currently optional only",
+        "Wi-Fi dead spot remediation in Building B gymnasium wing",
+        "Emergency credential documentation and secure storage",
+        "Device inventory cleanup — asset sheet is significantly out of date",
+        "Restore testing for Veeam — has not been done in over 18 months"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:37:30.000000"
+    },
+    "10.2": {
+      "raw_answer": [
+        "Chromebook fleet refresh for grades 3-5 (funded, June-July)",
+        "Veracross SIS contract renewal (August — no changes planned)",
+        "Google Workspace license audit and tier review (Q3)"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:37:50.000000"
+    },
+    "10.3": {
+      "raw_answer": [
+        "WASC accreditation prep visit — October 2025 (IT systems and documentation may be reviewed)",
+        "E-rate filing window — opens October, closes February",
+        "Sophos XGS firewall support renewal — November 2025",
+        "Comcast Business contract renewal — January 2026"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:38:10.000000"
+    },
+    "10.4": {
+      "raw_answer": "New K cohort (approximately 38 students) arriving in August will require iPad provisioning and Google Workspace account creation. One staff member is retiring in June — offboarding and account transition needs to be managed carefully as she holds admin rights to several platforms. No new campuses or buildings planned.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:38:30.000000"
+    },
+    "10.5": {
+      "raw_answer": "yes",
+      "notes": "Head of School has asked for a 3-year technology plan and capital budget projection by end of Q2. This assessment is the foundation for that document.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:38:50.000000"
+    },
+    "10.6": {
+      "raw_answer": "IT is a single-person department with no backup personnel. Any project requiring extended onsite time will compete directly with day-to-day support. Budget for non-approved items is effectively frozen until the fall board meeting. Vendor responsiveness for 8x8 has been poor — escalations take days.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:39:10.000000"
+    },
+    "10.7": {
+      "raw_answer": "Moderate — most answers are based on recall or staff reports",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:39:30.000000"
+    },
+    "10.8": {
+      "raw_answer": [
+        "Section 7 (Backup and Recovery) — backup job status was not verified during this assessment",
+        "Section 3 (Network) — switch inventory details recalled from memory, not verified against physical hardware"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T09:39:50.000000"
+    }
+  }
+}

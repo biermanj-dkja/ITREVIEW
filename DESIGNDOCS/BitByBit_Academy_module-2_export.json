@@ -1,0 +1,1019 @@
+{
+  "export_format": "school_it_engine_session_v1",
+  "exported_on": "2025-05-14T14:00:00.000000Z",
+  "engine_version": "0.5.3",
+  "school_profile": {
+    "school_name": "Bit-By-Bit Academy",
+    "school_website": "bitbybitacademy.org"
+  },
+  "session": {
+    "session_id": "bba-m2-test-2025-0514-001",
+    "module_id": "module_2",
+    "school_name": "Bit-By-Bit Academy",
+    "created_on": "2025-05-14T11:00:00.000000",
+    "last_modified": "2025-05-14T14:00:00.000000",
+    "status": "complete",
+    "sections_complete": "[\"DG1\", \"DG_SYS_1\", \"DG_SYS_2\", \"DG_SYS_3\", \"DG_SYS_4\", \"DG_SYS_5\", \"DG2\"]",
+    "sections_skipped": "[]",
+    "sections_flagged": "[]",
+    "overall_completion_percentage": 100.0
+  },
+  "answers": {
+
+    "DG1.1": {
+      "raw_answer": "Rhoda Report",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:01:00.000000"
+    },
+    "DG1.1b": {
+      "raw_answer": "Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:01:15.000000"
+    },
+    "DG1.2": {
+      "raw_answer": "2025-05-14",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:01:30.000000"
+    },
+    "DG1.3": {
+      "raw_answer": [
+        "Veracross (SIS)",
+        "Google Workspace for Education Plus",
+        "Seesaw",
+        "Lightspeed Filter",
+        "Bark for Schools"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:02:00.000000"
+    },
+    "DG1.4": {
+      "raw_answer": 5,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:02:10.000000"
+    },
+    "DG1.5": {
+      "raw_answer": "There may be a tool used by the after-care program for sign-in tracking — possibly an app on a shared iPad. Not yet identified. The Athletics Annex may also use a separate scheduling tool.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:02:30.000000"
+    },
+
+    "DG_SYS_1__SYS.ID.name": {
+      "raw_answer": "Veracross (SIS)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:05:00.000000"
+    },
+    "DG_SYS_1__SYS.ID.dept": {
+      "raw_answer": "All departments — primary system of record for student data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:05:15.000000"
+    },
+    "DG_SYS_1__SYS.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:05:30.000000"
+    },
+    "DG_SYS_1__SYS.ID.vendor": {
+      "raw_answer": "Veracross",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:05:45.000000"
+    },
+    "DG_SYS_1__SYS.1.1": {
+      "raw_answer": "Partial — list available but may be incomplete",
+      "notes": "Veracross can export a user list but it requires navigating multiple admin screens. The export includes staff accounts but contractor/consultant access is not easily distinguished.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:06:00.000000"
+    },
+    "DG_SYS_1__SYS.1.1a": {
+      "raw_answer": "unknown",
+      "notes": "A review was not performed as part of this audit. One former registrar left in January 2025 — her account status in Veracross is unconfirmed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:06:20.000000"
+    },
+    "DG_SYS_1__SYS.1.2": {
+      "raw_answer": "Role-based — different roles see different data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:06:35.000000"
+    },
+    "DG_SYS_1__SYS.1.2a": {
+      "raw_answer": "yes",
+      "notes": "The Head of Advancement has system-admin level access that predates the current IT director's tenure. The original justification is not documented.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:06:55.000000"
+    },
+    "DG_SYS_1__SYS.1.3": {
+      "raw_answer": "Partial — available but not required",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:07:10.000000"
+    },
+    "DG_SYS_1__SYS.1.4": {
+      "raw_answer": "yes",
+      "notes": "Veracross is connected to Google Workspace SSO for staff. Student portal uses separate Veracross credentials.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:07:25.000000"
+    },
+    "DG_SYS_1__SYS.1.5": {
+      "raw_answer": "Yes — logs exist but not reviewed regularly",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:07:40.000000"
+    },
+    "DG_SYS_1__SYS.2.1": {
+      "raw_answer": "Yes — vendor manages the backup",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:07:55.000000"
+    },
+    "DG_SYS_1__SYS.2.1a": {
+      "raw_answer": "unknown",
+      "notes": "The contract was signed by the former Head of School. The current Director of Technology has not reviewed the DPA or backup terms.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:08:10.000000"
+    },
+    "DG_SYS_1__SYS.2.1b": {
+      "raw_answer": "no",
+      "notes": "The school does not maintain an independent copy of Veracross data. No scheduled data export exists.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:08:25.000000"
+    },
+    "DG_SYS_1__SYS.2.5v": {
+      "raw_answer": "Informal plan — relies on memory or ad-hoc decisions",
+      "notes": "The informal plan is to revert to paper attendance and grade books. No documented process exists.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:08:40.000000"
+    },
+    "DG_SYS_1__SYS.3.1": {
+      "raw_answer": "Data enters Veracross via: (1) manual entry by the registrar and admissions team, (2) parent-submitted enrollment forms through the Veracross parent portal, (3) nightly sync from Google Workspace for staff account status.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:09:00.000000"
+    },
+    "DG_SYS_1__SYS.3.2": {
+      "raw_answer": "Data leaves Veracross via: (1) rostering sync to Google Classroom (nightly), (2) rostering sync to Seesaw (manual export / upload), (3) reporting exports by the Head of School and Board, (4) transcript and record exports for college counseling and external requests.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:09:20.000000"
+    },
+    "DG_SYS_1__SYS.3.2a": {
+      "raw_answer": "Partial — some encrypted, some not",
+      "notes": "Google Classroom sync is via HTTPS API. Seesaw sync uses a manual CSV upload — the export itself is encrypted in transit but once downloaded to a local device, the file is unprotected.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:09:40.000000"
+    },
+    "DG_SYS_1__SYS.3.3": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:09:55.000000"
+    },
+    "DG_SYS_1__SYS.3.3a": {
+      "raw_answer": "Nightly Google Classroom roster sync via Veracross API connector — set up by former IT staff approx. 3 years ago. Still in active use. No review has been performed on the OAuth scopes granted.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:10:10.000000"
+    },
+    "DG_SYS_1__SYS.3.4": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:10:25.000000"
+    },
+    "DG_SYS_1__SYS.3.4a": {
+      "raw_answer": "Transcripts are exported and emailed to external schools or colleges on request by the registrar. No written data sharing agreement governs these transfers beyond FERPA consent forms signed by parents at enrollment.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:10:45.000000"
+    },
+    "DG_SYS_1__SYS.3.5": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:11:00.000000"
+    },
+    "DG_SYS_1__SYS.4.1": {
+      "raw_answer": "Unknown",
+      "notes": "The original contract was signed by the previous Head of School in 2021. A copy has not been located in current school records.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:11:15.000000"
+    },
+    "DG_SYS_1__SYS.4.4": {
+      "raw_answer": "No — not reviewed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:11:30.000000"
+    },
+    "DG_SYS_1__SYS.5.1": {
+      "raw_answer": [
+        "Student academic records (grades, transcripts, reports)",
+        "Student behavioral records (discipline, incidents)",
+        "Student health records (medical, counseling, nurse)",
+        "Parent and family contact data",
+        "Admissions and enrollment data",
+        "Staff HR records (employment, performance)"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:11:50.000000"
+    },
+    "DG_SYS_1__SYS.5.2": {
+      "raw_answer": "Academic records (transcripts, grades): permanent per Florida law. Health records: 7 years after student turns 18. Discipline records: 5 years. Family contact data: duration of enrollment plus 3 years. Retention periods have not been formally reviewed or adopted by school leadership — these are IT director estimates based on general Florida requirements.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:12:10.000000"
+    },
+    "DG_SYS_1__SYS.5.3": {
+      "raw_answer": "No deletion process — data accumulates indefinitely",
+      "notes": "No records have been purged from Veracross since the school adopted it in 2021. Former student records are still fully accessible.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:12:30.000000"
+    },
+
+    "DG_SYS_2__SYS.ID.name": {
+      "raw_answer": "Google Workspace for Education Plus",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:20:00.000000"
+    },
+    "DG_SYS_2__SYS.ID.dept": {
+      "raw_answer": "All departments — primary email, collaboration, and file storage platform",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:20:15.000000"
+    },
+    "DG_SYS_2__SYS.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:20:30.000000"
+    },
+    "DG_SYS_2__SYS.ID.vendor": {
+      "raw_answer": "Google",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:20:45.000000"
+    },
+    "DG_SYS_2__SYS.1.1": {
+      "raw_answer": "Yes — complete list available",
+      "notes": "Google Admin console provides a full user list export.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:21:00.000000"
+    },
+    "DG_SYS_2__SYS.1.1a": {
+      "raw_answer": "yes",
+      "notes": "An audit in April 2025 found 3 accounts belonging to staff who departed in the 2023-24 school year that had not been suspended. All have since been suspended but not formally deleted.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:21:20.000000"
+    },
+    "DG_SYS_2__SYS.1.2": {
+      "raw_answer": "Role-based — different roles see different data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:21:35.000000"
+    },
+    "DG_SYS_2__SYS.1.2a": {
+      "raw_answer": "no",
+      "notes": "Super Admin access is limited to the Director of Technology and one backup account.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:21:50.000000"
+    },
+    "DG_SYS_2__SYS.1.3": {
+      "raw_answer": "Partial — available but not required",
+      "notes": "MFA is enabled but not enforced. Staff are encouraged but not required to enroll.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:22:05.000000"
+    },
+    "DG_SYS_2__SYS.1.4": {
+      "raw_answer": "yes",
+      "notes": "Google Workspace IS the SSO platform for this environment.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:22:20.000000"
+    },
+    "DG_SYS_2__SYS.1.5": {
+      "raw_answer": "Yes — logs retained 90+ days and reviewed regularly",
+      "notes": "Google Vault and Admin audit logs are retained. Reviewed by the Director of Technology monthly.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:22:35.000000"
+    },
+    "DG_SYS_2__SYS.2.1": {
+      "raw_answer": "Both — school and vendor both maintain copies",
+      "notes": "Google Vault provides data retention and eDiscovery. Google also maintains its own infrastructure-level backups. The school does not separately export Workspace data to an independent system.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:22:50.000000"
+    },
+    "DG_SYS_2__SYS.2.1a": {
+      "raw_answer": "yes",
+      "notes": "Google's Education Terms of Service and FERPA Amendment cover backup terms. Vault retention policies are configured by the school.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:23:05.000000"
+    },
+    "DG_SYS_2__SYS.2.2": {
+      "raw_answer": "Continuously (real-time replication)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:23:20.000000"
+    },
+    "DG_SYS_2__SYS.2.3": {
+      "raw_answer": "Never tested",
+      "notes": "A restore test using Google Vault has never been performed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:23:35.000000"
+    },
+    "DG_SYS_2__SYS.2.4": {
+      "raw_answer": "yes",
+      "notes": "Google Vault stores data in Google's cloud infrastructure, independent of device loss.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:23:50.000000"
+    },
+    "DG_SYS_2__SYS.2.5": {
+      "raw_answer": "4–24 hours",
+      "notes": "Admin access to the Workspace console can be restored quickly, but full account data recovery for multiple users would take significant time.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:24:05.000000"
+    },
+    "DG_SYS_2__SYS.3.1": {
+      "raw_answer": "Data enters Google Workspace via: (1) nightly roster sync from Veracross for class rosters and groups, (2) staff email and file creation, (3) student file submissions through Google Classroom, (4) external email received from outside the domain.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:24:25.000000"
+    },
+    "DG_SYS_2__SYS.3.2": {
+      "raw_answer": "Data leaves Google Workspace via: (1) email to external addresses, (2) Google Drive files shared externally via link, (3) Classroom roster sync to Seesaw, (4) Bark for Schools monitoring connection reads email and Drive metadata.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:24:45.000000"
+    },
+    "DG_SYS_2__SYS.3.2a": {
+      "raw_answer": "Yes — all outbound transfers are encrypted",
+      "notes": "All Google Workspace outbound connections use TLS.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:25:00.000000"
+    },
+    "DG_SYS_2__SYS.3.3": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:25:15.000000"
+    },
+    "DG_SYS_2__SYS.3.3a": {
+      "raw_answer": "1. Veracross → Google Workspace (nightly OU/roster sync via API). Set up by previous IT staff. Still needed — drives class organization. 2. Bark for Schools → Google Workspace (OAuth connection scanning student email and Drive for safety signals). Set up 2023. Still active and needed. 3. Lightspeed Filter → Google Workspace (identity sync for filtering policy assignment). Set up 2022. Still active.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:25:35.000000"
+    },
+    "DG_SYS_2__SYS.3.4": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:25:50.000000"
+    },
+    "DG_SYS_2__SYS.3.5": {
+      "raw_answer": "Yes — sub-processors are named in the contract",
+      "notes": "Google's sub-processor list is publicly available and referenced in the Education terms.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:26:05.000000"
+    },
+    "DG_SYS_2__SYS.4.1": {
+      "raw_answer": "Yes — signed DPA on file",
+      "notes": "Google's FERPA Amendment and Education Privacy Terms constitute the DPA. These were accepted during initial Workspace for Education setup.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:26:20.000000"
+    },
+    "DG_SYS_2__SYS.4.2": {
+      "raw_answer": "Yes — timeframe not specified",
+      "notes": "Google's terms require breach notification but do not specify a specific hour window — they state notification will occur 'promptly.'",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:26:35.000000"
+    },
+    "DG_SYS_2__SYS.4.3": {
+      "raw_answer": "Yes — deletion required with written confirmation",
+      "notes": "Google's Education Terms include data deletion obligations on contract termination.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:26:50.000000"
+    },
+    "DG_SYS_2__SYS.4.4": {
+      "raw_answer": "Yes — reviewed published documentation only",
+      "notes": "Google publishes its security practices and compliance certifications publicly. A SOC 2 report has not been formally requested.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:27:05.000000"
+    },
+    "DG_SYS_2__SYS.5.1": {
+      "raw_answer": [
+        "Student academic records (grades, transcripts, reports)",
+        "Parent and family contact data",
+        "Communications (email, messages, chat)",
+        "Intellectual property (curriculum, assessments)",
+        "Authentication credentials (usernames, passwords, tokens)",
+        "Security and audit logs"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:27:25.000000"
+    },
+    "DG_SYS_2__SYS.5.2": {
+      "raw_answer": "Staff email and files: retain for duration of employment plus 7 years (HR standard). Student accounts: retained for duration of enrollment; student Drive files retained for 1 year post-graduation per current informal practice. No formal retention schedule has been adopted by school leadership.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:27:45.000000"
+    },
+    "DG_SYS_2__SYS.5.3": {
+      "raw_answer": "Deletion occurs but is not documented",
+      "notes": "Student accounts are suspended at year end and deleted approximately one year later in a manual process. No deletion log is maintained.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:28:00.000000"
+    },
+
+    "DG_SYS_3__SYS.ID.name": {
+      "raw_answer": "Seesaw",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:35:00.000000"
+    },
+    "DG_SYS_3__SYS.ID.dept": {
+      "raw_answer": "Lower School (Kindergarten through Grade 2)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:35:15.000000"
+    },
+    "DG_SYS_3__SYS.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:35:30.000000"
+    },
+    "DG_SYS_3__SYS.ID.vendor": {
+      "raw_answer": "Seesaw Learning, Inc.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:35:45.000000"
+    },
+    "DG_SYS_3__SYS.1.1": {
+      "raw_answer": "Partial — list available but may be incomplete",
+      "notes": "Seesaw admin console shows current teachers and students. Parent accounts connected to student journals are visible but not exportable in a clean roster format.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:36:00.000000"
+    },
+    "DG_SYS_3__SYS.1.1a": {
+      "raw_answer": "unknown",
+      "notes": "Not verified as part of this audit.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:36:15.000000"
+    },
+    "DG_SYS_3__SYS.1.2": {
+      "raw_answer": "Role-based — different roles see different data",
+      "notes": "Teachers see their class only. Parents see their child only. Admins see all.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:36:30.000000"
+    },
+    "DG_SYS_3__SYS.1.2a": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:36:45.000000"
+    },
+    "DG_SYS_3__SYS.1.3": {
+      "raw_answer": "No — not available or not enabled",
+      "notes": "Seesaw does not support MFA for teacher accounts on the current plan.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:37:00.000000"
+    },
+    "DG_SYS_3__SYS.1.4": {
+      "raw_answer": "no",
+      "notes": "Seesaw uses its own account system. Teachers log in with a Seesaw-specific email and password.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:37:15.000000"
+    },
+    "DG_SYS_3__SYS.1.4a": {
+      "raw_answer": "no",
+      "notes": "All teacher accounts are individual.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:37:30.000000"
+    },
+    "DG_SYS_3__SYS.1.5": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:37:45.000000"
+    },
+    "DG_SYS_3__SYS.2.1": {
+      "raw_answer": "Yes — vendor manages the backup",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:38:00.000000"
+    },
+    "DG_SYS_3__SYS.2.1a": {
+      "raw_answer": "unknown",
+      "notes": "The school does not have a copy of the Seesaw contract or DPA terms.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:38:15.000000"
+    },
+    "DG_SYS_3__SYS.2.1b": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:38:30.000000"
+    },
+    "DG_SYS_3__SYS.2.5v": {
+      "raw_answer": "Informal plan — relies on memory or ad-hoc decisions",
+      "notes": "Teachers would likely default to Google Classroom or email for sharing student work. No documented continuity plan exists.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:38:45.000000"
+    },
+    "DG_SYS_3__SYS.3.1": {
+      "raw_answer": "Student rosters are uploaded manually from a Veracross CSV export at the start of each school year. Parent email addresses are entered manually by teachers or uploaded in the roster.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:39:05.000000"
+    },
+    "DG_SYS_3__SYS.3.2": {
+      "raw_answer": "Data leaves Seesaw via: (1) PDF portfolio exports downloaded by teachers and shared with parents, (2) parent access to the Seesaw Family app (direct push notifications and journal viewing), (3) no known automated outbound connections.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:39:25.000000"
+    },
+    "DG_SYS_3__SYS.3.2a": {
+      "raw_answer": "Partial — some encrypted, some not",
+      "notes": "The Seesaw platform uses HTTPS. PDF portfolio exports saved to local devices are unprotected once downloaded.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:39:45.000000"
+    },
+    "DG_SYS_3__SYS.3.3": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:40:00.000000"
+    },
+    "DG_SYS_3__SYS.3.4": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:40:15.000000"
+    },
+    "DG_SYS_3__SYS.3.5": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:40:30.000000"
+    },
+    "DG_SYS_3__SYS.4.1": {
+      "raw_answer": "No agreement on file",
+      "notes": "Seesaw was adopted by the Lower School Director without IT involvement in 2022. No DPA has been requested or signed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:40:45.000000"
+    },
+    "DG_SYS_3__SYS.4.4": {
+      "raw_answer": "No — not reviewed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:41:00.000000"
+    },
+    "DG_SYS_3__SYS.5.1": {
+      "raw_answer": [
+        "Student academic records (grades, transcripts, reports)",
+        "Parent and family contact data"
+      ],
+      "notes": "Seesaw holds student work samples, teacher feedback, and parent contact information (email and phone for Family app).",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:41:20.000000"
+    },
+    "DG_SYS_3__SYS.5.2": {
+      "raw_answer": "Student portfolio and work data: retention period not defined. Parent contact data: retained for duration of enrollment plus unknown period. Seesaw's data retention terms have not been reviewed.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:41:40.000000"
+    },
+    "DG_SYS_3__SYS.5.3": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:41:55.000000"
+    },
+
+    "DG_SYS_4__SYS.ID.name": {
+      "raw_answer": "Lightspeed Filter",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:50:00.000000"
+    },
+    "DG_SYS_4__SYS.ID.dept": {
+      "raw_answer": "IT — student content filtering across all school-managed devices",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:50:15.000000"
+    },
+    "DG_SYS_4__SYS.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:50:30.000000"
+    },
+    "DG_SYS_4__SYS.ID.vendor": {
+      "raw_answer": "Lightspeed Systems",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:50:45.000000"
+    },
+    "DG_SYS_4__SYS.1.1": {
+      "raw_answer": "Yes — complete list available",
+      "notes": "Lightspeed admin console shows all enrolled devices and associated user accounts synced from Google Workspace.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:51:00.000000"
+    },
+    "DG_SYS_4__SYS.1.1a": {
+      "raw_answer": "no",
+      "notes": "Because Lightspeed syncs from Google Workspace, deprovisioned Google accounts are automatically removed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:51:15.000000"
+    },
+    "DG_SYS_4__SYS.1.2": {
+      "raw_answer": "Role-based — different roles see different data",
+      "notes": "Admins see all. Teachers see their assigned student groups only.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:51:30.000000"
+    },
+    "DG_SYS_4__SYS.1.2a": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:51:45.000000"
+    },
+    "DG_SYS_4__SYS.1.3": {
+      "raw_answer": "Partial — available but not required",
+      "notes": "Admin console supports MFA but it is not enforced.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:52:00.000000"
+    },
+    "DG_SYS_4__SYS.1.4": {
+      "raw_answer": "yes",
+      "notes": "Lightspeed admin access uses Google Workspace SSO.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:52:15.000000"
+    },
+    "DG_SYS_4__SYS.1.5": {
+      "raw_answer": "Yes — logs exist but not reviewed regularly",
+      "notes": "Lightspeed maintains browsing activity logs. These are not reviewed on a scheduled basis — only when a specific incident requires investigation.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:52:30.000000"
+    },
+    "DG_SYS_4__SYS.2.1": {
+      "raw_answer": "Yes — vendor manages the backup",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:52:45.000000"
+    },
+    "DG_SYS_4__SYS.2.1a": {
+      "raw_answer": "unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:53:00.000000"
+    },
+    "DG_SYS_4__SYS.2.1b": {
+      "raw_answer": "no",
+      "notes": "Filtering rules and policies are not exported or independently backed up by the school. Loss of Lightspeed would require rebuilding all policy configuration from scratch.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:53:15.000000"
+    },
+    "DG_SYS_4__SYS.2.5v": {
+      "raw_answer": "No plan — school would be unable to operate without this system",
+      "notes": "If Lightspeed became unavailable, student devices would either have unfiltered internet access or need to be taken offline. No interim filtering plan exists. This is a CIPA compliance risk.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:53:30.000000"
+    },
+    "DG_SYS_4__SYS.3.1": {
+      "raw_answer": "User and device data enters Lightspeed via Google Workspace directory sync. No other inbound data sources.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:53:45.000000"
+    },
+    "DG_SYS_4__SYS.3.2": {
+      "raw_answer": "Lightspeed does not push data outbound to other school systems. Browsing activity logs are available to admins and teachers within the Lightspeed console only.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:54:00.000000"
+    },
+    "DG_SYS_4__SYS.3.2a": {
+      "raw_answer": "Yes — all outbound transfers are encrypted",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:54:15.000000"
+    },
+    "DG_SYS_4__SYS.3.3": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:54:30.000000"
+    },
+    "DG_SYS_4__SYS.3.3a": {
+      "raw_answer": "Google Workspace → Lightspeed (identity and OU sync for policy assignment). This is the only automated connection. Set up by current IT director in 2023. Still active and needed.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:54:45.000000"
+    },
+    "DG_SYS_4__SYS.3.4": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:55:00.000000"
+    },
+    "DG_SYS_4__SYS.3.5": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:55:15.000000"
+    },
+    "DG_SYS_4__SYS.4.1": {
+      "raw_answer": "Yes — signed DPA on file",
+      "notes": "A DPA was signed as part of the Lightspeed contract renewal in 2024.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:55:30.000000"
+    },
+    "DG_SYS_4__SYS.4.2": {
+      "raw_answer": "Yes — timeframe not specified",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:55:45.000000"
+    },
+    "DG_SYS_4__SYS.4.3": {
+      "raw_answer": "Yes — deletion required with written confirmation",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:56:00.000000"
+    },
+    "DG_SYS_4__SYS.4.4": {
+      "raw_answer": "Yes — reviewed published documentation only",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:56:15.000000"
+    },
+    "DG_SYS_4__SYS.5.1": {
+      "raw_answer": [
+        "Security and audit logs",
+        "Student academic records (grades, transcripts, reports)"
+      ],
+      "notes": "Browsing activity logs contain student identifiers and full browsing history. Classified as sensitive student data.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:56:35.000000"
+    },
+    "DG_SYS_4__SYS.5.2": {
+      "raw_answer": "Browsing activity logs: retention period not formally defined by school policy. Lightspeed's default retention is unknown. This should be reviewed with the vendor.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:56:55.000000"
+    },
+    "DG_SYS_4__SYS.5.3": {
+      "raw_answer": "Vendor handles deletion — not confirmed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T11:57:10.000000"
+    },
+
+    "DG_SYS_5__SYS.ID.name": {
+      "raw_answer": "Bark for Schools",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:05:00.000000"
+    },
+    "DG_SYS_5__SYS.ID.dept": {
+      "raw_answer": "IT and School Counseling — student safety monitoring",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:05:15.000000"
+    },
+    "DG_SYS_5__SYS.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:05:30.000000"
+    },
+    "DG_SYS_5__SYS.ID.vendor": {
+      "raw_answer": "Bark Technologies, Inc.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:05:45.000000"
+    },
+    "DG_SYS_5__SYS.1.1": {
+      "raw_answer": "Partial — list available but may be incomplete",
+      "notes": "Bark admin shows monitored accounts (student Google accounts). Admin access accounts are not easily audited from within the console.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:06:00.000000"
+    },
+    "DG_SYS_5__SYS.1.1a": {
+      "raw_answer": "no",
+      "notes": "Bark access is limited to current IT director and Head Counselor.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:06:15.000000"
+    },
+    "DG_SYS_5__SYS.1.2": {
+      "raw_answer": "Role-based — different roles see different data",
+      "notes": "School admin sees all alerts. Counselors see alerts designated for counseling. No teacher access.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:06:30.000000"
+    },
+    "DG_SYS_5__SYS.1.2a": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:06:45.000000"
+    },
+    "DG_SYS_5__SYS.1.3": {
+      "raw_answer": "Partial — available but not required",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:07:00.000000"
+    },
+    "DG_SYS_5__SYS.1.4": {
+      "raw_answer": "yes",
+      "notes": "Bark admin access uses Google Workspace SSO.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:07:15.000000"
+    },
+    "DG_SYS_5__SYS.1.5": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:07:30.000000"
+    },
+    "DG_SYS_5__SYS.2.1": {
+      "raw_answer": "Yes — vendor manages the backup",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:07:45.000000"
+    },
+    "DG_SYS_5__SYS.2.1a": {
+      "raw_answer": "unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:08:00.000000"
+    },
+    "DG_SYS_5__SYS.2.1b": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:08:15.000000"
+    },
+    "DG_SYS_5__SYS.2.5v": {
+      "raw_answer": "Informal plan — relies on memory or ad-hoc decisions",
+      "notes": "If Bark became unavailable, the school would rely on Lightspeed Filter's basic alert features and manual counselor check-ins. No documented plan exists.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:08:30.000000"
+    },
+    "DG_SYS_5__SYS.3.1": {
+      "raw_answer": "Bark connects to student Google Workspace accounts via OAuth. It reads email, Drive activity metadata, and Google Chat messages for safety signal analysis. No other inbound data sources.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:08:50.000000"
+    },
+    "DG_SYS_5__SYS.3.2": {
+      "raw_answer": "Bark sends email and push notification alerts to designated school staff (IT director, Head Counselor) when safety signals are detected. Alert content includes excerpts of student communications. No outbound connections to other school systems.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:09:10.000000"
+    },
+    "DG_SYS_5__SYS.3.2a": {
+      "raw_answer": "Yes — all outbound transfers are encrypted",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:09:25.000000"
+    },
+    "DG_SYS_5__SYS.3.3": {
+      "raw_answer": "yes",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:09:40.000000"
+    },
+    "DG_SYS_5__SYS.3.3a": {
+      "raw_answer": "Google Workspace → Bark (OAuth connection reading student email, Drive, and Chat). Set up by current IT director in 2023. Active and needed. OAuth scopes should be reviewed annually — last reviewed at setup.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:10:00.000000"
+    },
+    "DG_SYS_5__SYS.3.4": {
+      "raw_answer": "no",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:10:15.000000"
+    },
+    "DG_SYS_5__SYS.3.5": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:10:30.000000"
+    },
+    "DG_SYS_5__SYS.4.1": {
+      "raw_answer": "Yes — signed DPA on file",
+      "notes": "Bark's DPA was signed at onboarding in 2023 and is on file.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:10:45.000000"
+    },
+    "DG_SYS_5__SYS.4.2": {
+      "raw_answer": "Yes — 72 hours or less",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:11:00.000000"
+    },
+    "DG_SYS_5__SYS.4.3": {
+      "raw_answer": "Yes — deletion required with written confirmation",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:11:15.000000"
+    },
+    "DG_SYS_5__SYS.4.4": {
+      "raw_answer": "Yes — reviewed published documentation only",
+      "notes": "Bark publishes its security practices and FERPA compliance information publicly.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:11:30.000000"
+    },
+    "DG_SYS_5__SYS.5.1": {
+      "raw_answer": [
+        "Student behavioral records (discipline, incidents)",
+        "Communications (email, messages, chat)"
+      ],
+      "notes": "Bark processes and analyzes student email and messaging content. Alert records include excerpts of student communications and may be relevant to behavioral or counseling records.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:11:50.000000"
+    },
+    "DG_SYS_5__SYS.5.2": {
+      "raw_answer": "Alert records: retained within Bark for an unknown period. The school does not export alert records to a separate system. No retention schedule has been defined for Bark alert data.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:12:10.000000"
+    },
+    "DG_SYS_5__SYS.5.3": {
+      "raw_answer": "Vendor handles deletion — not confirmed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T12:12:25.000000"
+    },
+
+    "DG2.1": {
+      "raw_answer": "Draft only — not formally adopted",
+      "notes": "A data privacy policy draft was created by the Director of Technology in 2024 but has not been reviewed or adopted by school leadership.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:00:00.000000"
+    },
+    "DG2.2": {
+      "raw_answer": "Informal — someone handles it but has no formal designation",
+      "notes": "The Director of Technology handles data privacy matters by default, but this is not a formally designated role and is not reflected in any job description.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:00:20.000000"
+    },
+    "DG2.3": {
+      "raw_answer": "No — this audit is the first attempt",
+      "notes": "This module_2 assessment is the first systematic attempt to create a master data register for Bit-By-Bit Academy.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:00:40.000000"
+    },
+    "DG2.4": {
+      "raw_answer": "Informal — general awareness but no written plan",
+      "notes": "The Director of Technology has a general sense of steps to take but nothing is written down or has been communicated to other staff.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:01:00.000000"
+    },
+    "DG2.5": {
+      "raw_answer": "Informal — IT is usually consulted but not required",
+      "notes": "Seesaw was adopted by the Lower School Director without IT review. This is not an isolated case.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:01:20.000000"
+    },
+    "DG2.6": {
+      "raw_answer": "Ad hoc — training occurs but not on a schedule",
+      "notes": "Data privacy is occasionally mentioned in all-staff meetings. No annual training has been formally conducted.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:01:40.000000"
+    },
+    "DG2.7": {
+      "raw_answer": "Informal — process exists but relies on memory",
+      "notes": "When a staff member leaves, IT disables their Google account. However, there is no checklist covering all platforms, and the process is initiated by HR informally — sometimes days after a departure.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:02:00.000000"
+    },
+    "DG2.8": {
+      "raw_answer": "Informal — IT reviews but no standard criteria",
+      "notes": "The Director of Technology reviews new tools informally when asked, but there is no standard checklist, and staff are not required to obtain IT approval before adopting a new tool.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:02:20.000000"
+    },
+    "DG2.9": {
+      "raw_answer": "No",
+      "notes": "No written retention schedule exists. Retention periods noted in per-system worksheets are the Director of Technology's estimates, not formally adopted school policy.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:02:40.000000"
+    },
+    "DG2.10": {
+      "raw_answer": "The biggest concern is that Veracross — our primary student records system — was signed by a previous Head of School, and we cannot locate the original contract or DPA. We do not know what data rights we have, what the vendor can do with our student records, or whether our backup and deletion obligations are covered. This affects our ability to respond to a data breach or a parent records request with confidence.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T13:03:00.000000"
+    }
+  }
+}

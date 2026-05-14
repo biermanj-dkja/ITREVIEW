@@ -1,7 +1,7 @@
 """
 report_generator_dg.py  —  DOCX report generator for Module 2
 Data Governance and Data Flow Audit
-v0.5.2.1
+v0.5.4.0
 
 Report sections:
   1. Cover page
@@ -388,9 +388,51 @@ def _cover(doc, school_name, respondent_name, respondent_role, report_date):
     _run(pd, report_date, size=9, color=C.faint)
 
 
-def _exec_summary(doc, dg_report, school_name):
+def _dg_scope_box(doc, system_names, per_system_results):
+    """
+    Render an 'Assessment scope' callout box in the Executive Summary.
+    system_names        — full list of systems the user registered
+    per_system_results  — SystemResult list; only systems that were scored
+    """
+    audited_names = [r.system_name for r in per_system_results]
+    total_registered = len(system_names)
+    total_audited    = len(audited_names)
+
+    # Systems registered but not scored (no answers recorded)
+    audited_set   = set(audited_names)
+    not_audited   = [n for n in system_names if n not in audited_set]
+
+    def builder(cell):
+        p1 = _cp(cell, sb=3, sa=2)
+        _run(p1, "Assessment scope:  ", bold=True, size=10, color=C.accent)
+        _run(p1,
+             f"{total_audited} of {total_registered} registered "
+             f"system{'s' if total_registered != 1 else ''} were audited in this session.",
+             size=10)
+
+        if audited_names:
+            p2 = _cp(cell, sb=2, sa=1)
+            _run(p2, "Systems audited:  ", bold=True, size=9, color=C.faint)
+            _run(p2, ", ".join(audited_names), size=9)
+
+        if not_audited:
+            p3 = _cp(cell, sb=2, sa=3)
+            _run(p3, "Not assessed in this session:  ", bold=True, size=9, color=C.faint)
+            _run(p3, ", ".join(not_audited), italic=True, size=9)
+        else:
+            p3 = _cp(cell, sb=2, sa=3)
+            _run(p3, "All registered systems were assessed.", italic=True, size=9, color=C.faint)
+
+    _box(doc, "D6EAF8", builder)   # light blue, matches Module 1 scope box
+
+
+def _exec_summary(doc, dg_report, school_name, system_names=None):
     _page_break(doc)
     _h(doc, "Executive Summary", 1)
+
+    # ── Assessment scope callout ─────────────────────────────────
+    if system_names is not None:
+        _dg_scope_box(doc, system_names, dg_report.per_system_results)
 
     summary = dg_report.summary
 
@@ -1054,7 +1096,7 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
 
     _set_hf(doc, school_name, report_date)
     _cover(doc, school_name, respondent_name, respondent_role, report_date)
-    _exec_summary(doc, dg_report_obj, school_name)
+    _exec_summary(doc, dg_report_obj, school_name, system_names=system_names)
     _per_system_findings(doc, dg_report_obj)
     _school_wide_findings(doc, dg_report_obj)
     _action_plan(doc, dg_report_obj)

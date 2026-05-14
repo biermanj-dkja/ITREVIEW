@@ -69,4 +69,34 @@ Ideas captured during development. Not prioritised — reference for future road
 
 ---
 
-*Last updated: v0.5.1*
+## Answer Amendment & Change Log
+
+- **Amendment log** — when a user returns to a completed section and changes an answer, record the previous value to an `answer_history` table (session_id, question_id, old_value, old_status, changed_at). Display the amendment log in the report appendix. No meaningful DB bloat risk — each record is kilobytes at most. Snapshot the full answer record on change rather than field-level diffs. Planned for a pre-v1.0 release.
+
+---
+
+## Finding Context (formerly "Finding Suppression")
+
+- **Finding context notes** — allow the reviewer to attach a contextual note to any finding after the report is generated (e.g. "Remediated 2024-06-01 — new vendor in place"). The finding remains in the report but is rendered with the note and a visual "context added" marker. This is different from suppression: findings are never hidden, only annotated. Requires a `finding_context` table (session_id, finding_id, note, added_at) and a UI on the findings page. Planned for a pre-v1.0 release.
+
+---
+
+## Partial / Interim Report
+
+- **Draft report generation** — allow report download before all sections are complete. Incomplete sections would be flagged with a "Not yet assessed" placeholder in the report, and the cover page would be watermarked DRAFT. Useful for sharing interim progress with a head of school or consultant. Planned for a pre-v1.0 release.
+
+---
+
+## Completion Certificate / Cover Letter
+
+- **One-page summary document** — a single-page PDF or DOCX containing school name, assessment date, overall score, who completed it, and a count of findings by severity. Designed to be handed to a board chair, head of school, or accreditation committee without the full technical report. Not yet prioritised — low implementation effort but unclear demand.
+
+---
+
+## Consultant / MSP Mode
+
+- **Multi-school profiles** — allow a single installation to hold multiple school profiles, with sessions tagged to a school_id. A consultant managing several engagements could switch contexts without running separate instances. Significant architecture change to `database.py`, `app.py`, and all routes. Explicitly out of scope before v1.0.
+
+---
+
+*Last updated: v0.5.3*

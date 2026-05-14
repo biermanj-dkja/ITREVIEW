@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.5.2.2
+## v0.5.3
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -330,6 +330,12 @@ or any technical setup.
 
 
 ## What's in this version
+
+**v0.5.3** adds three new features to the assessment experience:
+
+- **Section progress bar** — a live counter and progress bar now appear at the top of every section form, showing how many questions have been addressed (answered, unknown, or skipped) vs the total visible in the current section. The bar updates instantly as you work — no save required. Colour shifts from blue (starting) to amber (halfway) to green (all addressed).
+- **Unknowns summary panel** — the Assessment Summary page now includes a dedicated panel listing every question marked *I don't know* across all sections, grouped by section. Each entry links directly back to that section so you can revisit it without hunting through the form. The panel only appears when there are unknowns to review.
+- **Export / Import** — a new Export JSON button on the Summary page downloads a complete snapshot of the session (all answers, section status, session metadata, and school profile). Sessions can be restored via the new Import button on the home page. Use this to back up work before switching machines or to hand a session off to someone else.
 
 **v0.5.2.2** is a significant overhaul of the Module 1 report (`report_generator.py`), making it easier to navigate, more honest about what's working, and more actionable. All changes are in `report_generator.py` only — no YAML, rules engine, or other files were modified.
 

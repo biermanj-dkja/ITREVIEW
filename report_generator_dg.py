@@ -891,10 +891,132 @@ def _appendix(doc, dg_report, answers, system_names, generated_section_ids):
         doc.add_paragraph().paragraph_format.space_after = Pt(6)
 
 
+# ── Timeline helpers ───────────────────────────────────────────────
+
+def _dg_sev_to_timeline(sev):
+    """Map DG finding severity (critical/high/medium/low) → Module 1 scale (urgent/concern/watch)."""
+    return {"critical": "urgent", "high": "concern", "medium": "watch", "low": "watch"}.get(sev, "watch")
+
+
+def _dg_timing_to_horizon(timing):
+    """Map DG timing (immediate/near_term/planned) → timeline horizon strings."""
+    return {"immediate": "immediate", "near_term": "next_30_days", "planned": "next_90_days"}.get(timing, "next_30_days")
+
+
+def _dg_timeline_section(doc, timeline):
+    """Phased timeline section for the DG report — mirrors Module 1 _timeline_section."""
+    _page_break(doc)
+    _h(doc, "Phased Remediation Timeline", 1)
+    _para(doc,
+          "All recommended actions grouped by phase, ordered by severity then effort. "
+          "Effort ratings: S=½ day · S+=1 day · M=3 days · M+=5 days · L=10 days.",
+          size=10, sb=4, sa=10, color=C.faint)
+
+    EFFORT_LABEL_TL = {
+        "S":  "Quick (½ day)",
+        "S+": "Short (1 day)",
+        "M":  "Medium (3 days)",
+        "M+": "Substantial (5 days)",
+        "L":  "Large (10 days)",
+    }
+    SEV_COLOR_MAP = {"urgent": C.urgent, "concern": C.concern, "watch": C.watch}
+    phase_fills   = {"1": "1A5276", "2": "1F618D", "3": "2471A3", "4": "2E86C1"}
+
+    for phase in timeline["phases"]:
+        acts = phase["actions"]
+        if not acts and phase["phase"] in (2, 3, 4):
+            continue
+
+        # Phase header row
+        fill_hex = phase_fills.get(str(phase["phase"]), "2C3E50")
+        tbl_h = doc.add_table(rows=1, cols=1)
+        tbl_h.style = "Table Grid"
+        hcell = tbl_h.rows[0].cells[0]
+        _cell_bg(hcell, fill_hex)
+        _cell_border(hcell)
+        for p in list(hcell.paragraphs):
+            p._element.getparent().remove(p._element)
+        hp = hcell.add_paragraph()
+        hp.paragraph_format.space_before = Pt(4)
+        hp.paragraph_format.space_after  = Pt(4)
+        _run(hp, phase["label"], bold=True, size=12, color=C.white)
+        if phase["duration_days"] > 0:
+            date_str = f"  ·  {phase['start'].strftime('%d %b %Y')} → {phase['end'].strftime('%d %b %Y')}"
+            _run(hp, date_str, size=10, color=C.white)
+        else:
+            _run(hp, f"  ·  Starting {phase['start'].strftime('%d %b %Y')}", size=10, color=C.white)
+        doc.add_paragraph().paragraph_format.space_after = Pt(2)
+
+        if not acts:
+            _para(doc, "No actions in this phase.", size=10, italic=True, color=C.faint, sb=2, sa=8)
+        else:
+            at = doc.add_table(rows=1, cols=4)
+            at.style = "Table Grid"
+            for i, txt in enumerate(["Action", "System / Area", "Effort", "Severity"]):
+                c = at.rows[0].cells[i]
+                _cell_bg(c, "EBF5FB")
+                c.paragraphs[0].clear()
+                r = c.paragraphs[0].add_run(txt)
+                r.bold = True
+                r.font.size = Pt(9)
+                r.font.color.rgb = C.accent
+
+            effort_rank = {"L": 0, "M+": 1, "M": 2, "S+": 3, "S": 4}
+            sev_rank    = {"urgent": 0, "concern": 1, "watch": 2}
+            sorted_acts = sorted(acts, key=lambda a: (
+                sev_rank.get(a.get("severity", "watch"), 9),
+                effort_rank.get(a.get("effort", "M"), 5),
+            ))
+
+            for idx, act in enumerate(sorted_acts):
+                row   = at.add_row().cells
+                fill  = "FFFFFF" if idx % 2 == 0 else "F8F9FA"
+                for c in row:
+                    _cell_bg(c, fill)
+                sev_col    = SEV_COLOR_MAP.get(act.get("severity", "watch"), C.text)
+                effort_txt = EFFORT_LABEL_TL.get(act.get("effort", ""), act.get("effort", "—"))
+                # Use finding_title (system name) as the area column
+                area_label = act.get("finding_title", act.get("section_id", "—"))
+
+                for c, txt, col, bold_flag in [
+                    (row[0], act["description"],                     C.text,  False),
+                    (row[1], area_label,                             C.faint, False),
+                    (row[2], effort_txt,                             C.text,  False),
+                    (row[3], act.get("severity", "—").upper(),       sev_col, True),
+                ]:
+                    c.paragraphs[0].clear()
+                    r = c.paragraphs[0].add_run(str(txt))
+                    r.font.size = Pt(8)
+                    r.font.color.rgb = col
+                    r.bold = bold_flag
+
+            doc.add_paragraph().paragraph_format.space_after = Pt(4)
+
+        if phase.get("rerun_note"):
+            def rnb(cell, note=phase["rerun_note"]):
+                p = _cp(cell, sb=4, sa=4)
+                _run(p, "⚡  ", bold=True, size=10, color=C.mid)
+                _run(p, note, size=10, color=C.mid)
+            _box(doc, "D6EAF8", rnb)
+            doc.add_paragraph().paragraph_format.space_after = Pt(4)
+
+    strat = timeline.get("strategic_actions", [])
+    if strat:
+        _h(doc, "Strategic & Future Actions", 2)
+        _para(doc,
+              f"{len(strat)} action(s) are flagged as longer-horizon initiatives. "
+              "Not included in the phased timeline — revisit annually.",
+              size=10, sb=4, sa=6, color=C.faint)
+        for act in strat:
+            p = _para(doc, sb=2, sa=2)
+            p.paragraph_format.left_indent = Pt(18)
+            _run(p, act["description"], size=10)
+
+
 # ── Main entry point ──────────────────────────────────────────────
 
 def generate_dg_report(dg_report_obj, answers, profile, system_names,
-                       generated_section_ids):
+                       generated_section_ids, start_date=None):
     """
     Parameters
     ----------
@@ -903,6 +1025,8 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
     profile              : dict from database.get_school_profile()
     system_names         : list of str
     generated_section_ids: list of str
+    start_date           : ISO date string or None — if provided, a phased
+                           remediation timeline section is added to the report.
 
     Returns
     -------
@@ -934,6 +1058,45 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
     _per_system_findings(doc, dg_report_obj)
     _school_wide_findings(doc, dg_report_obj)
     _action_plan(doc, dg_report_obj)
+
+    # Phased remediation timeline (only when start_date supplied)
+    if start_date:
+        from timeline import build_timeline
+        from datetime import date as _date
+        sd = _date.fromisoformat(start_date) if isinstance(start_date, str) else start_date
+        # Flatten DG findings into the same action-dict format build_timeline expects
+        flat_findings = []
+        for result in dg_report_obj.per_system_results:
+            for f in result.findings:
+                flat_findings.append({
+                    "finding_id":    f"{result.section_id}:{f.area[:3].upper()}",
+                    "title":         f.title,
+                    "severity":      _dg_sev_to_timeline(f.severity),
+                    "section_id":    result.section_id,
+                    "actions": [{
+                        "description":   f.action,
+                        "effort":        f.effort or "M",
+                        "time_horizon":  _dg_timing_to_horizon(getattr(f, "timing", "near_term")),
+                        "constraint_flag": False,
+                    }],
+                })
+        for f in dg_report_obj.school_wide_results:
+            flat_findings.append({
+                "finding_id":    f"DG2:{f.area[:3].upper()}",
+                "title":         f.title,
+                "severity":      _dg_sev_to_timeline(f.severity),
+                "section_id":    "DG2",
+                "actions": [{
+                    "description":   f.action,
+                    "effort":        f.effort or "M",
+                    "time_horizon":  _dg_timing_to_horizon(getattr(f, "timing", "near_term")),
+                    "constraint_flag": False,
+                }],
+            })
+        if flat_findings:
+            timeline = build_timeline(flat_findings, sd)
+            _dg_timeline_section(doc, timeline)
+
     _getting_started(doc, dg_report_obj.getting_started)
     _appendix(doc, dg_report_obj, answers, system_names, generated_section_ids)
 

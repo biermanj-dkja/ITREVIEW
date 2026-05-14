@@ -26,7 +26,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.5.3.1'
+app.config['VERSION'] = '0.5.3.2'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -407,7 +407,26 @@ def section_complete(session_id, section_id):
 
 
 
-# ── DELETE SESSION ──────────────────────────────────────────────
+# ── SESSION MANAGE PAGE ─────────────────────────────────────────
+
+@app.route("/session/<session_id>/manage")
+def manage_session(session_id):
+    sess = get_session(session_id)
+    if not sess:
+        flash("Session not found.", "error")
+        return redirect(url_for("home"))
+    mid = sess.get("module_id", MODULE_ID)
+    module_label = "IT Assessment" if mid == "module_1" else "Data Governance Audit"
+    breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=None)
+    return render_template("manage_session.html",
+        sess=sess,
+        session_id=session_id,
+        module_label=module_label,
+        session_breadcrumb=breadcrumb,
+    )
+
+
+# ── DELETE / ARCHIVE SESSION ────────────────────────────────────
 
 @app.route("/session/<session_id>/deprecate", methods=["POST"])
 def deprecate_session_route(session_id):
@@ -831,7 +850,7 @@ def import_session():
 if __name__ == "__main__":
     init_db()
     print("\n" + "=" * 60)
-    print("  School IT Documentation Engine v0.5.3.1")
+    print("  School IT Documentation Engine v0.5.3.2")
     print("  Running at: http://localhost:5000")
     print("  This tool runs entirely on your computer.")
     print("  No data is sent to the internet.")

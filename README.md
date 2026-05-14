@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.5.3.1
+## v0.5.3.2
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -202,7 +202,7 @@ spread over several days, plus a two-hour cross-team session for DG2.
 ## First run walkthrough
 
 1. Click **Set Up School Profile** and enter your school name and website
-2. From the home screen, choose:
+2. From the home screen, select the **New Assessment** tab, then choose:
    - **+ IT Assessment** to start a Module 1 session
    - **+ Data Governance Audit** to start a Module 2 session
 3. Work through each section using the sidebar to navigate
@@ -334,9 +334,36 @@ or any technical setup.
 
 ## What's in this version
 
+**v0.5.3.2** is a UI/UX overhaul pass informed by Material Design principles. No scoring logic, rules engine, or report generator was changed — all changes are in templates and `app.py` routing.
+
+### Home page
+- **Tabbed layout** — the home page now has two clearly separated tabs: "New Assessment" (module launcher cards) and "Saved Assessments" (session list). The app defaults to Saved Assessments when sessions exist, New Assessment when none do. The selected tab persists across page reloads via localStorage.
+- **Session management page** — Archive and Delete have been moved off the home page session cards and into a dedicated `/session/<id>/manage` page. The card now shows a single "⋯ Manage" button. The manage page presents Archive, Export, and Delete as distinct actions with clear descriptions; Delete uses an inline two-step confirmation rather than a browser `window.confirm()` dialog.
+- **Human-readable session labels** — sessions are now identified as "#1 · Started 2025-05-14" rather than a truncated UUID. The label is stable across the session's lifetime and numbered in creation order.
+- **Progress bar colours** — in-session section progress bars now use the accent colour throughout and only turn green at 100% completion. Previously the bar started red at 0%, which falsely implied an error state.
+
+### Navigation and wayfinding
+- **In-session breadcrumb** — when inside a session (section or summary), the nav bar shows `› IT Assessment › Section 3: Network` so the user always knows where they are. On summary pages, only the module name is shown.
+- **Privacy banner scoped to home and setup** — the full "This tool runs entirely on your computer" banner now appears only on the Home and Setup pages where trust matters most. All other pages show a compact `🔒 local` indicator in the nav instead. This prevents banner blindness while preserving the privacy message where it is actually reassuring.
+
+### Section form
+- **Unsaved-changes guard** — a `● unsaved changes` indicator appears near the Save button when any answer has been modified since the last save. Clicking a sidebar section link while dirty prompts a confirmation. The browser also fires a standard beforeunload warning.
+- **Skip / Unknown micro-copy** — the two checkboxes at the bottom of each question card are now labelled "Skip for now" (with tooltip: temporarily excluded, no scoring impact) vs "I don't know ⚠" (with tooltip: scores zero, may surface a finding). The warning icon on the unknown label signals the difference without adding visual clutter.
+- **Point chip tooltips** — hovering a point chip (e.g. `3 pts`, `context`) now shows a tooltip explaining what the value means and how it affects the section score.
+
+### Summary page
+- **Section score table severity borders** — each row in the section scores table now has a 3px left border in the section's severity colour (healthy / watch / concern / urgent), making severity scannable without reading the badge text.
+- **Findings CTA hierarchy** — "Generate Full Findings" is now a full-width primary button. "Download Report (.docx)" is a secondary button below it with a "view findings first" hint. Previously both were equal-weight side-by-side.
+
+### Section complete page
+- **Richer score narrative** — each severity band now shows the actual percentage earned and a 1–2 sentence explanation of what the score means and what to expect next, rather than a single generic status line.
+
+### Accessibility
+- **Flash messages** — all flash message divs now carry `role="alert"` and `aria-live="polite"` so screen readers announce them. A ✕ dismiss button is added to each alert.
+
 **v0.5.3** adds three new features to the assessment experience:
 
-- **Section progress bar** — a live counter and progress bar now appear at the top of every section form, showing how many questions have been addressed (answered, unknown, or skipped) vs the total visible in the current section. The bar updates instantly as you work — no save required. Colour shifts from blue (starting) to amber (halfway) to green (all addressed).
+- **Section progress bar** — a live counter and progress bar now appear at the top of every section form, showing how many questions have been addressed (answered, unknown, or skipped) vs the total visible in the current section. The bar updates instantly as you work — no save required.
 - **Unknowns summary panel** — the Assessment Summary page now includes a dedicated panel listing every question marked *I don't know* across all sections, grouped by section. Each entry links directly back to that section so you can revisit it without hunting through the form. The panel only appears when there are unknowns to review.
 - **Export / Import** — a new Export JSON button on the Summary page downloads a complete snapshot of the session (all answers, section status, session metadata, and school profile). Sessions can be restored via the new Import button on the home page. Use this to back up work before switching machines or to hand a session off to someone else.
 
@@ -430,14 +457,9 @@ dynamic section engine, and a per-system report card. See the
 
 ## Known limitations in this version
 
-- Follow-up questions now appear and disappear live as you answer —
-  no Save Progress required for question visibility. Questions with a
-  **Save Progress ↓** button still need a server round-trip for actions
-  that generate new content (e.g. the system worksheets in Module 2 DG1).
-- Module 2 per-system worksheets are generated after saving Section DG1;
-  if you add systems to the inventory later, return to DG1 and save again to regenerate
-- Logo/crest file upload is not yet implemented
-- Deprecate assessment UI is not yet implemented (the database field exists)
-- Module 2 DOCX report does not yet include a phased remediation timeline
-  (planned for a future version — currently produced for Module 1 only)
-- Module 1 Sections 1 and 10 generate no findings (context only by design)
+- Follow-up questions appear and disappear live as you answer — no Save Progress required for question visibility. Questions with a **Save Progress ↓** button still need a server round-trip for actions that generate new content (e.g. the system worksheets in Module 2 DG1).
+- Module 2 per-system worksheets are generated after saving Section DG1; if you add systems to the inventory later, return to DG1 and save again to regenerate.
+- Logo/crest file upload is not yet implemented.
+- Module 2 DOCX report does not yet include a phased remediation timeline (planned for a future version — currently produced for Module 1 only).
+- Module 1 Sections 1 and 10 generate no findings (context only by design).
+- Archived (deprecated) sessions are hidden from the home page but remain in the database. There is no UI to view or restore archived sessions other than re-importing an exported JSON backup.

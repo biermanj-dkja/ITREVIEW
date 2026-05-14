@@ -553,6 +553,29 @@ def summary(session_id):
             "flagged":        sid in flagged,
         })
 
+    # ── Unknowns summary ──────────────────────────────────────────────
+    # Aggregate unknown answers across ALL sections (complete or not) for
+    # the unknowns panel on the summary page.
+    unknown_summary = []
+    total_unknowns  = 0
+    for sec in module["sections"]:
+        if sec.get("is_template"):
+            continue
+        sid      = sec["section_id"]
+        visible  = get_visible_questions(sec, answers)
+        unknowns = [
+            {"question_id": q["question_id"], "prompt": q["prompt"]}
+            for q in visible
+            if answers.get(q["question_id"], {}).get("answer_status") == "unknown"
+        ]
+        if unknowns:
+            unknown_summary.append({
+                "section_id":    sid,
+                "section_title": sec["title"],
+                "unknowns":      unknowns,
+            })
+            total_unknowns += len(unknowns)
+
     return render_template(
         "summary.html",
         session_id=session_id,
@@ -560,6 +583,8 @@ def summary(session_id):
         section_results=section_results,
         module=module,
         flagged=flagged,
+        unknown_summary=unknown_summary,
+        total_unknowns=total_unknowns,
     )
 
 
@@ -642,10 +667,138 @@ def download_dg_report(session_id):
         download_name=filename,
     )
 
+# ── SESSION EXPORT / IMPORT ─────────────────────────────────────
+
+@app.route("/session/<session_id>/export")
+def export_session(session_id):
+    """Download a complete session snapshot as a JSON file."""
+    from datetime import datetime as _dt
+    sess = get_session(session_id)
+    if not sess:
+        flash("Session not found.", "error")
+        return redirect(url_for("home"))
+
+    answers = get_answers(session_id)
+    profile = get_school_profile()
+
+    export_data = {
+        "export_format":  "school_it_engine_session_v1",
+        "exported_on":    _dt.utcnow().isoformat() + "Z",
+        "engine_version": "0.5.3",
+        "school_profile": profile,
+        "session":        dict(sess),
+        "answers":        answers,
+    }
+
+    school = (profile.get("school_name") if profile else "School").replace(" ", "_")
+    module_tag = sess.get("module_id", "session").replace("_", "-")
+    filename   = f"{school}_{module_tag}_export.json"
+
+    return send_file(
+        io.BytesIO(json.dumps(export_data, indent=2, default=str).encode("utf-8")),
+        mimetype="application/json",
+        as_attachment=True,
+        download_name=filename,
+    )
+
+
+@app.route("/import-session", methods=["GET", "POST"])
+def import_session():
+    """Import a previously exported session JSON file."""
+    if request.method == "GET":
+        return render_template("import_session.html")
+
+    uploaded = request.files.get("session_file")
+    if not uploaded or not uploaded.filename.endswith(".json"):
+        flash("Please upload a valid .json export file.", "error")
+        return redirect(url_for("import_session"))
+
+    try:
+        raw = uploaded.read().decode("utf-8")
+        data = json.loads(raw)
+    except Exception:
+        flash("Could not parse the file. Make sure it is a valid session export.", "error")
+        return redirect(url_for("import_session"))
+
+    if data.get("export_format") != "school_it_engine_session_v1":
+        flash("Unrecognised file format. Only School IT Engine session exports are supported.", "error")
+        return redirect(url_for("import_session"))
+
+    sess_data = data.get("session", {})
+    answers   = data.get("answers", {})
+    profile   = data.get("school_profile")
+
+    # Restore or update school profile (only if not already set)
+    existing_profile = get_school_profile()
+    if not existing_profile and profile:
+        save_school_profile(
+            profile.get("school_name", "Imported School"),
+            profile.get("school_website", ""),
+        )
+
+    # Check for existing session with same ID
+    session_id = sess_data.get("session_id")
+    if not session_id:
+        flash("Export file is missing session_id.", "error")
+        return redirect(url_for("import_session"))
+
+    existing = get_session(session_id)
+    if existing:
+        flash(
+            f"A session with this ID already exists ({session_id[:8]}…). "
+            "Import skipped — no changes were made.",
+            "error"
+        )
+        return redirect(url_for("import_session"))
+
+    # Create the session record
+    create_session(
+        session_id,
+        sess_data.get("module_id", "module_1"),
+        sess_data.get("school_name", "Imported School"),
+    )
+
+    # Restore sections_complete, sections_flagged, status
+    db_obj = __import__("database")
+    db = db_obj.get_db()
+    from datetime import datetime as _dt
+    now = _dt.utcnow().isoformat()
+    db.execute("""
+        UPDATE assessment_session
+        SET sections_complete=?, sections_flagged=?, status=?, last_modified=?
+        WHERE session_id=?
+    """, (
+        sess_data.get("sections_complete", "[]"),
+        sess_data.get("sections_flagged", "[]"),
+        sess_data.get("status", "in_progress"),
+        now,
+        session_id,
+    ))
+    db.commit()
+    db.close()
+
+    # Restore answers
+    for qid, rec in answers.items():
+        save_answer(
+            session_id,
+            qid,
+            rec.get("raw_answer"),
+            notes=rec.get("notes"),
+            status=rec.get("answer_status", "answered"),
+        )
+
+    flash(
+        f"Session imported successfully — {len(answers)} answers restored. "
+        "Review and continue from the assessment below.",
+        "success"
+    )
+    return redirect(url_for("summary", session_id=session_id))
+
+
 if __name__ == "__main__":
     init_db()
     print("\n" + "=" * 60)
-    print("  School IT Documentation Engine v0.5.1")
+    print("  School IT Documentation Engine v0.5.3.1")
     print("  Running at: http://localhost:5000")
     print("  This tool runs entirely on your computer.")
     print("  No data is sent to the internet.")

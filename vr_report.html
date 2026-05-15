@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Register Report Card — {{ sess.school_name }}{% endblock %}
+
+{% block content %}
+<style>
+  .vr-hero {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 24px;
+  }
+  .vr-hero h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+  .vr-hero p  { color: var(--text-dim); font-size: 0.9rem; }
+
+  .vr-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 28px 40px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .stat-card .stat-num {
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .stat-card .stat-label { font-size: 0.75rem; color: var(--text-dim); }
+
+  .vr-body { padding: 0 40px 48px; }
+
+  .grade-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 700;
+    width: 52px; height: 52px;
+    line-height: 52px;
+    text-align: center;
+    border-radius: 8px;
+    margin-right: 16px;
+  }
+  .grade-A { background: var(--healthy);  color: #fff; }
+  .grade-B { background: var(--watch);    color: #111; }
+  .grade-C { background: var(--concern);  color: #fff; }
+  .grade-D { background: var(--urgent);   color: #fff; }
+  .grade-F { background: #6b2222;         color: #fff; }
+
+  .sev-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .sev-critical { background: #6b2222; color: #fff; }
+  .sev-high     { background: var(--urgent);  color: #fff; }
+  .sev-medium   { background: var(--concern); color: #fff; }
+  .sev-low      { background: var(--watch);   color: #111; }
+
+  .risk-high   { color: var(--urgent);  font-weight: 600; }
+  .risk-medium { color: var(--watch);   font-weight: 600; }
+  .risk-low    { color: var(--healthy); }
+
+  .vendor-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .vendor-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .vendor-body { padding: 16px 20px; }
+  .finding-row {
+    border-left: 3px solid var(--border);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-radius: 0 6px 6px 0;
+    background: var(--bg);
+  }
+  .finding-row.sev-critical { border-left-color: #6b2222; }
+  .finding-row.sev-high     { border-left-color: var(--urgent); }
+  .finding-row.sev-medium   { border-left-color: var(--concern); }
+  .finding-row.sev-low      { border-left-color: var(--watch); }
+
+  .area-scores {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  }
+  .area-pill {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .renewal-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .renewal-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+  }
+  .renewal-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .renewal-table tr:last-child td { border-bottom: none; }
+
+  .cat-chip {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+</style>
+
+{# Breadcrumb #}
+<div style="padding: 12px 40px; border-bottom: 1px solid var(--border);
+     font-size: 0.82rem; color: var(--text-dim);">
+  <a href="/session/{{ session_id }}/summary" style="color: var(--text-dim);">
+    ← Back to Summary
+  </a>
+</div>
+
+{# Hero #}
+<div class="vr-hero">
+  <h1>Vendor Register Report Card</h1>
+  <p>{{ sess.school_name }} &nbsp;·&nbsp; {{ vr.summary.total_vendors }} vendor{{ 's' if vr.summary.total_vendors != 1 }}
+     &nbsp;·&nbsp; Overall grade: <strong>{{ vr.summary.overall_grade }}</strong></p>
+</div>
+
+{# Overview stats #}
+<div class="vr-overview">
+  <div class="stat-card">
+    <div class="stat-num">{{ vr.summary.total_vendors }}</div>
+    <div class="stat-label">Total Vendors</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--urgent)">{{ vr.summary.vendors_urgent }}</div>
+    <div class="stat-label">Urgent</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--concern)">{{ vr.summary.vendors_concern }}</div>
+    <div class="stat-label">Concern</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--watch)">{{ vr.summary.vendors_watch }}</div>
+    <div class="stat-label">Watch</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--healthy)">{{ vr.summary.vendors_healthy }}</div>
+    <div class="stat-label">Healthy</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--urgent)">{{ vr.summary.vendors_with_student_data }}</div>
+    <div class="stat-label">Hold Student Data</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:{% if vr.summary.vendors_missing_dpa > 0 %}var(--urgent){% else %}var(--healthy){% endif %}">
+      {{ vr.summary.vendors_missing_dpa }}
+    </div>
+    <div class="stat-label">Missing DPA</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:{% if vr.summary.vendors_auto_renewing_untracked > 0 %}var(--concern){% else %}var(--healthy){% endif %}">
+      {{ vr.summary.vendors_auto_renewing_untracked }}
+    </div>
+    <div class="stat-label">Auto-Renew Untracked</div>
+  </div>
+</div>
+
+<div class="vr-body">
+
+  {# ── Top Priorities ──────────────────────────────────────────────── #}
+  {% if vr.summary.top_priorities %}
+  <div class="card mt-0 mb-24">
+    <h2 style="font-size: 1.1rem; margin-bottom: 16px;">⚡ Top Priorities</h2>
+    {% for f in vr.summary.top_priorities %}
+    <div class="finding-row sev-{{ f.severity }}" style="margin-bottom: 8px;">
+      <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+        <span class="sev-badge sev-{{ f.severity }}">{{ f.severity }}</span>
+        <strong style="font-size: 0.9rem;">{{ f.title }}</strong>
+        {% if f.vendor_name %}
+          <span class="cat-chip">{{ f.vendor_name }}</span>
+        {% endif %}
+      </div>
+      <div style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 4px;">{{ f.detail }}</div>
+      <div style="font-size: 0.82rem; color: var(--accent);">→ {{ f.action }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ── Renewal Risk Register ───────────────────────────────────────── #}
+  {% if vr.renewal_risk_register %}
+  <div class="card mb-24">
+    <h2 style="font-size: 1.1rem; margin-bottom: 4px;">📅 Renewal Risk Register</h2>
+    <p class="text-sm text-dim mb-16">Vendors sorted by renewal risk. High-risk items should be actioned first.</p>
+    <table class="renewal-table">
+      <thead>
+        <tr>
+          <th>Vendor</th>
+          <th>Category</th>
+          <th>Renewal Date</th>
+          <th>Auto-Renews</th>
+          <th>Risk</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in vr.renewal_risk_register %}
+        <tr>
+          <td><strong>{{ r.vendor_name }}</strong></td>
+          <td><span class="cat-chip">{{ r.category }}</span></td>
+          <td style="font-family: var(--mono); font-size: 0.82rem;">{{ r.renewal_date }}</td>
+          <td>{{ "Yes" if r.auto_renews else "No" }}</td>
+          <td><span class="risk-{{ r.risk_level }}">{{ r.risk_level | upper }}</span></td>
+          <td style="color: var(--text-dim); font-size: 0.82rem;">{{ r.risk_reason }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {# ── Category Breakdown ─────────────────────────────────────────── #}
+  {% if vr.summary.category_breakdown %}
+  <div class="card mb-24">
+    <h2 style="font-size: 1.1rem; margin-bottom: 12px;">🗂 Vendor Categories</h2>
+    <div class="area-scores">
+      {% for cat, count in vr.summary.category_breakdown.items() | sort %}
+      <span class="area-pill">{{ cat }}: {{ count }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Per-Vendor Results ──────────────────────────────────────────── #}
+  <h2 style="font-size: 1.1rem; margin-bottom: 16px; margin-top: 8px;">Per-Vendor Detail</h2>
+  {% for result in vr.per_vendor_results %}
+  <div class="vendor-card">
+    <div class="vendor-header">
+      <div class="grade-badge grade-{{ result.grade_label }}">{{ result.grade_label }}</div>
+      <div style="flex: 1;">
+        <div style="font-weight: 600; font-size: 1rem;">{{ result.vendor_name }}</div>
+        <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 2px;">
+          {{ result.score_pct }}% · {{ result.category }}
+          {% if result.holds_student_data %} · <span style="color: var(--concern);">Student Data</span>{% endif %}
+          {% if result.holds_staff_data %} · <span style="color: var(--watch);">Staff Data</span>{% endif %}
+          {% if result.renewal_date %} · Renews: {{ result.renewal_date }}{% endif %}
+          {% if result.auto_renews %} · <span style="color: var(--watch);">Auto-Renews</span>{% endif %}
+        </div>
+        {% if result.area_scores %}
+        <div class="area-scores" style="margin-top: 6px;">
+          {% for area, (earned, max_pts) in result.area_scores.items() %}
+          {% set area_pct = ((earned / max_pts) * 100) | int if max_pts > 0 else 0 %}
+          <span class="area-pill">{{ area }}: {{ area_pct }}%</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="vendor-body">
+      {% if result.findings %}
+        {% for f in result.findings | sort(attribute='severity') %}
+        <div class="finding-row sev-{{ f.severity }}">
+          <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+            <span class="sev-badge sev-{{ f.severity }}">{{ f.severity }}</span>
+            <strong style="font-size: 0.88rem;">{{ f.title }}</strong>
+            <span style="font-size: 0.75rem; color: var(--text-faint);">{{ f.area }} · {{ f.effort }} effort · {{ f.owner }}</span>
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 4px;">{{ f.detail }}</div>
+          <div style="font-size: 0.82rem; color: var(--accent);">→ {{ f.action }}</div>
+        </div>
+        {% endfor %}
+      {% elif result.strengths %}
+        <div style="color: var(--healthy); font-size: 0.85rem;">
+          ✓ This vendor record is well-documented. Strengths noted:
+          <ul style="margin: 6px 0 0 16px;">
+            {% for s in result.strengths %}
+            <li>{{ s }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <div style="color: var(--text-dim); font-size: 0.85rem;">
+          ✓ No findings for this vendor based on current answers.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {# ── School-Wide Governance Findings ────────────────────────────── #}
+  {% if vr.school_wide_results %}
+  <h2 style="font-size: 1.1rem; margin: 32px 0 16px;">School-Wide Vendor Governance Findings</h2>
+  {% for f in vr.school_wide_results %}
+  <div class="finding-row sev-{{ f.severity }}" style="margin-bottom: 12px;">
+    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
+      <span class="sev-badge sev-{{ f.severity }}">{{ f.severity }}</span>
+      <strong>{{ f.title }}</strong>
+      <span style="font-size: 0.75rem; color: var(--text-faint);">{{ f.area }} · {{ f.effort }} effort · {{ f.owner }}</span>
+    </div>
+    <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px;">{{ f.detail }}</div>
+    <div style="font-size: 0.85rem; color: var(--accent);">→ {{ f.action }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {# ── Download ────────────────────────────────────────────────────── #}
+  <div class="card mt-32" style="border-color: var(--accent);">
+    <h3 style="margin-bottom: 8px;">Download the Full Report</h3>
+    <p class="text-sm text-dim mb-16">
+      The DOCX report includes the full vendor register, renewal risk register,
+      findings, action plan, and appendix.
+    </p>
+    <a href="{{ url_for('vr_report_setup', session_id=session_id) }}" class="btn btn-primary">
+      ⬇ Download Vendor Register (.docx)
+    </a>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.6.0
+## v0.7.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -112,8 +112,10 @@ deactivate
 
 ## Modules
 
-The engine runs two independent assessment modules. Each produces its own
+The engine runs three independent assessment modules. Each produces its own
 findings and report. You start a separate session for each one.
+
+**Recommended order:** Start with the **IT Assessment (Module 1)** to get a broad picture of your environment, then the **Vendor Register (Module 3)** to build your complete system and subscription inventory, then use that inventory as your starting point for the **Data Governance Audit (Module 2)**. If you already know your environment well, any module works as a standalone starting point.
 
 ### Module 1 — IT State of the System
 
@@ -200,11 +202,62 @@ spread over several days, plus a two-hour cross-team session for DG2.
 
 ---
 
+### Module 3 — Software, Licensing, and Vendor Register
+
+A structured register of every software subscription, licensed application,
+and vendor contract the school holds. Maps renewal dates, costs, student-data
+obligations, and support contacts into a single managed document. Designed to
+be completed jointly by IT and the Business Office.
+
+**How it works:**
+
+1. **Discovery (Section VR1)** — you list every vendor, subscription, and
+   licensed tool the school holds, one per line. This takes 10–15 minutes.
+2. **Dynamic worksheet generation** — the engine creates one per-vendor
+   worksheet for each entry. They appear in the navigation sidebar
+   immediately after saving.
+3. **Per-vendor worksheets** — each worksheet covers six areas:
+
+   | Area | What it covers |
+   |------|----------------|
+   | Identification | Category, status, named owner, primary department |
+   | Cost & Billing | Annual cost, billing cycle, budget inclusion |
+   | Renewal & Contract | Renewal date, auto-renew flag, cancellation notice, signed contract |
+   | Support & Access | Support contact, escalation path, admin credentials |
+   | Student Data & Compliance | Student/staff data flag, FERPA/COPPA review, DPA status |
+   | Usage & Value | Active use, value assessment, notes |
+
+4. **School-Wide Vendor Governance (Section VR2)** — completed after all
+   per-vendor worksheets are done. Covers software approval process, contract
+   signing authority, spend thresholds, shared password management, renewal
+   tracking, offboarding, DPA register, and annual vendor review.
+
+5. **Vendor Register Report Card** — each vendor receives a letter grade
+   (A–F) and a severity rating. A renewal risk register lists all vendors
+   sorted by renewal risk level. School-wide governance gaps are surfaced
+   separately from per-vendor findings.
+
+**Estimated time:**
+
+| Phase | Who | Time |
+|-------|-----|------|
+| VR1 — Vendor Inventory | IT director + Business Office | 15 min |
+| Per-vendor worksheets (10 vendors) | IT + Business Office | ~1 hr 40 min |
+| VR2 — School-Wide Governance | IT director + Business Office | 20 min |
+| **Total (10 vendors)** | | **~2 hr 15 min** |
+
+Time scales with vendor count. Each additional vendor adds approximately
+10 minutes. A school with 25 vendors should budget around 4–5 hours total,
+spread across IT and the Business Office in parallel.
+
+---
+
 ## First run walkthrough
 
 1. Click **Set Up School Profile** and enter your school name and website
 2. From the home screen, select the **New Assessment** tab, then choose:
    - **+ IT Assessment** to start a Module 1 session
+   - **+ Vendor Register** to start a Module 3 session
    - **+ Data Governance Audit** to start a Module 2 session
 3. Work through each section using the sidebar to navigate
 4. Each question shows its **point value** so you know its relative importance
@@ -254,6 +307,19 @@ From the **Summary** screen:
   school-wide governance findings, a consolidated action plan grouped by
   area, and a raw answer appendix per system.
 
+### Module 3
+
+From the **Summary** screen:
+
+- **View Vendor Register Report Card** — shows per-vendor grades (A–F),
+  a renewal risk register sorted by risk level, vendor category breakdown,
+  and school-wide governance findings from Section VR2.
+
+- **Download Report (.docx)** — generates and downloads a complete Word
+  document containing: cover page, executive summary, renewal risk register
+  table, per-vendor findings, school-wide governance findings, action plan
+  grouped by timing bucket, and a raw answer appendix per vendor.
+
 ---
 
 ## Effort ratings
@@ -287,15 +353,18 @@ school_it_engine/
 ├── dynamic_engine.py       # Dynamic section generator for Module 2 per-system worksheets
 ├── rules_engine.py         # Deterministic findings engine for Module 1
 ├── rules_engine_dg.py      # Findings engine for Module 2 (data governance)
+├── rules_engine_vr.py      # Findings engine for Module 3 (vendor register)
 ├── report_generator.py     # DOCX report builder for Module 1
 ├── report_generator_dg.py  # DOCX report builder for Module 2 (data governance)
+├── report_generator_vr.py  # DOCX report builder for Module 3 (vendor register)
 ├── test_scoring.py         # Automated scoring tests
 ├── requirements.txt        # Python dependencies
 ├── README.md               # This file
 ├── BUILD_EXECUTABLE.md     # Instructions for packaging as a standalone .exe / .app
 ├── modules/
 │   ├── module_1.yaml       # IT State of the System — questions, scoring, gate logic
-│   └── module_2.yaml       # Data Governance Audit — discovery, per-system template, governance
+│   ├── module_2.yaml       # Data Governance Audit — discovery, per-system template, governance
+│   └── module_3.yaml       # Vendor Register — discovery, per-vendor template, governance
 ├── templates/
 │   ├── base.html           # Base layout, navigation, privacy banner
 │   ├── home.html           # Assessment list, new session, resume, inspect, delete
@@ -334,6 +403,14 @@ or any technical setup.
 
 
 ## What's in this version
+
+**v0.7.0** adds Module 3 — Software, Licensing, and Vendor Register — and a recommended module order note.
+
+- **Module 3 — Vendor Register** — a structured register of every software subscription, licensed application, and vendor contract the school holds. Uses the same dynamic worksheet pattern as Module 2: list your vendors in the discovery section (VR1), get one worksheet per vendor, complete a school-wide governance section (VR2). Produces a renewal risk register, per-vendor grade cards (A–F), school-wide governance findings, and a DOCX report with action plan.
+- **Recommended module order** — the home page and README now include a short guidance note: start with Module 1 (broad IT orientation), then Module 3 (build your complete vendor inventory), then Module 2 (data governance audit using that inventory as your starting point).
+- **Version bump** — app version updated to 0.7.0.
+
+---
 
 **v0.6.0** is the first pre-v1.0 feature milestone, completing five features formally committed as pre-release requirements:
 

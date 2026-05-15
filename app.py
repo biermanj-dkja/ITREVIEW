@@ -30,7 +30,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.6.0'
+app.config['VERSION'] = '0.7.0'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -94,6 +94,8 @@ def _get_latest_module1_answers():
 _CROSS_MODULE_PREFILL = {
     "DG1.1":  "1.7a",   # Name of person completing inventory  ← Module 1 report author name
     "DG1.1b": "1.7b",   # Role of person completing inventory  ← Module 1 report author role
+    "VR1.1":  "1.7a",   # Name of person completing vendor register  ← Module 1 report author name
+    "VR1.1b": "1.7b",   # Role of person completing vendor register  ← Module 1 report author role
 }
 
 
@@ -126,6 +128,12 @@ def home():
             dg2_done = "DG2" in complete
             sys_done = any(s.startswith("DG_SYS_") for s in complete)
             sess["is_complete"] = dg1_done and dg2_done and sys_done
+            sess["total_sections"] = None  # dynamic; show count only
+        elif mid == "module_3":
+            vr1_done = "VR1" in complete
+            vr2_done = "VR2" in complete
+            vendor_done = any(s.startswith("VR_V_") for s in complete)
+            sess["is_complete"] = vr1_done and vr2_done and vendor_done
             sess["total_sections"] = None  # dynamic; show count only
         else:
             sess["is_complete"] = len(complete) >= 10
@@ -223,12 +231,22 @@ def section(session_id, section_id):
             # Dynamic template prefill (e.g. system name confirmation)
             if q.get("prefill_value") and qid not in answers:
                 save_answer(session_id, qid, q["prefill_value"], status="answered")
-            # Special: prefill today's date for DG1.2
-            if qid == "DG1.2" and qid not in answers:
+            # Special: prefill today's date for DG1.2 and VR1.2
+            if qid in ("DG1.2", "VR1.2") and qid not in answers:
                 save_answer(session_id, qid, _date.today().isoformat(), status="answered")
             # Special: autofill DG1.4 (system count) from DG1.3 list length
             if qid == "DG1.4":
                 inv = answers.get("DG1.3", {})
+                raw = inv.get("raw_answer") if inv else None
+                if isinstance(raw, list) and raw:
+                    save_answer(session_id, qid, len(raw), status="answered")
+                elif isinstance(raw, str) and raw.strip():
+                    count = len([s for s in raw.splitlines() if s.strip()])
+                    if count:
+                        save_answer(session_id, qid, count, status="answered")
+            # Special: autofill VR1.4 (vendor count) from VR1.3 list length
+            if qid == "VR1.4":
+                inv = answers.get("VR1.3", {})
                 raw = inv.get("raw_answer") if inv else None
                 if isinstance(raw, list) and raw:
                     save_answer(session_id, qid, len(raw), status="answered")
@@ -689,7 +707,12 @@ def summary(session_id):
             })
             total_unknowns += len(unknowns)
 
-    module_label = "IT Assessment" if mid == "module_1" else "Data Governance"
+    if mid == "module_1":
+        module_label = "IT Assessment"
+    elif mid == "module_2":
+        module_label = "Data Governance"
+    else:
+        module_label = "Vendor Register"
     breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=None)
 
     # is_complete: used by summary to conditionally show DRAFT note
@@ -699,6 +722,11 @@ def summary(session_id):
         dg2_done = "DG2" in complete
         sys_done = any(s.startswith("DG_SYS_") for s in complete)
         is_complete = dg1_done and dg2_done and sys_done
+    elif mid == "module_3":
+        vr1_done = "VR1" in complete
+        vr2_done = "VR2" in complete
+        vendor_done = any(s.startswith("VR_V_") for s in complete)
+        is_complete = vr1_done and vr2_done and vendor_done
     else:
         is_complete = len(complete) >= 10
 
@@ -804,6 +832,94 @@ def download_dg_report(session_id):
         as_attachment=True,
         download_name=filename,
     )
+
+# ── VENDOR REGISTER (module_3) — Report Card & Download ────────────
+
+@app.route("/session/<session_id>/vr_report")
+def vr_report(session_id):
+    """Vendor Register report card — per-vendor grades and school-wide findings."""
+    from rules_engine_vr import evaluate_vr
+    sess = get_session(session_id)
+    if not sess:
+        flash("Session not found.", "error")
+        return redirect(url_for("home"))
+
+    answers = get_answers(session_id)
+    module, gen_ids = _load_expanded_module("module_3", session_id)
+    vendor_names = module.get("_system_names", [])
+    vr = evaluate_vr(answers, vendor_names, gen_ids)
+
+    return render_template(
+        "vr_report.html",
+        session_id=session_id,
+        sess=sess,
+        vr=vr,
+        module=module,
+    )
+
+
+@app.route("/session/<session_id>/vr-report-setup", methods=["GET", "POST"])
+def vr_report_setup(session_id):
+    """Start-date picker for the Vendor Register DOCX."""
+    sess = get_session(session_id)
+    if not sess:
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        start_date = request.form.get("start_date", "").strip()
+        return redirect(url_for("download_vr_report", session_id=session_id,
+                                start_date=start_date))
+    from datetime import date
+    today = date.today().isoformat()
+    last_exported = get_last_exported(session_id)
+    return render_template("vr_report_setup.html", session_id=session_id, today=today,
+                           last_exported=last_exported)
+
+
+@app.route("/session/<session_id>/vr_report.docx")
+def download_vr_report(session_id):
+    """Generate and download the Vendor Register DOCX report."""
+    from rules_engine_vr import evaluate_vr
+    from report_generator_vr import generate_vr_report
+    sess = get_session(session_id)
+    if not sess:
+        flash("Session not found.", "error")
+        return redirect(url_for("home"))
+
+    start_date = request.args.get("start_date", "").strip() or None
+
+    answers = get_answers(session_id)
+    profile = get_school_profile()
+    module, gen_ids = _load_expanded_module("module_3", session_id)
+    vendor_names = module.get("_system_names", [])
+    vr = evaluate_vr(answers, vendor_names, gen_ids)
+
+    try:
+        complete = json.loads(sess.get("sections_complete", "[]"))
+        vr1_done = "VR1" in complete
+        vr2_done = "VR2" in complete
+        vendor_done = any(s.startswith("VR_V_") for s in complete)
+        is_complete = vr1_done and vr2_done and vendor_done
+        finding_contexts = get_finding_contexts(session_id)
+        amendment_log = get_answer_history(session_id)
+        docx_bytes = generate_vr_report(vr, answers, profile, vendor_names, gen_ids,
+                                        start_date=start_date, is_complete=is_complete,
+                                        finding_contexts=finding_contexts,
+                                        amendment_log=amendment_log)
+    except Exception as e:
+        flash(f"Report generation failed: {e}", "error")
+        return redirect(url_for("vr_report", session_id=session_id))
+
+    school = (profile.get("school_name") if profile else "School").replace(" ", "_")
+    filename = f"{school}_Vendor_Register.docx"
+
+    set_last_exported(session_id)
+    return send_file(
+        io.BytesIO(docx_bytes),
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        as_attachment=True,
+        download_name=filename,
+    )
+
 
 # ── SESSION EXPORT / IMPORT ─────────────────────────────────────
 

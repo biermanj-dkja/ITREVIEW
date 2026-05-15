@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Download Vendor Register Report{% endblock %}
+{% block content %}
+<div class="container" style="max-width:620px; margin:0 auto; padding:2.5rem 1rem;">
+
+  <div style="margin-bottom:2rem;">
+    <h1 style="font-size:1.6rem; font-weight:600; color:var(--text); margin-bottom:0.4rem;">
+      Download Vendor Register Report
+    </h1>
+    <p style="color:var(--text-dim); font-size:0.95rem; line-height:1.5;">
+      Optionally enter the date you plan to begin remediation work. If provided, the report
+      will include a <strong>Phased Action Timeline</strong> section with estimated
+      start and end dates for each phase. Leave blank to download without the timeline.
+    </p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div style="background:var(--surface2); border:1px solid var(--concern); border-radius:6px;
+                  padding:0.75rem 1rem; margin-bottom:1.2rem; color:var(--concern); font-size:0.9rem;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('vr_report_setup', session_id=session_id) }}">
+
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px;
+                padding:1.8rem; margin-bottom:1.5rem;">
+
+      <label for="start_date" style="display:block; font-size:0.9rem; font-weight:500;
+             color:var(--text); margin-bottom:0.6rem;">
+        Remediation start date <span style="color:var(--text-faint); font-weight:400;">(optional)</span>
+      </label>
+      <input
+        type="date"
+        id="start_date"
+        name="start_date"
+        value=""
+        style="width:100%; padding:0.65rem 0.9rem; background:var(--surface2);
+               border:1px solid var(--border); border-radius:6px; color:var(--text);
+               font-size:1rem; font-family:var(--sans); outline:none;"
+      >
+      <p style="margin-top:0.6rem; font-size:0.82rem; color:var(--text-dim); line-height:1.45;">
+        Phase 1 (Immediate — within 30 days) begins on this date. Later phases are
+        scheduled automatically based on estimated effort. Leave blank to skip the timeline.
+      </p>
+    </div>
+
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px;
+                padding:1.2rem 1.5rem; margin-bottom:1.8rem; font-size:0.85rem; color:var(--text-dim); line-height:1.6;">
+      <strong style="color:var(--text);">Effort weights used for date estimates:</strong><br>
+      Quick (S) = ½ day &nbsp;·&nbsp; Short (S+) = 1 day &nbsp;·&nbsp;
+      Medium (M) = 3 days &nbsp;·&nbsp; Substantial (M+) = 5 days &nbsp;·&nbsp; Large (L) = 10 days
+    </div>
+
+    <div style="display:flex; gap:1rem; align-items:center;">
+      <button type="submit"
+        style="flex:1; padding:0.8rem 1.2rem; background:var(--accent); color:#fff;
+               border:none; border-radius:7px; font-size:1rem; font-weight:600;
+               cursor:pointer; font-family:var(--sans);">
+        ⬇ Generate &amp; Download Report
+      </button>
+      <a href="{{ url_for('vr_report', session_id=session_id) }}"
+         style="flex:1; display:block; text-align:center; padding:0.8rem 1.2rem;
+                background:var(--surface2); color:var(--text-dim); border:1px solid var(--border);
+                border-radius:7px; font-size:0.95rem; text-decoration:none;">
+        ← Back to Report Card
+      </a>
+    </div>
+
+    {% if last_exported %}
+    <p style="margin-top:0.6rem; text-align:center; font-size:0.8rem; color:var(--text-faint);">
+      Last exported: {{ last_exported[:10] }}
+    </p>
+    {% endif %}
+
+  </form>
+</div>
+{% endblock %}

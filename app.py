@@ -8,7 +8,8 @@ from database import (
     init_db, save_answer, get_answers, get_answer, create_session,
     get_session, mark_section_complete, get_all_sessions,
     save_school_profile, get_school_profile, flag_session_incomplete,
-    delete_session, save_session_meta, get_session_meta
+    delete_session, save_session_meta, get_session_meta,
+    set_last_exported, get_last_exported
 )
 from rules_engine import evaluate_all, evaluate_section, findings_to_dict
 from report_generator import generate_report
@@ -499,7 +500,9 @@ def report_setup(session_id):
         return redirect(url_for("download_report", session_id=session_id, start_date=start_date))
     from datetime import date
     today = date.today().isoformat()
-    return render_template("report_setup.html", session_id=session_id, today=today)
+    last_exported = get_last_exported(session_id)
+    return render_template("report_setup.html", session_id=session_id, today=today,
+                           last_exported=last_exported)
 
 
 @app.route("/session/<session_id>/report.docx")
@@ -547,6 +550,7 @@ def download_report(session_id):
     school = (profile.get("school_name") if profile else "School").replace(" ", "_")
     filename = f"{school}_IT_Report.docx"
 
+    set_last_exported(session_id)
     return send_file(
         io.BytesIO(docx_bytes),
         mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -682,7 +686,9 @@ def dg_report_setup(session_id):
                                 start_date=start_date))
     from datetime import date
     today = date.today().isoformat()
-    return render_template("dg_report_setup.html", session_id=session_id, today=today)
+    last_exported = get_last_exported(session_id)
+    return render_template("dg_report_setup.html", session_id=session_id, today=today,
+                           last_exported=last_exported)
 
 
 @app.route("/session/<session_id>/dg_report.docx")
@@ -712,6 +718,7 @@ def download_dg_report(session_id):
     school = (profile.get("school_name") if profile else "School").replace(" ", "_")
     filename = f"{school}_Data_Governance_Report.docx"
 
+    set_last_exported(session_id)
     return send_file(
         io.BytesIO(docx_bytes),
         mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -760,21 +767,26 @@ def import_session():
     if request.method == "GET":
         return render_template("import_session.html")
 
+    # If the form was submitted from setup.html we get a hidden 'from_setup' field
+    # so that validation errors bounce back to setup rather than the standalone import page.
+    from_setup = request.form.get("from_setup") == "1"
+    error_redirect = url_for("setup_profile") if from_setup else url_for("import_session")
+
     uploaded = request.files.get("session_file")
     if not uploaded or not uploaded.filename.endswith(".json"):
         flash("Please upload a valid .json export file.", "error")
-        return redirect(url_for("import_session"))
+        return redirect(error_redirect)
 
     try:
         raw = uploaded.read().decode("utf-8")
         data = json.loads(raw)
     except Exception:
         flash("Could not parse the file. Make sure it is a valid session export.", "error")
-        return redirect(url_for("import_session"))
+        return redirect(error_redirect)
 
     if data.get("export_format") != "school_it_engine_session_v1":
         flash("Unrecognised file format. Only School IT Engine session exports are supported.", "error")
-        return redirect(url_for("import_session"))
+        return redirect(error_redirect)
 
     sess_data = data.get("session", {})
     answers   = data.get("answers", {})
@@ -792,7 +804,7 @@ def import_session():
     session_id = sess_data.get("session_id")
     if not session_id:
         flash("Export file is missing session_id.", "error")
-        return redirect(url_for("import_session"))
+        return redirect(error_redirect)
 
     existing = get_session(session_id)
     if existing:
@@ -801,7 +813,7 @@ def import_session():
             "Import skipped — no changes were made.",
             "error"
         )
-        return redirect(url_for("import_session"))
+        return redirect(error_redirect)
 
     # Create the session record
     create_session(

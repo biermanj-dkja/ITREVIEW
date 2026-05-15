@@ -58,6 +58,12 @@ def init_db():
         db.commit()
     except Exception:
         pass  # Column already exists
+    # Migrate: add last_exported column if it doesn't exist yet
+    try:
+        db.execute("ALTER TABLE assessment_session ADD COLUMN last_exported TEXT")
+        db.commit()
+    except Exception:
+        pass  # Column already exists
     db.commit()
     db.close()
 
@@ -232,6 +238,29 @@ def deprecate_session(session_id):
     )
     db.commit()
     db.close()
+
+
+def set_last_exported(session_id):
+    """Stamp the current UTC time as the last export time for a session."""
+    db  = get_db()
+    now = datetime.utcnow().isoformat()
+    db.execute(
+        "UPDATE assessment_session SET last_exported=? WHERE session_id=?",
+        (now, session_id)
+    )
+    db.commit()
+    db.close()
+
+
+def get_last_exported(session_id):
+    """Return the last export timestamp for a session, or None."""
+    db  = get_db()
+    row = db.execute(
+        "SELECT last_exported FROM assessment_session WHERE session_id=?",
+        (session_id,)
+    ).fetchone()
+    db.close()
+    return row["last_exported"] if row else None
 
 
 def save_session_meta(session_id, key, value):

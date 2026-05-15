@@ -153,6 +153,100 @@ Ideas captured during development. Not prioritised — reference for future road
 
 ---
 
+## Module 3 — Software, Licensing, and Vendor Register (target: v0.7.0)
+
+Module 1 Section 6 is intentionally light on subscription and vendor detail, with a dedicated
+module noted as planned. Module 2 captures vendor agreements per-system but does not produce a
+managed register the business office can use at renewal time. Module 3 fills that gap.
+
+**Concept:** A structured intake for every subscription and vendor contract the school holds.
+One dynamic worksheet per vendor (same pattern as Module 2 per-system sections), covering:
+
+- Vendor name, product/service, and category
+- Contract owner (named person, not just "IT")
+- Annual cost and billing cycle
+- Renewal date and auto-renewal flag
+- Student-data flag (yes / no / partial)
+- FERPA/COPPA review status if student data is involved
+- Support contact and escalation path
+- Notes (e.g. in active use, under evaluation, being retired)
+
+**Output:** A formatted vendor register DOCX plus a renewal calendar section — open items
+sorted by renewal date, flagged by auto-renewal risk and compliance status. Audience is IT
+and the business office jointly.
+
+**Entry point:** A `list_of_items` question at the start ("list your vendors/subscriptions,
+one per line") generates the dynamic worksheets — same engine pattern as DG1.3 in Module 2.
+No file parsing required; a business manager can paste directly from a spreadsheet column.
+
+### Pre-release requirements for Module 3
+
+Before Module 3 reaches full (non-draft) status, two cross-module features must be
+implemented:
+
+1. **Module 2 → Module 3 prefill import** — on first entry into a Module 3 session, the
+   user is offered the option to seed the vendor list from a completed Module 2 session. The
+   engine reads the system inventory collected in DG1.3 (and any vendor fields captured in
+   per-system worksheets) and pre-populates the Module 3 vendor list as a starting point.
+   The user can then add, remove, and edit before the dynamic worksheets are generated.
+   This is an opt-in step, not automatic — the user must explicitly choose which Module 2
+   session to draw from.
+
+2. **Cross-module coverage gap flag** — when a service or system appears in Module 2 (the
+   system inventory in DG1.3) but has no corresponding entry in Module 3, or vice versa, the
+   engine surfaces a coverage gap notice. This appears:
+   - On the Module 3 summary page, as a named list of systems in Module 2 with no vendor
+     register entry
+   - On the Module 2 summary page (retroactively, if Module 3 exists), as a named list of
+     vendors in Module 3 with no corresponding system worksheet
+   - In both DOCX reports as an appendix note, not a scored finding
+
+   Matching is fuzzy by design — the user confirms or dismisses each suggested pairing.
+   Exact string matching is used as the default; an "unmatched" list is shown for manual
+   review rather than attempting automated reconciliation.
+
+---
+
+## Module 4 — Incident Response and Business Continuity Readiness
+
+Planned after Module 3 reaches full status. Module 1 Section 8 covers security controls at a
+high level but stops short of asking what happens when something goes wrong.
+
+**Concept:** A structured interview covering:
+- Written IR plan existence, owner, and last review date
+- Communication chain: who is notified, in what order, by whom (IT, leadership, parents, board)
+- Recovery runbooks: do they exist, where are they stored, who can access them offline
+- Tabletop exercise history: has the plan ever been tested
+- Regulatory notification obligations (state breach notification laws, FERPA breach rules)
+
+**Output:** A readiness assessment with a gap list and a phased action plan for building or
+improving IR documentation. High value for accreditation and regulatory purposes.
+
+**Note:** This module will produce a higher proportion of "no / not documented" answers than
+Modules 1–3. The UX should frame this positively — each gap is an opportunity, not a failure
+— and the action plan should give the school a clear path to first-pass documentation quickly.
+
+---
+
+## Module 5 — Annual IT Health Check (Re-assessment Pulse)
+
+Planned after re-assessment tracking infrastructure is in place (see Scoring & Assessment
+above). Not a new topic area — a shorter re-run format that revisits the highest-risk findings
+from previous Module 1 and Module 2 sessions.
+
+**Concept:** A 15–20 question pulse check that references the school's prior answers and asks
+"has this changed?" for the findings that were rated Urgent or Concern. The user can confirm
+no change, record an improvement, or flag a regression. 
+
+**Output:** A delta report — what improved, what regressed, what remains open — designed to
+be run annually and handed to a head of school or board alongside the original report. Requires
+at least one completed Module 1 session to be useful.
+
+**Architectural dependency:** Requires the session comparison infrastructure described under
+"Re-assessment tracking" and "Score change delta report" above. Build those first.
+
+---
+
 ## Consultant / MSP Mode
 
 - **Multi-school profiles** — allow a single installation to hold multiple school profiles,
@@ -162,4 +256,4 @@ Ideas captured during development. Not prioritised — reference for future road
 
 ---
 
-*Last updated: v0.6.0*
+*Last updated: v0.6.0 — Module 3/4/5 roadmap entries added and formally committed as the agreed module roadmap. Module 3 (Software, Licensing, and Vendor Register) is the active build target for v0.7.0. Module 4 (IR and Business Continuity) and Module 5 (Annual Health Check) follow in sequence after Module 3 reaches full status.*

@@ -2356,21 +2356,3 @@ Questions that are programmatic in nature (scoring visibility, effort bands, out
 6. Define which questions are mandatory vs skippable in the v1 UI.
 7. Determine the minimum useful appendix structure for v1.
 
-
----
-
-## Implementation History — v0.5.3
-
-The following features were added in v0.5.3 and apply to both Module 1 and Module 2.
-
-### Section Progress Bar
-A live progress counter and bar appear at the top of every section form. The bar tracks how many visible questions have been addressed (answered, unknown, or skipped) vs the total visible in the current section. Updates on every interaction without a server round-trip. The bar colour transitions from accent blue (starting) to amber (halfway) to green (all addressed). Implemented by wrapping the existing JS helper functions (markAnswered, updateCard, toggleSkip, toggleUnknown, evaluateAllConditions) with progress-update hooks.
-
-### Unknowns Summary Panel
-A new panel on the Assessment Summary page aggregates all questions marked *I don't know* across all sections. Questions are grouped by section, each showing the question ID, prompt text, and a direct link to that section for easy revisiting. The panel only renders when at least one unknown exists. The underlying data is computed in the summary route in `app.py` using `get_visible_questions()` and answer status filtering — the same data already available for severity calculations, requiring no new DB queries.
-
-### Session Export and Import
-- **Export:** A new route (`/session/<session_id>/export`) returns a JSON file containing the session metadata, all answers, and the school profile. The format is versioned (`export_format: school_it_engine_session_v1`) for forward compatibility. Accessible via a new Export JSON button on the Summary page.
-- **Import:** A new route (`/import-session`) accepts a multipart file upload and restores the session, all answers, and (if no profile exists) the school profile. Duplicate session IDs are rejected without modifying existing data. Import is accessible via a new Import button on the home page.
-
-These features implement the backup/restore capability recommended in the v0.5.3 design discussion. The `data/` folder copy approach documented in the README remains valid as a full-database backup; the JSON export provides a portable, human-readable per-session alternative.

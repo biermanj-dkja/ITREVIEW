@@ -36,6 +36,7 @@
         <div class="q-id">{{ qid }}
           {% if q.status == "optional" %}<span style="color: var(--text-faint);"> — optional</span>{% endif %}
           {% if q.status == "conditional" %}<span style="color: var(--watch);"> — conditional</span>{% endif %}
+          {% if qid in amended_qids %}<span style="color: var(--accent); font-size: 11px; margin-left: 6px; font-style: italic;">edited</span>{% endif %}
         </div>
         <div class="q-prompt">{{ q.prompt }}</div>
       </div>

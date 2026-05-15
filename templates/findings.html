@@ -227,6 +227,50 @@
     </div>
     {% endif %}
 
+    {# Context note — only shown after report has been downloaded at least once #}
+    {% if last_exported and not section_label %}
+    {% set ctx = finding_contexts.get(f.finding_id) if finding_contexts else none %}
+    <div style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
+      {% if ctx %}
+      <div style="background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--healthy);
+                  border-radius: 5px; padding: 10px 14px; margin-bottom: 8px;">
+        <div class="text-xs" style="color: var(--healthy); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;">
+          Context note
+        </div>
+        <p class="text-sm text-dim" style="margin: 0;">{{ ctx.note }}</p>
+        <div class="text-xs text-faint" style="margin-top: 4px;">Added {{ ctx.added_at[:10] }}</div>
+      </div>
+      {% endif %}
+      <details style="font-size: 13px;">
+        <summary style="cursor: pointer; color: var(--text-faint); list-style: none; display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 11px;">▸</span>
+          {% if ctx %}Edit context note{% else %}+ Add context note{% endif %}
+        </summary>
+        <form method="POST" action="/session/{{ session_id }}/finding-context" style="margin-top: 10px;">
+          <input type="hidden" name="finding_id" value="{{ f.finding_id }}">
+          <textarea name="note" rows="3" placeholder="e.g. 'Resolved June 2025 — MFA enforced via Google Admin'"
+                    style="width: 100%; padding: 8px 10px; background: var(--surface2); border: 1px solid var(--border);
+                           border-radius: 5px; color: var(--text); font-family: var(--sans); font-size: 13px;
+                           resize: vertical; box-sizing: border-box;">{{ ctx.note if ctx else '' }}</textarea>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button type="submit" class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;">
+              {% if ctx %}Update note{% else %}Save note{% endif %}
+            </button>
+            {% if ctx %}
+            <button type="submit" name="note" value="" class="btn btn-ghost"
+                    style="padding: 6px 14px; font-size: 12px; color: var(--text-faint);">
+              Remove note
+            </button>
+            {% endif %}
+          </div>
+          <p class="text-xs text-faint" style="margin-top: 6px; line-height: 1.5;">
+            This note appears in the DOCX alongside the finding. It does not change the score or severity.
+          </p>
+        </form>
+      </details>
+    </div>
+    {% endif %}
+
   </div>
   {% endfor %}
   {% endif %}

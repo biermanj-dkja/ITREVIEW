@@ -8,9 +8,9 @@
       Download Data Governance Report
     </h1>
     <p style="color:var(--text-dim); font-size:0.95rem; line-height:1.5;">
-      Enter the date you plan to begin remediation work. This will be used to generate
-      a <strong>Phased Remediation Timeline</strong> section in your report, with
-      estimated start and end dates for each phase based on finding severity and effort.
+      Optionally enter the date you plan to begin remediation work. If provided, the report
+      will include a <strong>Phased Remediation Timeline</strong> section with estimated
+      start and end dates for each phase. Leave blank to download without the timeline.
     </p>
   </div>
 
@@ -30,22 +30,20 @@
 
       <label for="start_date" style="display:block; font-size:0.9rem; font-weight:500;
              color:var(--text); margin-bottom:0.6rem;">
-        Remediation start date
+        Remediation start date <span style="color:var(--text-faint); font-weight:400;">(optional)</span>
       </label>
       <input
         type="date"
         id="start_date"
         name="start_date"
-        value="{{ today }}"
-        min="{{ today }}"
-        required
+        value=""
         style="width:100%; padding:0.65rem 0.9rem; background:var(--surface2);
                border:1px solid var(--border); border-radius:6px; color:var(--text);
                font-size:1rem; font-family:var(--sans); outline:none;"
       >
       <p style="margin-top:0.6rem; font-size:0.82rem; color:var(--text-dim); line-height:1.45;">
         Phase 1 (Immediate — within 30 days) begins on this date. Later phases are
-        scheduled automatically based on estimated effort and minimum spacing between phases.
+        scheduled automatically based on estimated effort. Leave blank to skip the timeline.
       </p>
     </div>
 
@@ -70,11 +68,6 @@
         ← Back to Report Card
       </a>
     </div>
-
-    <p style="margin-top:1rem; text-align:center; font-size:0.8rem; color:var(--text-faint);">
-      If you prefer to skip the timeline section, leave today's date and the report
-      will still include all findings and the action plan.
-    </p>
 
     {% if last_exported %}
     <p style="margin-top:0.6rem; text-align:center; font-size:0.8rem; color:var(--text-faint);">

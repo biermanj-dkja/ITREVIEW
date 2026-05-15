@@ -151,6 +151,11 @@
       </a>
       {% endif %}
     </div>
+    {% if sess.module_id != 'module_2' and not is_complete %}
+    <p class="text-sm" style="margin-top: 8px; font-style: italic; color: var(--text-faint); line-height: 1.5;">
+      Assessment not yet complete — report will be marked DRAFT.
+    </p>
+    {% endif %}
     {% if sess.module_id != 'module_2' %}
     <p class="text-sm" style="margin-top: 12px; line-height: 1.6; padding: 10px 14px;
        background: var(--surface2); border-radius: 6px;

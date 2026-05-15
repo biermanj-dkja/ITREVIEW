@@ -28,6 +28,7 @@
 
   {# ── Tab bar #}
   {% set has_sessions = sessions | selectattr('status', 'ne', 'deprecated') | list | length > 0 %}
+  {% set has_archived = archived_sessions | length > 0 %}
 
   <div id="home-tabs">
     <div style="display: flex; border-bottom: 2px solid var(--border); margin-bottom: 24px;">
@@ -47,6 +48,17 @@
           <span style="margin-left: 6px; font-size: 11px; font-family: var(--mono);
                        background: var(--surface2); border: 1px solid var(--border);
                        border-radius: 3px; padding: 1px 6px; color: var(--text-faint);">{{ count }}</span>
+        {% endif %}
+      </button>
+      <button class="home-tab" data-tab="archived"
+              style="padding: 10px 20px; font-size: 14px; font-weight: 500; font-family: var(--sans);
+                     background: none; border: none; cursor: pointer; color: var(--text-dim);
+                     border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s;">
+        Archived
+        {% if has_archived %}
+          <span style="margin-left: 6px; font-size: 11px; font-family: var(--mono);
+                       background: var(--surface2); border: 1px solid var(--border);
+                       border-radius: 3px; padding: 1px 6px; color: var(--text-faint);">{{ archived_sessions | length }}</span>
         {% endif %}
       </button>
     </div>
@@ -154,6 +166,59 @@
       {% endif %}
     </div>
 
+    {# ── Archived Assessments tab panel #}
+    <div id="tab-archived" class="tab-panel">
+      <div class="text-sm text-dim mb-16">
+        Archived assessments are kept in the database but hidden from your active list.
+        You can restore or permanently delete them here.
+      </div>
+
+      {% if archived_sessions %}
+        {% for sess in archived_sessions %}
+        {% set complete = sess.sections_complete | from_json %}
+        <div class="card card-sm" style="margin-bottom: 12px; border-color: var(--border); opacity: 0.85;">
+          <div class="flex-between">
+            <div style="flex: 1; min-width: 0; margin-right: 16px;">
+              <div class="text-xs text-faint mono mb-4">
+                ARCHIVED
+                &nbsp;·&nbsp;
+                {% if sess.module_id == 'module_2' %}
+                  <span style="color: var(--watch); font-family: var(--mono);">DATA GOVERNANCE</span>
+                {% else %}
+                  <span style="color: var(--accent); font-family: var(--mono);">IT ASSESSMENT</span>
+                {% endif %}
+              </div>
+              <div style="font-weight: 500;">{{ sess.school_name }}</div>
+              <div class="text-sm text-dim mt-4">
+                {{ complete | length }} section{{ 's' if complete | length != 1 }} completed
+                &nbsp;·&nbsp;
+                Last saved {{ sess.last_modified[:10] }}
+              </div>
+            </div>
+            <div class="flex gap-8" style="flex-shrink: 0; align-items: center;">
+              <a href="/session/{{ sess.session_id }}/summary"
+                 class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;">View →</a>
+              <form method="POST" action="/session/{{ sess.session_id }}/unarchive" style="margin:0;">
+                <button type="submit" class="btn btn-secondary" style="padding: 8px 14px; font-size: 13px;">
+                  Restore
+                </button>
+              </form>
+              <a href="/session/{{ sess.session_id }}/manage"
+                 class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;"
+                 title="Export or permanently delete">⋯</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="card" style="text-align: center; padding: 48px;">
+          <div style="font-size: 32px; margin-bottom: 12px;">🗄</div>
+          <h3>No archived assessments</h3>
+          <p class="mt-8 text-dim">Assessments you archive will appear here.</p>
+        </div>
+      {% endif %}
+    </div>
+
   </div>
   {% endif %}
 
@@ -182,6 +247,8 @@
     var hasSessions = {{ 'true' if has_sessions else 'false' }};
     // Only honour the stored preference when sessions exist; otherwise always land on New.
     var defaultTab = hasSessions ? (saved || 'saved') : 'new';
+    // If stored tab was 'archived' and there are archived sessions, honour it
+    if (saved === 'archived') { defaultTab = 'archived'; }
     switchTab(defaultTab);
   })();
 </script>

@@ -1,0 +1,1924 @@
+{
+  "export_format": "school_it_engine_session_v1",
+  "exported_on": "2025-05-14T17:00:00.000000Z",
+  "engine_version": "0.5.3",
+  "school_profile": {
+    "school_name": "Bit-By-Bit Academy",
+    "school_website": "bitbybitacademy.org"
+  },
+  "session": {
+    "session_id": "bba-m3-test-2025-0514-001",
+    "module_id": "module_3",
+    "school_name": "Bit-By-Bit Academy",
+    "created_on": "2025-05-14T15:00:00.000000",
+    "last_modified": "2025-05-14T17:00:00.000000",
+    "status": "complete",
+    "sections_complete": "[\"VR1\", \"VR_V_1\", \"VR_V_2\", \"VR_V_3\", \"VR_V_4\", \"VR_V_5\", \"VR_V_6\", \"VR_V_7\", \"VR_V_8\", \"VR_V_9\", \"VR_V_10\", \"VR_V_11\", \"VR_V_12\", \"VR_V_13\", \"VR2\"]",
+    "sections_skipped": "[]",
+    "sections_flagged": "[]",
+    "overall_completion_percentage": 100.0
+  },
+  "answers": {
+
+    "VR1.1": {
+      "raw_answer": "Rhoda Report",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:01:00.000000"
+    },
+    "VR1.1b": {
+      "raw_answer": "Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:01:15.000000"
+    },
+    "VR1.2": {
+      "raw_answer": "2025-05-14",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:01:30.000000"
+    },
+    "VR1.3": {
+      "raw_answer": [
+        "Veracross (SIS)",
+        "Google Workspace for Education Plus",
+        "Seesaw",
+        "Lightspeed Filter",
+        "Bark for Schools",
+        "Panorama Education",
+        "Kami",
+        "Comcast Business",
+        "Sophos Central",
+        "Veeam Backup",
+        "8x8 (VoIP)",
+        "Adobe Creative Cloud",
+        "Zoom Pro"
+      ],
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:02:00.000000"
+    },
+    "VR1.4": {
+      "raw_answer": 13,
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:02:10.000000"
+    },
+    "VR1.5": {
+      "raw_answer": "The after-care program may use a sign-in app on a shared iPad — vendor unknown. The Athletics Annex may use a separate scheduling or registration tool. The art teacher may be using an online portfolio platform that has not been reported to IT.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:02:30.000000"
+    },
+    "VR1.6": {
+      "raw_answer": "Yes — partial or outdated list",
+      "notes": "The Business Office has a budget spreadsheet with line items for major subscriptions, but it does not include free tools, tools adopted by individual departments, or items not yet through the formal budget process.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:02:50.000000"
+    },
+
+    "VR_V_1__V.ID.name": {
+      "raw_answer": "Veracross (SIS)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:05:00.000000"
+    },
+    "VR_V_1__V.ID.category": {
+      "raw_answer": "Student Information System (SIS)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:05:10.000000"
+    },
+    "VR_V_1__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:05:20.000000"
+    },
+    "VR_V_1__V.ID.owner": {
+      "raw_answer": "Rhoda Report (Director of Technology) — de facto owner; contract was originally signed by previous Head of School",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:05:30.000000"
+    },
+    "VR_V_1__V.ID.dept": {
+      "raw_answer": "All departments — primary system of record",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:05:40.000000"
+    },
+    "VR_V_1__V.COST.amount": {
+      "raw_answer": "18400",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:05:50.000000"
+    },
+    "VR_V_1__V.COST.known": {
+      "raw_answer": "Approximate — estimated but not confirmed",
+      "notes": "The original contract cannot be located. This figure is based on the budget line item from the previous year.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:06:00.000000"
+    },
+    "VR_V_1__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:06:10.000000"
+    },
+    "VR_V_1__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:06:20.000000"
+    },
+    "VR_V_1__V.RENEW.date": {
+      "raw_answer": "August 2025",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:06:30.000000"
+    },
+    "VR_V_1__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:06:40.000000"
+    },
+    "VR_V_1__V.RENEW.notice": {
+      "raw_answer": "61–90 days",
+      "notes": "Based on standard Veracross terms — the actual contract has not been located to confirm.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:06:50.000000"
+    },
+    "VR_V_1__V.RENEW.tracked": {
+      "raw_answer": "Tracked — but no reminder set",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:07:00.000000"
+    },
+    "VR_V_1__V.RENEW.signed": {
+      "raw_answer": "Yes — contract exists but location is unclear",
+      "notes": "A contract was signed when the school onboarded in 2021. The current Director of Technology has not been able to locate it in school records.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:07:10.000000"
+    },
+    "VR_V_1__V.SUPPORT.contact": {
+      "raw_answer": "Partial — some contact info documented",
+      "notes": "General support portal URL is known. No named account manager or escalation contact on file.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:07:20.000000"
+    },
+    "VR_V_1__V.SUPPORT.escalation": {
+      "raw_answer": "No — escalation path not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:07:30.000000"
+    },
+    "VR_V_1__V.SUPPORT.admin": {
+      "raw_answer": "Partial — credentials known to IT but not formally documented",
+      "notes": "Admin credentials are known to the Director of Technology and stored in a personal password manager, not a shared one.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:07:40.000000"
+    },
+    "VR_V_1__V.DATA.student": {
+      "raw_answer": "Yes — holds or processes student data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:07:50.000000"
+    },
+    "VR_V_1__V.DATA.ferpa": {
+      "raw_answer": "Partial — under review",
+      "notes": "FERPA review was never formally completed. The contract (and any DPA) cannot be located.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:08:00.000000"
+    },
+    "VR_V_1__V.DATA.dpa": {
+      "raw_answer": "Unknown",
+      "notes": "Cannot be confirmed without locating the original contract.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:08:10.000000"
+    },
+    "VR_V_1__V.DATA.staff": {
+      "raw_answer": "Yes — holds or processes confidential staff data",
+      "notes": "Veracross holds HR-related staff information including employment records and emergency contacts.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:08:20.000000"
+    },
+    "VR_V_1__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:08:30.000000"
+    },
+    "VR_V_1__V.USE.value": {
+      "raw_answer": "Yes — clear value, would renew without question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:08:40.000000"
+    },
+    "VR_V_1__V.USE.notes": {
+      "raw_answer": "Critical system — cannot operate without it. Priority action: locate original contract and confirm DPA status before August 2025 renewal. Escalation path and account manager contact must be established.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:08:50.000000"
+    },
+
+    "VR_V_2__V.ID.name": {
+      "raw_answer": "Google Workspace for Education Plus",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:12:00.000000"
+    },
+    "VR_V_2__V.ID.category": {
+      "raw_answer": "Email and Productivity",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:12:10.000000"
+    },
+    "VR_V_2__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:12:20.000000"
+    },
+    "VR_V_2__V.ID.owner": {
+      "raw_answer": "Rhoda Report, Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:12:30.000000"
+    },
+    "VR_V_2__V.ID.dept": {
+      "raw_answer": "All departments — primary email, collaboration, and identity platform",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:12:40.000000"
+    },
+    "VR_V_2__V.COST.amount": {
+      "raw_answer": "11200",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:12:50.000000"
+    },
+    "VR_V_2__V.COST.known": {
+      "raw_answer": "Yes — confirmed and tracked in a budget or register",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:13:00.000000"
+    },
+    "VR_V_2__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:13:10.000000"
+    },
+    "VR_V_2__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:13:20.000000"
+    },
+    "VR_V_2__V.RENEW.date": {
+      "raw_answer": "July 2026",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:13:30.000000"
+    },
+    "VR_V_2__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:13:40.000000"
+    },
+    "VR_V_2__V.RENEW.notice": {
+      "raw_answer": "30 days or less",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:13:50.000000"
+    },
+    "VR_V_2__V.RENEW.tracked": {
+      "raw_answer": "Yes — in a calendar or system with a reminder set",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:14:00.000000"
+    },
+    "VR_V_2__V.RENEW.signed": {
+      "raw_answer": "Yes — signed contract on file and location is known",
+      "notes": "Google for Education agreement on file in IT shared drive.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:14:10.000000"
+    },
+    "VR_V_2__V.SUPPORT.contact": {
+      "raw_answer": "Yes — full support contact documented and accessible",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:14:20.000000"
+    },
+    "VR_V_2__V.SUPPORT.escalation": {
+      "raw_answer": "Yes — escalation path documented",
+      "notes": "Google Workspace for Education support portal with Premier Support tier included.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:14:30.000000"
+    },
+    "VR_V_2__V.SUPPORT.admin": {
+      "raw_answer": "Partial — credentials known to IT but not formally documented",
+      "notes": "Super Admin credentials are in the Director of Technology's personal password manager. A backup admin account exists but its credentials are not stored in a shared location.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:14:40.000000"
+    },
+    "VR_V_2__V.DATA.student": {
+      "raw_answer": "Yes — holds or processes student data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:14:50.000000"
+    },
+    "VR_V_2__V.DATA.ferpa": {
+      "raw_answer": "Yes — DPA or privacy agreement in place and signed",
+      "notes": "Google FERPA Amendment and Education Privacy Terms accepted at setup.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:15:00.000000"
+    },
+    "VR_V_2__V.DATA.dpa": {
+      "raw_answer": "Yes — signed DPA on file, location known",
+      "notes": "Google for Education FERPA Amendment on file in IT shared drive.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:15:10.000000"
+    },
+    "VR_V_2__V.DATA.staff": {
+      "raw_answer": "Yes — holds or processes confidential staff data",
+      "notes": "Staff email, HR communications, and payroll-related correspondence stored in Workspace.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:15:20.000000"
+    },
+    "VR_V_2__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:15:30.000000"
+    },
+    "VR_V_2__V.USE.value": {
+      "raw_answer": "Yes — clear value, would renew without question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:15:40.000000"
+    },
+    "VR_V_2__V.USE.notes": {
+      "raw_answer": "Also serves as the school's SSO and identity platform. Admin credential sharing is the main open risk item — needs to move to a shared password manager.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:15:50.000000"
+    },
+
+    "VR_V_3__V.ID.name": {
+      "raw_answer": "Seesaw",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:18:00.000000"
+    },
+    "VR_V_3__V.ID.category": {
+      "raw_answer": "Classroom and Curriculum Tools",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:18:10.000000"
+    },
+    "VR_V_3__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:18:20.000000"
+    },
+    "VR_V_3__V.ID.owner": {
+      "raw_answer": "Lower School Director (adopted without IT involvement — no formal IT owner assigned)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:18:30.000000"
+    },
+    "VR_V_3__V.ID.dept": {
+      "raw_answer": "Lower School (K–2)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:18:40.000000"
+    },
+    "VR_V_3__V.COST.amount": {
+      "raw_answer": "1800",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:18:50.000000"
+    },
+    "VR_V_3__V.COST.known": {
+      "raw_answer": "Approximate — estimated but not confirmed",
+      "notes": "Figure based on the Lower School Director's estimate. No invoice has been reviewed by IT or the Business Office.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:19:00.000000"
+    },
+    "VR_V_3__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:19:10.000000"
+    },
+    "VR_V_3__V.COST.budget": {
+      "raw_answer": "Unknown",
+      "notes": "Seesaw may be billed to the Lower School department budget directly. Not confirmed in the central IT or Business Office budget.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:19:20.000000"
+    },
+    "VR_V_3__V.RENEW.date": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:19:30.000000"
+    },
+    "VR_V_3__V.RENEW.auto": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:19:40.000000"
+    },
+    "VR_V_3__V.RENEW.tracked": {
+      "raw_answer": "No — renewal date is not known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:19:50.000000"
+    },
+    "VR_V_3__V.RENEW.signed": {
+      "raw_answer": "No — no signed contract",
+      "notes": "Seesaw was signed up for via click-through terms. No formal contract or DPA was executed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:20:00.000000"
+    },
+    "VR_V_3__V.SUPPORT.contact": {
+      "raw_answer": "Partial — some contact info documented",
+      "notes": "General Seesaw support email is known. No account manager.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:20:10.000000"
+    },
+    "VR_V_3__V.SUPPORT.escalation": {
+      "raw_answer": "Not applicable — not a critical system",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:20:20.000000"
+    },
+    "VR_V_3__V.SUPPORT.admin": {
+      "raw_answer": "No — credentials are not documented",
+      "notes": "Admin account is managed by the Lower School Director using a personal email address. IT does not have access.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:20:30.000000"
+    },
+    "VR_V_3__V.DATA.student": {
+      "raw_answer": "Yes — holds or processes student data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:20:40.000000"
+    },
+    "VR_V_3__V.DATA.ferpa": {
+      "raw_answer": "No — not reviewed",
+      "notes": "FERPA compliance was never reviewed. No DPA has been requested or signed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:20:50.000000"
+    },
+    "VR_V_3__V.DATA.dpa": {
+      "raw_answer": "No — no DPA in place",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:21:00.000000"
+    },
+    "VR_V_3__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:21:10.000000"
+    },
+    "VR_V_3__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:21:20.000000"
+    },
+    "VR_V_3__V.USE.value": {
+      "raw_answer": "Probably — value is there but could be better",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:21:30.000000"
+    },
+    "VR_V_3__V.USE.notes": {
+      "raw_answer": "Shadow IT example — adopted outside of IT process. Holds student data with no DPA, no IT admin access, unknown renewal date, and cost not confirmed in central budget. Needs immediate governance remediation regardless of whether the school continues to use it.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:21:40.000000"
+    },
+
+    "VR_V_4__V.ID.name": {
+      "raw_answer": "Lightspeed Filter",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:24:00.000000"
+    },
+    "VR_V_4__V.ID.category": {
+      "raw_answer": "Security and Identity",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:24:10.000000"
+    },
+    "VR_V_4__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:24:20.000000"
+    },
+    "VR_V_4__V.ID.owner": {
+      "raw_answer": "Rhoda Report, Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:24:30.000000"
+    },
+    "VR_V_4__V.ID.dept": {
+      "raw_answer": "IT — CIPA-required student content filtering",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:24:40.000000"
+    },
+    "VR_V_4__V.COST.amount": {
+      "raw_answer": "3200",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:24:50.000000"
+    },
+    "VR_V_4__V.COST.known": {
+      "raw_answer": "Yes — confirmed and tracked in a budget or register",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:25:00.000000"
+    },
+    "VR_V_4__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:25:10.000000"
+    },
+    "VR_V_4__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:25:20.000000"
+    },
+    "VR_V_4__V.RENEW.date": {
+      "raw_answer": "March 2026",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:25:30.000000"
+    },
+    "VR_V_4__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:25:40.000000"
+    },
+    "VR_V_4__V.RENEW.notice": {
+      "raw_answer": "30 days or less",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:25:50.000000"
+    },
+    "VR_V_4__V.RENEW.tracked": {
+      "raw_answer": "Yes — in a calendar or system with a reminder set",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:26:00.000000"
+    },
+    "VR_V_4__V.RENEW.signed": {
+      "raw_answer": "Yes — signed contract on file and location is known",
+      "notes": "DPA and order form signed in 2024, stored in IT shared drive.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:26:10.000000"
+    },
+    "VR_V_4__V.SUPPORT.contact": {
+      "raw_answer": "Yes — full support contact documented and accessible",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:26:20.000000"
+    },
+    "VR_V_4__V.SUPPORT.escalation": {
+      "raw_answer": "Yes — escalation path documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:26:30.000000"
+    },
+    "VR_V_4__V.SUPPORT.admin": {
+      "raw_answer": "Partial — credentials known to IT but not formally documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:26:40.000000"
+    },
+    "VR_V_4__V.DATA.student": {
+      "raw_answer": "Yes — holds or processes student data",
+      "notes": "Student browsing activity and identity data.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:26:50.000000"
+    },
+    "VR_V_4__V.DATA.ferpa": {
+      "raw_answer": "Yes — DPA or privacy agreement in place and signed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:27:00.000000"
+    },
+    "VR_V_4__V.DATA.dpa": {
+      "raw_answer": "Yes — signed DPA on file, location known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:27:10.000000"
+    },
+    "VR_V_4__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:27:20.000000"
+    },
+    "VR_V_4__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:27:30.000000"
+    },
+    "VR_V_4__V.USE.value": {
+      "raw_answer": "Yes — clear value, would renew without question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:27:40.000000"
+    },
+    "VR_V_4__V.USE.notes": {
+      "raw_answer": "CIPA compliance dependency — cannot operate student devices without active filtering. Loss of this vendor would require immediate interim plan. No documented continuity plan currently exists.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:27:50.000000"
+    },
+
+    "VR_V_5__V.ID.name": {
+      "raw_answer": "Bark for Schools",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:30:00.000000"
+    },
+    "VR_V_5__V.ID.category": {
+      "raw_answer": "Security and Identity",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:30:10.000000"
+    },
+    "VR_V_5__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:30:20.000000"
+    },
+    "VR_V_5__V.ID.owner": {
+      "raw_answer": "Rhoda Report, Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:30:30.000000"
+    },
+    "VR_V_5__V.ID.dept": {
+      "raw_answer": "IT and School Counseling",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:30:40.000000"
+    },
+    "VR_V_5__V.COST.amount": {
+      "raw_answer": "0",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:30:50.000000"
+    },
+    "VR_V_5__V.COST.known": {
+      "raw_answer": "Free — no cost",
+      "notes": "Bark for Schools is provided at no cost to schools. The school pays nothing.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:31:00.000000"
+    },
+    "VR_V_5__V.COST.cycle": {
+      "raw_answer": "Free",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:31:10.000000"
+    },
+    "VR_V_5__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": "No-cost tool — listed in budget at $0.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:31:20.000000"
+    },
+    "VR_V_5__V.RENEW.date": {
+      "raw_answer": "Rolling — no fixed term",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:31:30.000000"
+    },
+    "VR_V_5__V.RENEW.auto": {
+      "raw_answer": "No — requires active renewal decision",
+      "notes": "Free tool — renewal is simply continuing to use it.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:31:40.000000"
+    },
+    "VR_V_5__V.RENEW.tracked": {
+      "raw_answer": "Tracked — but no reminder set",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:31:50.000000"
+    },
+    "VR_V_5__V.RENEW.signed": {
+      "raw_answer": "Yes — signed contract on file and location is known",
+      "notes": "DPA signed at onboarding in 2023, stored in IT shared drive.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:32:00.000000"
+    },
+    "VR_V_5__V.SUPPORT.contact": {
+      "raw_answer": "Yes — full support contact documented and accessible",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:32:10.000000"
+    },
+    "VR_V_5__V.SUPPORT.escalation": {
+      "raw_answer": "No — escalation path not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:32:20.000000"
+    },
+    "VR_V_5__V.SUPPORT.admin": {
+      "raw_answer": "Partial — credentials known to IT but not formally documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:32:30.000000"
+    },
+    "VR_V_5__V.DATA.student": {
+      "raw_answer": "Yes — holds or processes student data",
+      "notes": "Processes student Google Workspace email, Drive, and Chat content.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:32:40.000000"
+    },
+    "VR_V_5__V.DATA.ferpa": {
+      "raw_answer": "Yes — DPA or privacy agreement in place and signed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:32:50.000000"
+    },
+    "VR_V_5__V.DATA.dpa": {
+      "raw_answer": "Yes — signed DPA on file, location known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:33:00.000000"
+    },
+    "VR_V_5__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:33:10.000000"
+    },
+    "VR_V_5__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:33:20.000000"
+    },
+    "VR_V_5__V.USE.value": {
+      "raw_answer": "Yes — clear value, would renew without question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:33:30.000000"
+    },
+    "VR_V_5__V.USE.notes": {
+      "raw_answer": "Student safety monitoring tool — valued by counseling team. Free tier is sufficient for current needs. DPA in place and compliant.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:33:40.000000"
+    },
+
+    "VR_V_6__V.ID.name": {
+      "raw_answer": "Panorama Education",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:36:00.000000"
+    },
+    "VR_V_6__V.ID.category": {
+      "raw_answer": "Assessment and Testing",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:36:10.000000"
+    },
+    "VR_V_6__V.ID.status": {
+      "raw_answer": "Active — limited or infrequent use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:36:20.000000"
+    },
+    "VR_V_6__V.ID.owner": {
+      "raw_answer": "Head of School (purchased at Head of School initiative — IT was not involved in procurement)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:36:30.000000"
+    },
+    "VR_V_6__V.ID.dept": {
+      "raw_answer": "Academics — SEL survey administration",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:36:40.000000"
+    },
+    "VR_V_6__V.COST.amount": {
+      "raw_answer": "6500",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:36:50.000000"
+    },
+    "VR_V_6__V.COST.known": {
+      "raw_answer": "Approximate — estimated but not confirmed",
+      "notes": "Estimate from Head of School. Invoice not reviewed by IT.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:37:00.000000"
+    },
+    "VR_V_6__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:37:10.000000"
+    },
+    "VR_V_6__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": "Appears in the Head of School discretionary budget line.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:37:20.000000"
+    },
+    "VR_V_6__V.RENEW.date": {
+      "raw_answer": "September 2025",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:37:30.000000"
+    },
+    "VR_V_6__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:37:40.000000"
+    },
+    "VR_V_6__V.RENEW.notice": {
+      "raw_answer": "30 days or less",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:37:50.000000"
+    },
+    "VR_V_6__V.RENEW.tracked": {
+      "raw_answer": "No — renewal date known but not tracked",
+      "notes": "Renewal date known to Head of School only — not in any shared calendar.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:38:00.000000"
+    },
+    "VR_V_6__V.RENEW.signed": {
+      "raw_answer": "Yes — contract exists but location is unclear",
+      "notes": "Head of School signed the contract. IT does not have a copy.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:38:10.000000"
+    },
+    "VR_V_6__V.SUPPORT.contact": {
+      "raw_answer": "Partial — some contact info documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:38:20.000000"
+    },
+    "VR_V_6__V.SUPPORT.escalation": {
+      "raw_answer": "No — escalation path not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:38:30.000000"
+    },
+    "VR_V_6__V.SUPPORT.admin": {
+      "raw_answer": "No — credentials are not documented",
+      "notes": "Admin access is controlled by the Head of School. IT has no access to the admin console.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:38:40.000000"
+    },
+    "VR_V_6__V.DATA.student": {
+      "raw_answer": "Yes — holds or processes student data",
+      "notes": "Holds SEL survey responses tied to individual students.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:38:50.000000"
+    },
+    "VR_V_6__V.DATA.ferpa": {
+      "raw_answer": "No — not reviewed",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:39:00.000000"
+    },
+    "VR_V_6__V.DATA.dpa": {
+      "raw_answer": "Unknown",
+      "notes": "IT does not have a copy of the contract. DPA status unknown.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:39:10.000000"
+    },
+    "VR_V_6__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:39:20.000000"
+    },
+    "VR_V_6__V.USE.active": {
+      "raw_answer": "Occasionally — used but infrequently",
+      "notes": "SEL surveys run twice per year.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:39:30.000000"
+    },
+    "VR_V_6__V.USE.value": {
+      "raw_answer": "Unsure — unclear whether to renew",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:39:40.000000"
+    },
+    "VR_V_6__V.USE.notes": {
+      "raw_answer": "Second shadow IT example — adopted by Head of School without IT review. Holds sensitive student SEL data with unknown DPA status. Renewal in September 2025 — FERPA review and DPA must be completed before then. Value questioned given infrequent use and cost.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:39:50.000000"
+    },
+
+    "VR_V_7__V.ID.name": {
+      "raw_answer": "Kami",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:42:00.000000"
+    },
+    "VR_V_7__V.ID.category": {
+      "raw_answer": "Classroom and Curriculum Tools",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:42:10.000000"
+    },
+    "VR_V_7__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:42:20.000000"
+    },
+    "VR_V_7__V.ID.owner": {
+      "raw_answer": "Rhoda Report, Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:42:30.000000"
+    },
+    "VR_V_7__V.ID.dept": {
+      "raw_answer": "Academics — grades 3 through 8",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:42:40.000000"
+    },
+    "VR_V_7__V.COST.amount": {
+      "raw_answer": "2100",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:42:50.000000"
+    },
+    "VR_V_7__V.COST.known": {
+      "raw_answer": "Yes — confirmed and tracked in a budget or register",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:43:00.000000"
+    },
+    "VR_V_7__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:43:10.000000"
+    },
+    "VR_V_7__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:43:20.000000"
+    },
+    "VR_V_7__V.RENEW.date": {
+      "raw_answer": "June 2026",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:43:30.000000"
+    },
+    "VR_V_7__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:43:40.000000"
+    },
+    "VR_V_7__V.RENEW.notice": {
+      "raw_answer": "30 days or less",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:43:50.000000"
+    },
+    "VR_V_7__V.RENEW.tracked": {
+      "raw_answer": "Yes — in a calendar or system with a reminder set",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:44:00.000000"
+    },
+    "VR_V_7__V.RENEW.signed": {
+      "raw_answer": "Yes — signed contract on file and location is known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:44:10.000000"
+    },
+    "VR_V_7__V.SUPPORT.contact": {
+      "raw_answer": "Yes — full support contact documented and accessible",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:44:20.000000"
+    },
+    "VR_V_7__V.SUPPORT.escalation": {
+      "raw_answer": "Not applicable — not a critical system",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:44:30.000000"
+    },
+    "VR_V_7__V.SUPPORT.admin": {
+      "raw_answer": "Yes — credentials in a shared password manager or documented process",
+      "notes": "Kami admin credentials stored in IT shared password manager.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:44:40.000000"
+    },
+    "VR_V_7__V.DATA.student": {
+      "raw_answer": "Yes — holds or processes student data",
+      "notes": "Kami holds student document annotations and assignment submissions.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:44:50.000000"
+    },
+    "VR_V_7__V.DATA.ferpa": {
+      "raw_answer": "Yes — reviewed but no formal agreement signed",
+      "notes": "Kami's published FERPA compliance documentation was reviewed. A formal DPA has not been requested or signed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:45:00.000000"
+    },
+    "VR_V_7__V.DATA.dpa": {
+      "raw_answer": "No — no DPA in place",
+      "notes": "Kami offers a DPA — one should be requested and signed before next renewal.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:45:10.000000"
+    },
+    "VR_V_7__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:45:20.000000"
+    },
+    "VR_V_7__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:45:30.000000"
+    },
+    "VR_V_7__V.USE.value": {
+      "raw_answer": "Yes — clear value, would renew without question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:45:40.000000"
+    },
+    "VR_V_7__V.USE.notes": {
+      "raw_answer": "Well-managed tool. One open item: DPA should be formally signed before June 2026 renewal. Kami does offer one — this is a process gap, not a vendor gap.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:45:50.000000"
+    },
+
+    "VR_V_8__V.ID.name": {
+      "raw_answer": "Comcast Business",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:48:00.000000"
+    },
+    "VR_V_8__V.ID.category": {
+      "raw_answer": "Infrastructure and Networking",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:48:10.000000"
+    },
+    "VR_V_8__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:48:20.000000"
+    },
+    "VR_V_8__V.ID.owner": {
+      "raw_answer": "Rhoda Report, Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:48:30.000000"
+    },
+    "VR_V_8__V.ID.dept": {
+      "raw_answer": "IT — primary ISP for all school operations",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:48:40.000000"
+    },
+    "VR_V_8__V.COST.amount": {
+      "raw_answer": "7800",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:48:50.000000"
+    },
+    "VR_V_8__V.COST.known": {
+      "raw_answer": "Yes — confirmed and tracked in a budget or register",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:49:00.000000"
+    },
+    "VR_V_8__V.COST.cycle": {
+      "raw_answer": "Monthly",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:49:10.000000"
+    },
+    "VR_V_8__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:49:20.000000"
+    },
+    "VR_V_8__V.RENEW.date": {
+      "raw_answer": "January 2026",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:49:30.000000"
+    },
+    "VR_V_8__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:49:40.000000"
+    },
+    "VR_V_8__V.RENEW.notice": {
+      "raw_answer": "30 days or less",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:49:50.000000"
+    },
+    "VR_V_8__V.RENEW.tracked": {
+      "raw_answer": "Yes — in a calendar or system with a reminder set",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:50:00.000000"
+    },
+    "VR_V_8__V.RENEW.signed": {
+      "raw_answer": "Yes — signed contract on file and location is known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:50:10.000000"
+    },
+    "VR_V_8__V.SUPPORT.contact": {
+      "raw_answer": "Yes — full support contact documented and accessible",
+      "notes": "Business account number and 24/7 support line documented.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:50:20.000000"
+    },
+    "VR_V_8__V.SUPPORT.escalation": {
+      "raw_answer": "Yes — escalation path documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:50:30.000000"
+    },
+    "VR_V_8__V.SUPPORT.admin": {
+      "raw_answer": "Yes — credentials in a shared password manager or documented process",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:50:40.000000"
+    },
+    "VR_V_8__V.DATA.student": {
+      "raw_answer": "No — does not hold student data",
+      "notes": "ISP — carries traffic but holds no school data.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:50:50.000000"
+    },
+    "VR_V_8__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:51:00.000000"
+    },
+    "VR_V_8__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:51:10.000000"
+    },
+    "VR_V_8__V.USE.value": {
+      "raw_answer": "Yes — clear value, would renew without question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:51:20.000000"
+    },
+    "VR_V_8__V.USE.notes": {
+      "raw_answer": "Single ISP — no failover. January 2026 renewal is an opportunity to renegotiate terms or explore adding a secondary connection for redundancy. Current bandwidth is adequate but has been tested during high-occupancy events.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:51:30.000000"
+    },
+
+    "VR_V_9__V.ID.name": {
+      "raw_answer": "Sophos Central",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:54:00.000000"
+    },
+    "VR_V_9__V.ID.category": {
+      "raw_answer": "Security and Identity",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:54:10.000000"
+    },
+    "VR_V_9__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:54:20.000000"
+    },
+    "VR_V_9__V.ID.owner": {
+      "raw_answer": "Rhoda Report, Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:54:30.000000"
+    },
+    "VR_V_9__V.ID.dept": {
+      "raw_answer": "IT — covers both endpoint protection (Sophos Intercept X) and firewall management (Sophos XGS)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:54:40.000000"
+    },
+    "VR_V_9__V.COST.amount": {
+      "raw_answer": "9600",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:54:50.000000"
+    },
+    "VR_V_9__V.COST.known": {
+      "raw_answer": "Yes — confirmed and tracked in a budget or register",
+      "notes": "Covers Intercept X endpoint licenses plus XGS firewall support — billed as a single Sophos Central subscription.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:55:00.000000"
+    },
+    "VR_V_9__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:55:10.000000"
+    },
+    "VR_V_9__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:55:20.000000"
+    },
+    "VR_V_9__V.RENEW.date": {
+      "raw_answer": "November 2025",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:55:30.000000"
+    },
+    "VR_V_9__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:55:40.000000"
+    },
+    "VR_V_9__V.RENEW.notice": {
+      "raw_answer": "30 days or less",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:55:50.000000"
+    },
+    "VR_V_9__V.RENEW.tracked": {
+      "raw_answer": "Yes — in a calendar or system with a reminder set",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:56:00.000000"
+    },
+    "VR_V_9__V.RENEW.signed": {
+      "raw_answer": "Yes — signed contract on file and location is known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:56:10.000000"
+    },
+    "VR_V_9__V.SUPPORT.contact": {
+      "raw_answer": "Yes — full support contact documented and accessible",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:56:20.000000"
+    },
+    "VR_V_9__V.SUPPORT.escalation": {
+      "raw_answer": "Yes — escalation path documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:56:30.000000"
+    },
+    "VR_V_9__V.SUPPORT.admin": {
+      "raw_answer": "Partial — credentials known to IT but not formally documented",
+      "notes": "Sophos Central admin credentials are in the Director of Technology's personal password manager only.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:56:40.000000"
+    },
+    "VR_V_9__V.DATA.student": {
+      "raw_answer": "No — does not hold student data",
+      "notes": "Manages endpoint security policies — does not hold student content data.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:56:50.000000"
+    },
+    "VR_V_9__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:57:00.000000"
+    },
+    "VR_V_9__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:57:10.000000"
+    },
+    "VR_V_9__V.USE.value": {
+      "raw_answer": "Yes — clear value, would renew without question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:57:20.000000"
+    },
+    "VR_V_9__V.USE.notes": {
+      "raw_answer": "Critical security dependency. November 2025 renewal is approaching — should be actioned by September to allow negotiation time. Admin credentials must be moved to a shared password manager before renewal.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T15:57:30.000000"
+    },
+
+    "VR_V_10__V.ID.name": {
+      "raw_answer": "Veeam Backup",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:00:00.000000"
+    },
+    "VR_V_10__V.ID.category": {
+      "raw_answer": "Infrastructure and Networking",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:00:10.000000"
+    },
+    "VR_V_10__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:00:20.000000"
+    },
+    "VR_V_10__V.ID.owner": {
+      "raw_answer": "Rhoda Report, Director of Technology",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:00:30.000000"
+    },
+    "VR_V_10__V.ID.dept": {
+      "raw_answer": "IT — on-premises server backup",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:00:40.000000"
+    },
+    "VR_V_10__V.COST.amount": {
+      "raw_answer": "1400",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:00:50.000000"
+    },
+    "VR_V_10__V.COST.known": {
+      "raw_answer": "Yes — confirmed and tracked in a budget or register",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:01:00.000000"
+    },
+    "VR_V_10__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:01:10.000000"
+    },
+    "VR_V_10__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:01:20.000000"
+    },
+    "VR_V_10__V.RENEW.date": {
+      "raw_answer": "April 2026",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:01:30.000000"
+    },
+    "VR_V_10__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:01:40.000000"
+    },
+    "VR_V_10__V.RENEW.notice": {
+      "raw_answer": "30 days or less",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:01:50.000000"
+    },
+    "VR_V_10__V.RENEW.tracked": {
+      "raw_answer": "Tracked — but no reminder set",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:02:00.000000"
+    },
+    "VR_V_10__V.RENEW.signed": {
+      "raw_answer": "Yes — signed contract on file and location is known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:02:10.000000"
+    },
+    "VR_V_10__V.SUPPORT.contact": {
+      "raw_answer": "Partial — some contact info documented",
+      "notes": "Support portal URL known. No named account manager.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:02:20.000000"
+    },
+    "VR_V_10__V.SUPPORT.escalation": {
+      "raw_answer": "No — escalation path not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:02:30.000000"
+    },
+    "VR_V_10__V.SUPPORT.admin": {
+      "raw_answer": "Partial — credentials known to IT but not formally documented",
+      "notes": "Only the Director of Technology has ever logged into the Veeam console.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:02:40.000000"
+    },
+    "VR_V_10__V.DATA.student": {
+      "raw_answer": "No — does not hold student data",
+      "notes": "Backup tool — data it protects may include student data, but Veeam itself holds no direct student records.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:02:50.000000"
+    },
+    "VR_V_10__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:03:00.000000"
+    },
+    "VR_V_10__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:03:10.000000"
+    },
+    "VR_V_10__V.USE.value": {
+      "raw_answer": "Yes — clear value, would renew without question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:03:20.000000"
+    },
+    "VR_V_10__V.USE.notes": {
+      "raw_answer": "Critical backup infrastructure. Restore testing has not been performed in over 18 months — this is the highest-priority operational gap for this vendor. Admin access must be documented in shared credential store.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:03:30.000000"
+    },
+
+    "VR_V_11__V.ID.name": {
+      "raw_answer": "8x8 (VoIP)",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:06:00.000000"
+    },
+    "VR_V_11__V.ID.category": {
+      "raw_answer": "Other",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:06:10.000000"
+    },
+    "VR_V_11__V.ID.status": {
+      "raw_answer": "Active — in regular use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:06:20.000000"
+    },
+    "VR_V_11__V.ID.owner": {
+      "raw_answer": "Unknown — originally managed by previous IT staff; no current named owner",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:06:30.000000"
+    },
+    "VR_V_11__V.ID.dept": {
+      "raw_answer": "All departments — school phone system",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:06:40.000000"
+    },
+    "VR_V_11__V.COST.amount": {
+      "raw_answer": "4800",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:06:50.000000"
+    },
+    "VR_V_11__V.COST.known": {
+      "raw_answer": "Approximate — estimated but not confirmed",
+      "notes": "Estimated from monthly invoices. Contract terms not confirmed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:07:00.000000"
+    },
+    "VR_V_11__V.COST.cycle": {
+      "raw_answer": "Monthly",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:07:10.000000"
+    },
+    "VR_V_11__V.COST.budget": {
+      "raw_answer": "Yes — in the approved budget",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:07:20.000000"
+    },
+    "VR_V_11__V.RENEW.date": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:07:30.000000"
+    },
+    "VR_V_11__V.RENEW.auto": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:07:40.000000"
+    },
+    "VR_V_11__V.RENEW.tracked": {
+      "raw_answer": "No — renewal date is not known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:07:50.000000"
+    },
+    "VR_V_11__V.RENEW.signed": {
+      "raw_answer": "Yes — contract exists but location is unclear",
+      "notes": "A contract exists but was managed by previous IT staff. Location unknown.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:08:00.000000"
+    },
+    "VR_V_11__V.SUPPORT.contact": {
+      "raw_answer": "Partial — some contact info documented",
+      "notes": "General 8x8 support number known. Account number and escalation path not documented.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:08:10.000000"
+    },
+    "VR_V_11__V.SUPPORT.escalation": {
+      "raw_answer": "No — escalation path not documented",
+      "notes": "8x8 support responsiveness has been poor historically. No escalation path documented.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:08:20.000000"
+    },
+    "VR_V_11__V.SUPPORT.admin": {
+      "raw_answer": "No — credentials are not documented",
+      "notes": "8x8 admin portal credentials were set up by previous IT staff and are not known to current IT director. Phone system configuration is managed entirely by the original installation vendor.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:08:30.000000"
+    },
+    "VR_V_11__V.DATA.student": {
+      "raw_answer": "No — does not hold student data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:08:40.000000"
+    },
+    "VR_V_11__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:08:50.000000"
+    },
+    "VR_V_11__V.USE.active": {
+      "raw_answer": "Yes — used regularly by staff or students",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:09:00.000000"
+    },
+    "VR_V_11__V.USE.value": {
+      "raw_answer": "Probably — value is there but could be better",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:09:10.000000"
+    },
+    "VR_V_11__V.USE.notes": {
+      "raw_answer": "Significant single-vendor dependency — no admin access, no contract on file, poor support history. Priority action: contact 8x8 to recover admin access and locate or re-execute the contract. Evaluate at renewal whether to migrate to an alternative VoIP provider with better support.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:09:20.000000"
+    },
+
+    "VR_V_12__V.ID.name": {
+      "raw_answer": "Adobe Creative Cloud",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:12:00.000000"
+    },
+    "VR_V_12__V.ID.category": {
+      "raw_answer": "Classroom and Curriculum Tools",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:12:10.000000"
+    },
+    "VR_V_12__V.ID.status": {
+      "raw_answer": "Expired — access may still exist",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:12:20.000000"
+    },
+    "VR_V_12__V.ID.owner": {
+      "raw_answer": "Unknown — subscription predates current IT director's tenure",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:12:30.000000"
+    },
+    "VR_V_12__V.ID.dept": {
+      "raw_answer": "Unknown — devices originally assigned to it are no longer in use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:12:40.000000"
+    },
+    "VR_V_12__V.COST.amount": {
+      "raw_answer": "3300",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:12:50.000000"
+    },
+    "VR_V_12__V.COST.known": {
+      "raw_answer": "Approximate — estimated but not confirmed",
+      "notes": "5-seat subscription still auto-renewing annually despite devices being decommissioned. Estimated based on current Adobe pricing — actual contract terms not confirmed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:13:00.000000"
+    },
+    "VR_V_12__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:13:10.000000"
+    },
+    "VR_V_12__V.COST.budget": {
+      "raw_answer": "Unknown",
+      "notes": "May be auto-charged to a credit card on file not actively monitored by the Business Office.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:13:20.000000"
+    },
+    "VR_V_12__V.RENEW.date": {
+      "raw_answer": "Unknown — believed to have auto-renewed recently",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:13:30.000000"
+    },
+    "VR_V_12__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:13:40.000000"
+    },
+    "VR_V_12__V.RENEW.tracked": {
+      "raw_answer": "No — renewal date is not known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:13:50.000000"
+    },
+    "VR_V_12__V.RENEW.signed": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:14:00.000000"
+    },
+    "VR_V_12__V.SUPPORT.contact": {
+      "raw_answer": "No — support contact not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:14:10.000000"
+    },
+    "VR_V_12__V.SUPPORT.escalation": {
+      "raw_answer": "Not applicable — not a critical system",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:14:20.000000"
+    },
+    "VR_V_12__V.SUPPORT.admin": {
+      "raw_answer": "No — credentials are not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:14:30.000000"
+    },
+    "VR_V_12__V.DATA.student": {
+      "raw_answer": "No — does not hold student data",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:14:40.000000"
+    },
+    "VR_V_12__V.DATA.staff": {
+      "raw_answer": "No",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:14:50.000000"
+    },
+    "VR_V_12__V.USE.active": {
+      "raw_answer": "No — not currently in use",
+      "notes": "The 5 seats this was purchased for are on decommissioned devices.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:15:00.000000"
+    },
+    "VR_V_12__V.USE.value": {
+      "raw_answer": "No — low value, renewal is in question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:15:10.000000"
+    },
+    "VR_V_12__V.USE.notes": {
+      "raw_answer": "Zombie subscription — paying for 5 Adobe CC seats on devices that no longer exist. Immediate action: locate the Adobe account, cancel before next renewal, and confirm the credit card being charged. Estimated ~$3,300/year in recoverable spend.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:15:20.000000"
+    },
+
+    "VR_V_13__V.ID.name": {
+      "raw_answer": "Zoom Pro",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:18:00.000000"
+    },
+    "VR_V_13__V.ID.category": {
+      "raw_answer": "Other",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:18:10.000000"
+    },
+    "VR_V_13__V.ID.status": {
+      "raw_answer": "Active — limited or infrequent use",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:18:20.000000"
+    },
+    "VR_V_13__V.ID.owner": {
+      "raw_answer": "Unknown — purchased during COVID-era remote learning; original owner unclear",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:18:30.000000"
+    },
+    "VR_V_13__V.ID.dept": {
+      "raw_answer": "Unknown — may be used occasionally by administration for parent calls",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:18:40.000000"
+    },
+    "VR_V_13__V.COST.amount": {
+      "raw_answer": "180",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:18:50.000000"
+    },
+    "VR_V_13__V.COST.known": {
+      "raw_answer": "Approximate — estimated but not confirmed",
+      "notes": "Estimated based on current Zoom Pro pricing. Actual billing not confirmed.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:19:00.000000"
+    },
+    "VR_V_13__V.COST.cycle": {
+      "raw_answer": "Annual",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:19:10.000000"
+    },
+    "VR_V_13__V.COST.budget": {
+      "raw_answer": "No — not currently budgeted",
+      "notes": "Not in the current IT or Business Office budget. Auto-renewing to an unmonitored card.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:19:20.000000"
+    },
+    "VR_V_13__V.RENEW.date": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:19:30.000000"
+    },
+    "VR_V_13__V.RENEW.auto": {
+      "raw_answer": "Yes — auto-renews; cancellation notice required before renewal date",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:19:40.000000"
+    },
+    "VR_V_13__V.RENEW.tracked": {
+      "raw_answer": "No — renewal date is not known",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:19:50.000000"
+    },
+    "VR_V_13__V.RENEW.signed": {
+      "raw_answer": "Not applicable — verbal or click-through agreement only",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:20:00.000000"
+    },
+    "VR_V_13__V.SUPPORT.contact": {
+      "raw_answer": "No — support contact not documented",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:20:10.000000"
+    },
+    "VR_V_13__V.SUPPORT.escalation": {
+      "raw_answer": "Not applicable — not a critical system",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:20:20.000000"
+    },
+    "VR_V_13__V.SUPPORT.admin": {
+      "raw_answer": "No — credentials are not documented",
+      "notes": "Account credentials unknown. May be tied to a personal email of a staff member who set it up during COVID.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:20:30.000000"
+    },
+    "VR_V_13__V.DATA.student": {
+      "raw_answer": "Unknown",
+      "notes": "If used for parent-teacher conferences or student sessions, student data may have been shared via this channel.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:20:40.000000"
+    },
+    "VR_V_13__V.DATA.staff": {
+      "raw_answer": "Unknown",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:20:50.000000"
+    },
+    "VR_V_13__V.USE.active": {
+      "raw_answer": "Rarely — barely used",
+      "notes": "Google Meet (included in Workspace) covers all current video conferencing needs.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:21:00.000000"
+    },
+    "VR_V_13__V.USE.value": {
+      "raw_answer": "No — low value, renewal is in question",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:21:10.000000"
+    },
+    "VR_V_13__V.USE.notes": {
+      "raw_answer": "COVID-era holdover. Google Meet replaces all functionality included in Workspace. Immediate action: locate the Zoom account and cancel. Recover the credit card being charged and confirm it is monitored. Cost is low but the governance gap it represents (unmonitored spend, unknown data exposure) is meaningful.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:21:20.000000"
+    },
+
+    "VR2.1": {
+      "raw_answer": "Informal — IT or business office is usually consulted but not required",
+      "notes": "Seesaw and Panorama Education were both adopted without IT review. There is a general understanding that IT should be consulted, but no documented process or enforcement mechanism.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:30:00.000000"
+    },
+    "VR2.2": {
+      "raw_answer": "Informal — generally understood but not written down",
+      "notes": "In practice the Head of School and Director of Technology both sign contracts depending on who initiated the relationship. No formal signing authority policy exists.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:30:20.000000"
+    },
+    "VR2.3": {
+      "raw_answer": "No — no spend threshold policy",
+      "notes": "No spend threshold is defined. Small subscriptions (like Zoom Pro) can accumulate without visibility.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:30:40.000000"
+    },
+    "VR2.4": {
+      "raw_answer": "Partial — IT has a list and Business Office has a list, but they are separate",
+      "notes": "The Business Office tracks subscriptions in a budget spreadsheet. IT maintains a separate informal list. Neither is complete. This register is the first attempt to consolidate them.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:31:00.000000"
+    },
+    "VR2.5": {
+      "raw_answer": "Partial — used for some accounts but not all",
+      "notes": "Kami credentials are in an IT shared password manager. Most other vendor admin credentials are in the Director of Technology's personal password manager only.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:31:20.000000"
+    },
+    "VR2.6": {
+      "raw_answer": "Partial — one party tracks renewals and notifies the other informally",
+      "notes": "IT tracks most renewals. The Business Office is notified informally when an invoice arrives. No shared renewal calendar exists.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:31:40.000000"
+    },
+    "VR2.7": {
+      "raw_answer": "No — vendor account ownership is not addressed in offboarding",
+      "notes": "The 8x8 phone system situation (admin access lost with previous IT staff) is a direct consequence of this gap. Vendor account ownership is not part of the current offboarding checklist.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:32:00.000000"
+    },
+    "VR2.8": {
+      "raw_answer": "Partial — some DPAs tracked but not all vendors covered",
+      "notes": "Google Workspace, Lightspeed, and Bark DPAs are on file and location is known. Veracross DPA status is unknown. Seesaw has no DPA. Panorama DPA status is unknown. Kami has no DPA signed yet.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:32:20.000000"
+    },
+    "VR2.9": {
+      "raw_answer": "No — no annual review",
+      "notes": "Adobe Creative Cloud and Zoom Pro have been auto-renewing for years without a deliberate review decision. An annual vendor review would have caught these.",
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:32:40.000000"
+    },
+    "VR2.10": {
+      "raw_answer": "The Veracross situation keeps me up at night — we cannot find the original contract, we do not know what data rights the vendor has, and the renewal is in August. But the broader concern is that we discovered two vendors today (Adobe CC, Zoom Pro) that are auto-renewing on cards nobody is watching, and two more (Seesaw, Panorama) that hold student data without a DPA. This register is the first time all of this has been in one place. The real fix is a formal approval process for new tools and an annual review — right now we are just reacting.",
+      "notes": null,
+      "answer_status": "answered",
+      "answered_on": "2025-05-14T16:33:00.000000"
+    }
+  }
+}

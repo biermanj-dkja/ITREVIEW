@@ -8,6 +8,7 @@ Completed assessment exports for use in import/export testing. These files can b
 |---|---|---|---|
 | `BitByBit_Academy_module-1_export.json` | Module 1 — Small Private School IT Overview and Action Plan | 150 | Complete |
 | `BitByBit_Academy_module-2_export.json` | Module 2 — Data Governance and Data Flow Audit | 160 | Complete |
+| `BitByBit_Academy_module-3_export.json` | Module 3 — Software, Licensing, and Vendor Register | 312 | Complete |
 
 ## School Details
 
@@ -44,6 +45,22 @@ The module 2 export covers 5 systems: Veracross (SIS), Google Workspace, Seesaw,
 - Offboarding process relies on memory and does not cover all platforms
 - Former staff account in Veracross unconfirmed as deactivated
 - No annual staff data privacy training
+
+
+## Module 3 — Vendor Register Scenario Summary
+
+The module 3 export covers 13 vendors, sourced directly from the system names established in module 2 plus the additional subscriptions mentioned across module 1 (questions 6.5, 6.11, 6.12, 8.2). Vendors: Veracross, Google Workspace for Education Plus, Seesaw, Lightspeed Filter, Bark for Schools, Panorama Education, Kami, Comcast Business, Sophos Central, Veeam Backup, 8x8 (VoIP), Adobe Creative Cloud, and Zoom Pro.
+
+**Key findings embedded in the data:**
+- Veracross contract cannot be located — renewal in August 2025, DPA status unknown
+- Seesaw: no DPA, unknown renewal date, admin access held by department head only, cost unconfirmed — complete shadow IT profile
+- Panorama Education: student SEL data held with no DPA, IT has no admin access, renewal in September 2025
+- 8x8: no admin access (lost with previous IT staff), no contract on file, poor support history — named single-vendor dependency from module 1
+- Adobe Creative Cloud: zombie subscription (~$3,300/year) on decommissioned devices, auto-renewing to an unmonitored card
+- Zoom Pro: COVID-era holdover (~$180/year), not in budget, credentials unknown, Google Meet covers all needs
+- No shared password manager in use for most vendors — most credentials in personal password manager only
+- No annual vendor review process — zombie subscriptions are a direct result
+- DPA register incomplete: Veracross, Seesaw, Panorama, and Kami all have open DPA gaps
 
 ## How to Import
 

@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.5.3.2
+## v0.6.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -334,6 +334,16 @@ or any technical setup.
 
 ## What's in this version
 
+**v0.6.0** is the first pre-v1.0 feature milestone, completing five features formally committed as pre-release requirements:
+
+- **Archived Sessions tab** — a third tab on the home page shows all archived assessments. They can be viewed, restored to the active list, exported, or permanently deleted. Previously archived sessions were hidden with no way to access them short of re-importing a backup.
+- **Module 2 phased timeline** — the Data Governance DOCX now fully supports the phased remediation timeline. The start date field is now optional: leave it blank to skip the timeline. The previous confusing "leave today's date to skip" instruction has been removed.
+- **Answer amendment log** — when a user returns to a completed section and changes an answer, the previous value is recorded to a new `answer_history` table. Revised questions show an italic "edited" badge on the section page. A new Appendix D in both Module 1 and Module 2 DOCX reports lists all amendments (question ID, previous value, revised value, timestamp).
+- **Finding context notes** — after downloading a report at least once, an "Add context note" control appears under each finding on the Findings page. Notes appear inline in subsequent DOCX downloads. They do not affect scores or severity — they annotate findings for the reader (e.g. "Resolved June 2025 — MFA enforced").
+- **Draft report treatment** — when not all sections are complete, both Module 1 and Module 2 DOCX reports carry a "DRAFT — ASSESSMENT INCOMPLETE" marker on the cover page and a red callout box in the Executive Summary listing incomplete sections. The download button always remains visible but shows an italic note when incomplete.
+
+---
+
 **v0.5.3.2** is a UI/UX overhaul pass informed by Material Design principles. No scoring logic, rules engine, or report generator was changed — all changes are in templates and `app.py` routing.
 
 ### Home page
@@ -460,6 +470,5 @@ dynamic section engine, and a per-system report card. See the
 - Follow-up questions appear and disappear live as you answer — no Save Progress required for question visibility. Questions with a **Save Progress ↓** button still need a server round-trip for actions that generate new content (e.g. the system worksheets in Module 2 DG1).
 - Module 2 per-system worksheets are generated after saving Section DG1; if you add systems to the inventory later, return to DG1 and save again to regenerate.
 - Logo/crest file upload is not yet implemented.
-- Module 2 DOCX report does not yet include a phased remediation timeline (planned for a future version — currently produced for Module 1 only).
 - Module 1 Sections 1 and 10 generate no findings (context only by design).
-- Archived (deprecated) sessions are hidden from the home page but remain in the database. There is no UI to view or restore archived sessions other than re-importing an exported JSON backup.
+- Archived (deprecated) sessions are accessible via the Archived tab on the home page. They can be restored, exported, or permanently deleted from there.

@@ -51,6 +51,27 @@ def init_db():
             FOREIGN KEY (session_id) REFERENCES assessment_session(session_id),
             UNIQUE(session_id, question_id)
         );
+
+        CREATE TABLE IF NOT EXISTS answer_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            question_id TEXT NOT NULL,
+            old_raw_answer TEXT,
+            old_answer_status TEXT,
+            new_raw_answer TEXT,
+            new_answer_status TEXT,
+            changed_at TEXT NOT NULL,
+            FOREIGN KEY (session_id) REFERENCES assessment_session(session_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS finding_context (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            finding_id TEXT NOT NULL,
+            note TEXT NOT NULL,
+            added_at TEXT NOT NULL,
+            UNIQUE(session_id, finding_id)
+        );
     """)
     # Migrate: add sections_flagged column if it doesn't exist yet
     try:
@@ -64,13 +85,74 @@ def init_db():
         db.commit()
     except Exception:
         pass  # Column already exists
+    # Migrate: add answer_history table if it doesn't exist yet
+    try:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS answer_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                question_id TEXT NOT NULL,
+                old_raw_answer TEXT,
+                old_answer_status TEXT,
+                new_raw_answer TEXT,
+                new_answer_status TEXT,
+                changed_at TEXT NOT NULL,
+                FOREIGN KEY (session_id) REFERENCES assessment_session(session_id)
+            )
+        """)
+        db.commit()
+    except Exception:
+        pass
+    # Migrate: add finding_context table if it doesn't exist yet
+    try:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS finding_context (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                finding_id TEXT NOT NULL,
+                note TEXT NOT NULL,
+                added_at TEXT NOT NULL,
+                UNIQUE(session_id, finding_id)
+            )
+        """)
+        db.commit()
+    except Exception:
+        pass
     db.commit()
     db.close()
 
 
-def save_answer(session_id, question_id, raw_answer, notes=None, status="answered"):
+def save_answer(session_id, question_id, raw_answer, notes=None, status="answered",
+                record_history=False):
+    """
+    Persist an answer.  When record_history=True (set by the route when the
+    section was already marked complete), the previous value is written to
+    answer_history before the overwrite so amendments are auditable.
+    """
     db  = get_db()
     now = datetime.utcnow().isoformat()
+
+    if record_history:
+        # Snapshot the current record before overwriting
+        existing = db.execute(
+            "SELECT raw_answer, answer_status FROM answer_record "
+            "WHERE session_id=? AND question_id=?",
+            (session_id, question_id)
+        ).fetchone()
+        if existing:
+            old_raw    = existing["raw_answer"]
+            old_status = existing["answer_status"]
+            new_raw    = json.dumps(raw_answer)
+            # Only write history if the value actually changed
+            if old_raw != new_raw or old_status != status:
+                db.execute("""
+                    INSERT INTO answer_history
+                        (session_id, question_id, old_raw_answer, old_answer_status,
+                         new_raw_answer, new_answer_status, changed_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (session_id, question_id, old_raw, old_status,
+                      new_raw, status, now))
+
     db.execute("""
         INSERT INTO answer_record
             (session_id, question_id, raw_answer, notes, answer_status, answered_on, last_modified)
@@ -271,3 +353,77 @@ def save_session_meta(session_id, key, value):
 def get_session_meta(session_id, key):
     """Retrieve metadata for a session."""
     return None
+
+
+# ── Answer history ────────────────────────────────────────────────
+
+def get_answer_history(session_id):
+    """Return all amendment records for a session, newest first."""
+    db   = get_db()
+    rows = db.execute(
+        "SELECT * FROM answer_history WHERE session_id=? ORDER BY changed_at DESC",
+        (session_id,)
+    ).fetchall()
+    db.close()
+    result = []
+    for row in rows:
+        result.append({
+            "question_id":      row["question_id"],
+            "old_raw_answer":   json.loads(row["old_raw_answer"]) if row["old_raw_answer"] else None,
+            "old_answer_status": row["old_answer_status"],
+            "new_raw_answer":   json.loads(row["new_raw_answer"]) if row["new_raw_answer"] else None,
+            "new_answer_status": row["new_answer_status"],
+            "changed_at":       row["changed_at"],
+        })
+    return result
+
+
+def get_amended_question_ids(session_id):
+    """Return the set of question IDs that have any amendment history for this session."""
+    db   = get_db()
+    rows = db.execute(
+        "SELECT DISTINCT question_id FROM answer_history WHERE session_id=?",
+        (session_id,)
+    ).fetchall()
+    db.close()
+    return {row["question_id"] for row in rows}
+
+
+# ── Finding context notes ─────────────────────────────────────────
+
+def save_finding_context(session_id, finding_id, note):
+    """Upsert a context note for a finding."""
+    db  = get_db()
+    now = datetime.utcnow().isoformat()
+    db.execute("""
+        INSERT INTO finding_context (session_id, finding_id, note, added_at)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(session_id, finding_id) DO UPDATE SET
+            note=excluded.note,
+            added_at=excluded.added_at
+    """, (session_id, finding_id, note, now))
+    db.commit()
+    db.close()
+
+
+def delete_finding_context(session_id, finding_id):
+    """Remove a context note."""
+    db = get_db()
+    db.execute(
+        "DELETE FROM finding_context WHERE session_id=? AND finding_id=?",
+        (session_id, finding_id)
+    )
+    db.commit()
+    db.close()
+
+
+def get_finding_contexts(session_id):
+    """Return a dict of {finding_id: {note, added_at}} for a session."""
+    db   = get_db()
+    rows = db.execute(
+        "SELECT finding_id, note, added_at FROM finding_context WHERE session_id=?",
+        (session_id,)
+    ).fetchall()
+    db.close()
+    return {row["finding_id"]: {"note": row["note"], "added_at": row["added_at"]}
+            for row in rows}

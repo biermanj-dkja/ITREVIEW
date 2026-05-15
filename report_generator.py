@@ -719,6 +719,24 @@ def _cover(doc, meta):
     pd.paragraph_format.space_before = Pt(10)
     _run(pd, meta.get("report_date", date.today().isoformat()), size=9, color=C.faint)
 
+    # DRAFT watermark — shown when assessment is not yet complete
+    if meta.get("is_draft"):
+        draft_p = doc.add_paragraph()
+        draft_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        draft_p.paragraph_format.space_before = Pt(24)
+        draft_p.paragraph_format.space_after = Pt(4)
+        dr = draft_p.add_run("DRAFT — ASSESSMENT INCOMPLETE")
+        dr.bold = True
+        dr.font.size = Pt(14)
+        dr.font.color.rgb = C.concern
+        draft_sub = doc.add_paragraph()
+        draft_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        draft_sub.paragraph_format.space_before = Pt(0)
+        _run(draft_sub,
+             "Not all sections have been completed. Findings and scores reflect only "
+             "the sections assessed so far.",
+             size=9, italic=True, color=C.faint)
+
 
 # ── Condition Summary table ───────────────────────────────────────
 
@@ -818,6 +836,26 @@ def _exec_summary(doc, meta, summary, findings, scores, answers=None):
     all_section_ids = set(SECTION_NAMES.keys())
     scored_ids = {str(s["section"]["section_id"]) for s in scores if s.get("max_pts", 0) > 0}
     skipped_ids = all_section_ids - scored_ids
+
+    # DRAFT callout — shown when not all sections are complete
+    if meta.get("is_draft") and skipped_ids:
+        incomplete_names = sorted(
+            [f"Section {sid}: {SECTION_NAMES.get(sid, sid)}" for sid in skipped_ids],
+            key=lambda x: int(x.split(":")[0].split()[-1])
+        )
+        def draft_builder(cell):
+            p = _cp(cell, sb=3, sa=2)
+            _run(p, "⚠  DRAFT — Assessment Incomplete  ", bold=True, size=10, color=C.concern)
+            _run(p, "The following sections have not yet been completed. "
+                    "Findings, scores, and the action plan reflect only the sections assessed so far. "
+                    "Complete the remaining sections and regenerate this report for a full picture.",
+                 size=10)
+            for name in incomplete_names:
+                pb = _cp(cell, sb=1, sa=1)
+                pb.paragraph_format.left_indent = Pt(14)
+                _run(pb, f"–  {name}", size=9, color=C.faint)
+        _box(doc, "FDEDEC", draft_builder)
+
     _scope_box(doc, len(scored_ids), skipped_ids)
 
     # ── Data confidence callout (in body, not just footer) ───────
@@ -997,6 +1035,9 @@ def _section_findings(doc, sections_with_findings, all_scored_sections):
     are shown as healthy.
     all_scored_sections: list of section_id strings that were scored.
     """
+def _section_findings(doc, sections_with_findings, all_scored_sections,
+                      finding_contexts=None):
+    finding_contexts = finding_contexts or {}
     _page_break(doc)
     _h(doc, "Section-by-Section Findings", 1)
     _para(doc,
@@ -1081,6 +1122,17 @@ def _section_findings(doc, sections_with_findings, all_scored_sections):
                         suffix += "]"
                         _run(pa, suffix, italic=True, size=9, color=C.faint)
                 _box(doc, "EAFAF1", action_builder)   # pale green
+
+            # Context note — shown when reviewer has annotated this finding
+            ctx = finding_contexts.get(f["finding_id"])
+            if ctx:
+                def ctx_builder(cell, ctx=ctx):
+                    ph = _cp(cell, sb=2, sa=1)
+                    _run(ph, "📋  Context note  ", bold=True, size=9, color=C.healthy)
+                    _run(ph, f"(added {ctx['added_at'][:10]})", size=8, color=C.faint)
+                    pb = _cp(cell, sb=1, sa=2)
+                    _run(pb, ctx["note"], size=9, italic=True, color=C.text)
+                _box(doc, "EAFAF1", ctx_builder)   # same pale green as actions
 
         doc.add_paragraph().paragraph_format.space_after = Pt(8)
 
@@ -1206,7 +1258,7 @@ def _timeline_section(doc, timeline):
 
 # ── Appendix ──────────────────────────────────────────────────────
 
-def _appendix(doc, suppressed, unknown_log, response_log):
+def _appendix(doc, suppressed, unknown_log, response_log, amendment_log=None):
     _page_break(doc)
     _h(doc, "Appendix", 1)
 
@@ -1284,15 +1336,56 @@ def _appendix(doc, suppressed, unknown_log, response_log):
             run.font.size = Pt(8)
             run.font.color.rgb = col
 
+    # D. Answer Amendment Log — only if any revisions exist
+    if amendment_log:
+        _h(doc, "D. Answer Amendment Log", 2)
+        _para(doc,
+              "The following answers were changed after their section was initially marked complete. "
+              "Each row shows the previous value alongside the replacement.",
+              size=10, sb=4, sa=8)
+        atbl = doc.add_table(rows=1, cols=4)
+        atbl.style = "Table Grid"
+        for i, txt in enumerate(["Q ID", "Changed At", "Previous Answer", "Revised Answer"]):
+            c = atbl.rows[0].cells[i]
+            _cell_bg(c, _hex(C.accent))
+            c.paragraphs[0].clear()
+            r = c.paragraphs[0].add_run(txt)
+            r.bold = True
+            r.font.size = Pt(9)
+            r.font.color.rgb = C.white
+
+        for idx, row_data in enumerate(amendment_log):
+            row = atbl.add_row().cells
+            fill = "FFFFFF" if idx % 2 == 0 else "F8F9FA"
+            for c in row:
+                _cell_bg(c, fill)
+            old_val = str(row_data.get("old_raw_answer") or f"({row_data.get('old_answer_status', '—')})")[:120]
+            new_val = str(row_data.get("new_raw_answer") or f"({row_data.get('new_answer_status', '—')})")[:120]
+            changed = row_data.get("changed_at", "")[:16].replace("T", " ")
+            for c, txt, col in [
+                (row[0], row_data["question_id"], C.faint),
+                (row[1], changed,                 C.faint),
+                (row[2], old_val,                 C.concern),
+                (row[3], new_val,                 C.text),
+            ]:
+                c.paragraphs[0].clear()
+                run = c.paragraphs[0].add_run(txt)
+                run.font.size = Pt(8)
+                run.font.color.rgb = col
+
 
 # ── Main entry point ──────────────────────────────────────────────
 
-def generate_report(report_data, answers, profile, section_results=None, start_date=None):
+def generate_report(report_data, answers, profile, section_results=None,
+                    start_date=None, is_complete=True, finding_contexts=None,
+                    amendment_log=None):
     school_name     = _get(answers, "1.1") or (profile or {}).get("school_name", "School")
     school_mission  = _get(answers, "1.5")
     respondent_name = _get(answers, "1.7a")
     respondent_role = _get(answers, "1.7b")
     report_date     = date.today().isoformat()
+    is_draft        = not is_complete
+    finding_contexts = finding_contexts or {}
 
     confidence = report_data.get("data_confidence", "high")
     caveat_map = {
@@ -1312,6 +1405,7 @@ def generate_report(report_data, answers, profile, section_results=None, start_d
         "respondent_role":   respondent_role,
         "report_date":       report_date,
         "confidence_caveat": confidence_caveat,
+        "is_draft":          is_draft,
     }
 
     findings   = report_data.get("findings", [])
@@ -1391,11 +1485,13 @@ def generate_report(report_data, answers, profile, section_results=None, start_d
     _toc(doc)
     _exec_summary(doc, meta, summary, findings, section_results or [], answers=answers)
     _key_risks(doc, key_risks, findings)
-    _section_findings(doc, sections_with_findings, all_scored_ids)
+    _section_findings(doc, sections_with_findings, all_scored_ids,
+                      finding_contexts=finding_contexts)
     # Note: bullet Action Plan section removed — Phased Timeline is the single source
     if timeline:
         _timeline_section(doc, timeline)
-    _appendix(doc, suppressed, unknown_log, response_log)
+    _appendix(doc, suppressed, unknown_log, response_log,
+              amendment_log=amendment_log)
 
     buf = io.BytesIO()
     doc.save(buf)

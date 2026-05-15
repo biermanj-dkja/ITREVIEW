@@ -333,7 +333,8 @@ def _area_score_table(doc, area_scores):
 
 # ── Report sections ───────────────────────────────────────────────
 
-def _cover(doc, school_name, respondent_name, respondent_role, report_date):
+def _cover(doc, school_name, respondent_name, respondent_role, report_date,
+           is_draft=False):
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_before = Pt(60)
@@ -386,6 +387,23 @@ def _cover(doc, school_name, respondent_name, respondent_role, report_date):
     pd.alignment = WD_ALIGN_PARAGRAPH.CENTER
     pd.paragraph_format.space_before = Pt(16)
     _run(pd, report_date, size=9, color=C.faint)
+
+    if is_draft:
+        draft_p = doc.add_paragraph()
+        draft_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        draft_p.paragraph_format.space_before = Pt(24)
+        draft_p.paragraph_format.space_after = Pt(4)
+        dr = draft_p.add_run("DRAFT — ASSESSMENT INCOMPLETE")
+        dr.bold = True
+        dr.font.size = Pt(14)
+        dr.font.color.rgb = C.concern
+        draft_sub = doc.add_paragraph()
+        draft_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        draft_sub.paragraph_format.space_before = Pt(0)
+        _run(draft_sub,
+             "Not all system worksheets or policy sections have been completed. "
+             "Findings reflect only the systems assessed so far.",
+             size=9, italic=True, color=C.faint)
 
 
 def _dg_scope_box(doc, system_names, per_system_results):
@@ -466,9 +484,20 @@ def _dg_scope_box(doc, system_names, per_system_results):
     _box(doc, "D6EAF8", builder)   # light blue, matches Module 1 scope box
 
 
-def _exec_summary(doc, dg_report, school_name, system_names=None):
+def _exec_summary(doc, dg_report, school_name, system_names=None, is_draft=False):
     _page_break(doc)
     _h(doc, "Executive Summary", 1)
+
+    # DRAFT callout — shown when assessment is not yet complete
+    if is_draft:
+        def draft_builder(cell):
+            p = _cp(cell, sb=3, sa=2)
+            _run(p, "⚠  DRAFT — Assessment Incomplete  ", bold=True, size=10, color=C.concern)
+            _run(p, "Not all system worksheets or governance sections have been completed. "
+                    "Grades, findings, and the action plan reflect only the systems assessed so far. "
+                    "Complete remaining worksheets and regenerate this report for a full picture.",
+                 size=10)
+        _box(doc, "FDEDEC", draft_builder)
 
     # ── Assessment scope callout ─────────────────────────────────
     if system_names is not None:
@@ -610,7 +639,8 @@ def _exec_summary(doc, dg_report, school_name, system_names=None):
               size=10, color=C.faint, sb=4, sa=8)
 
 
-def _per_system_findings(doc, dg_report):
+def _per_system_findings(doc, dg_report, finding_contexts=None):
+    finding_contexts = finding_contexts or {}
     _page_break(doc)
     _h(doc, "Per-System Findings", 1)
     _para(doc,
@@ -672,6 +702,8 @@ def _per_system_findings(doc, dg_report):
 
         for f in sorted_findings:
             sev_hex = _hex(SEV_COLOR.get(f.severity, C.text))
+            # Build a stable finding_id key for context lookup
+            fid_key = f"{result.section_id}:{f.area[:3].upper()}"
 
             tp = doc.add_paragraph()
             tp.paragraph_format.space_before = Pt(8)
@@ -703,6 +735,17 @@ def _per_system_findings(doc, dg_report):
                          italic=True, size=9, color=C.faint)
 
             _box(doc, "EBF5FB", action_builder)
+
+            # Context note — shown when reviewer has annotated this finding
+            ctx = finding_contexts.get(fid_key)
+            if ctx:
+                def ctx_builder(cell, ctx=ctx):
+                    ph = _cp(cell, sb=2, sa=1)
+                    _run(ph, "📋  Context note  ", bold=True, size=9, color=C.healthy)
+                    _run(ph, f"(added {ctx['added_at'][:10]})", size=8, color=C.faint)
+                    pb = _cp(cell, sb=1, sa=2)
+                    _run(pb, ctx["note"], size=9, italic=True, color=C.text)
+                _box(doc, "EAFAF1", ctx_builder)
 
         doc.add_paragraph().paragraph_format.space_after = Pt(6)
 
@@ -908,7 +951,8 @@ def _getting_started(doc, gs):
     _box(doc, _hex(C.ritual), ritual_builder)
 
 
-def _appendix(doc, dg_report, answers, system_names, generated_section_ids):
+def _appendix(doc, dg_report, answers, system_names, generated_section_ids,
+              amendment_log=None):
     _page_break(doc)
     _h(doc, "Appendix — Raw Response Log", 1)
     _para(doc,
@@ -971,6 +1015,42 @@ def _appendix(doc, dg_report, answers, system_names, generated_section_ids):
                 r.font.color.rgb = col
 
         doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+    # Answer Amendment Log — only if any revisions exist
+    if amendment_log:
+        _h(doc, "Answer Amendment Log", 2)
+        _para(doc,
+              "The following answers were changed after their section was initially marked complete.",
+              size=10, color=C.faint, sb=4, sa=8)
+        atbl = doc.add_table(rows=1, cols=4)
+        atbl.style = "Table Grid"
+        for i_h, txt in enumerate(["Q ID", "Changed At", "Previous Answer", "Revised Answer"]):
+            c = atbl.rows[0].cells[i_h]
+            _cell_bg(c, "EBF5FB")
+            c.paragraphs[0].clear()
+            r = c.paragraphs[0].add_run(txt)
+            r.bold = True
+            r.font.size = Pt(8)
+            r.font.color.rgb = C.accent
+
+        for idx, row_data in enumerate(amendment_log):
+            row = atbl.add_row().cells
+            fill = "FFFFFF" if idx % 2 == 0 else "F8F9FA"
+            for c in row:
+                _cell_bg(c, fill)
+            old_val = str(row_data.get("old_raw_answer") or f"({row_data.get('old_answer_status', '—')})")[:120]
+            new_val = str(row_data.get("new_raw_answer") or f"({row_data.get('new_answer_status', '—')})")[:120]
+            changed = row_data.get("changed_at", "")[:16].replace("T", " ")
+            for c, txt, col in [
+                (row[0], row_data["question_id"], C.faint),
+                (row[1], changed,                 C.faint),
+                (row[2], old_val,                 C.concern),
+                (row[3], new_val,                 C.text),
+            ]:
+                c.paragraphs[0].clear()
+                run = c.paragraphs[0].add_run(str(txt))
+                run.font.size = Pt(8)
+                run.font.color.rgb = col
 
 
 # ── Timeline helpers ───────────────────────────────────────────────
@@ -1098,7 +1178,8 @@ def _dg_timeline_section(doc, timeline):
 # ── Main entry point ──────────────────────────────────────────────
 
 def generate_dg_report(dg_report_obj, answers, profile, system_names,
-                       generated_section_ids, start_date=None):
+                       generated_section_ids, start_date=None,
+                       is_complete=True, finding_contexts=None, amendment_log=None):
     """
     Parameters
     ----------
@@ -1109,6 +1190,9 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
     generated_section_ids: list of str
     start_date           : ISO date string or None — if provided, a phased
                            remediation timeline section is added to the report.
+    is_complete          : bool — False adds a DRAFT watermark to cover and exec summary
+    finding_contexts     : dict of {finding_id: {note, added_at}} — reviewer annotations
+    amendment_log        : list of amendment history dicts — shown in appendix if present
 
     Returns
     -------
@@ -1116,6 +1200,8 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
     """
     school_name = (profile or {}).get("school_name", "School")
     report_date = date.today().isoformat()
+    is_draft = not is_complete
+    finding_contexts = finding_contexts or {}
 
     def _get(qid):
         d = answers.get(qid)
@@ -1135,9 +1221,11 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
         sec.right_margin  = Inches(0.9)
 
     _set_hf(doc, school_name, report_date)
-    _cover(doc, school_name, respondent_name, respondent_role, report_date)
-    _exec_summary(doc, dg_report_obj, school_name, system_names=system_names)
-    _per_system_findings(doc, dg_report_obj)
+    _cover(doc, school_name, respondent_name, respondent_role, report_date,
+           is_draft=is_draft)
+    _exec_summary(doc, dg_report_obj, school_name, system_names=system_names,
+                  is_draft=is_draft)
+    _per_system_findings(doc, dg_report_obj, finding_contexts=finding_contexts)
     _school_wide_findings(doc, dg_report_obj)
     _action_plan(doc, dg_report_obj)
 
@@ -1180,7 +1268,8 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
             _dg_timeline_section(doc, timeline)
 
     _getting_started(doc, dg_report_obj.getting_started)
-    _appendix(doc, dg_report_obj, answers, system_names, generated_section_ids)
+    _appendix(doc, dg_report_obj, answers, system_names, generated_section_ids,
+              amendment_log=amendment_log)
 
     buf = io.BytesIO()
     doc.save(buf)

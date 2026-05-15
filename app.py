@@ -9,7 +9,10 @@ from database import (
     get_session, mark_section_complete, get_all_sessions,
     save_school_profile, get_school_profile, flag_session_incomplete,
     delete_session, save_session_meta, get_session_meta,
-    set_last_exported, get_last_exported
+    set_last_exported, get_last_exported,
+    get_answer_history, get_amended_question_ids,
+    save_finding_context, delete_finding_context, get_finding_contexts,
+    deprecate_session
 )
 from rules_engine import evaluate_all, evaluate_section, findings_to_dict
 from report_generator import generate_report
@@ -27,7 +30,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.5.3.2'
+app.config['VERSION'] = '0.6.0'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -108,6 +111,7 @@ def home():
     # Annotate each session with is_complete, total_sections, and a human label
     # Sort by created_at ascending so we can assign stable numbers
     visible = [s for s in sessions if s.get("status") != "deprecated"]
+    archived = [s for s in sessions if s.get("status") == "deprecated"]
     visible_sorted = sorted(visible, key=lambda s: s.get("created_on", s.get("last_modified", "")))
     label_counter = {}
     for i, sess in enumerate(visible_sorted, 1):
@@ -130,7 +134,8 @@ def home():
         n = label_counter.get(sess["session_id"], "")
         started = sess.get("created_on", sess.get("last_modified", ""))[:10]
         sess["human_label"] = f"#{n} · Started {started}" if n else f"Started {started}"
-    return render_template("home.html", profile=profile, sessions=sessions)
+    return render_template("home.html", profile=profile, sessions=sessions,
+                           archived_sessions=archived)
 
 
 @app.route("/setup", methods=["GET", "POST"])
@@ -247,6 +252,9 @@ def section(session_id, section_id):
     if request.method == "POST":
         action = request.form.get("action", "save")
 
+        # Determine if this section was already marked complete — if so, saves are revisions
+        already_complete = section_id in json.loads(sess.get("sections_complete", "[]"))
+
         for q in visible_questions:
             qid      = q["question_id"]
             atype    = q["answer_type"]
@@ -256,10 +264,12 @@ def section(session_id, section_id):
             unknown = request.form.get(f"{field_key}_unknown") == "1"
 
             if skipped:
-                save_answer(session_id, qid, None, status="skipped")
+                save_answer(session_id, qid, None, status="skipped",
+                            record_history=already_complete)
                 continue
             if unknown:
-                save_answer(session_id, qid, "unknown", status="unknown")
+                save_answer(session_id, qid, "unknown", status="unknown",
+                            record_history=already_complete)
                 continue
 
             if atype == "multi_select":
@@ -279,7 +289,8 @@ def section(session_id, section_id):
                 raw   = items if items else None
                 status = "answered" if raw else "unanswered"
 
-            save_answer(session_id, qid, raw, notes=notes, status=status)
+            save_answer(session_id, qid, raw, notes=notes, status=status,
+                        record_history=already_complete)
 
         if action == "complete":
             answers = get_answers(session_id)
@@ -347,6 +358,8 @@ def section(session_id, section_id):
     section_label_bc = f"Section {sec.get('display_id', section_id)}: {sec['title']}"
     breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=section_label_bc)
 
+    amended_qids = get_amended_question_ids(session_id)
+
     return render_template(
         "section.html",
         session_id=session_id,
@@ -361,6 +374,7 @@ def section(session_id, section_id):
         profile=profile,
         has_hidden_conditionals=has_hidden_conditionals,
         session_breadcrumb=breadcrumb,
+        amended_qids=amended_qids,
     )
 
 
@@ -431,9 +445,24 @@ def manage_session(session_id):
 
 @app.route("/session/<session_id>/deprecate", methods=["POST"])
 def deprecate_session_route(session_id):
-    from database import deprecate_session
     deprecate_session(session_id)
-    flash("Assessment archived. It is hidden from this list but kept in the database.", "success")
+    flash("Assessment archived. You can view it on the Archived tab.", "success")
+    return redirect(url_for("home"))
+
+
+@app.route("/session/<session_id>/unarchive", methods=["POST"])
+def unarchive_session_route(session_id):
+    """Restore a deprecated session to in_progress status."""
+    db = __import__("database").get_db()
+    from datetime import datetime as _dt
+    now = _dt.utcnow().isoformat()
+    db.execute(
+        "UPDATE assessment_session SET status='in_progress', last_modified=? WHERE session_id=?",
+        (now, session_id)
+    )
+    db.commit()
+    db.close()
+    flash("Assessment restored to your active list.", "success")
     return redirect(url_for("home"))
 
 
@@ -456,11 +485,15 @@ def findings_full(session_id):
     completed = json.loads(sess.get("sections_complete", "[]"))
     report = evaluate_all(answers, session_id=session_id, completed_sections=None)
     data = findings_to_dict(report)
+    last_exported = get_last_exported(session_id)
+    finding_contexts = get_finding_contexts(session_id)
     return render_template("findings.html",
         session_id=session_id,
         sess=sess,
         report=data,
         section_label=None,
+        last_exported=last_exported,
+        finding_contexts=finding_contexts,
     )
 
 
@@ -476,13 +509,35 @@ def findings_section(session_id, section_id):
     m, _ = _load_expanded_module(mid, session_id)
     sec = get_section(m, section_id)
     section_label = sec["title"] if sec else f"Section {section_id}"
+    last_exported = get_last_exported(session_id)
+    finding_contexts = get_finding_contexts(session_id)
     return render_template("findings.html",
         session_id=session_id,
         sess=sess,
         report=data,
         section_label=section_label,
+        last_exported=last_exported,
+        finding_contexts=finding_contexts,
     )
 
+
+
+# ── FINDING CONTEXT NOTES ────────────────────────────────────────
+
+@app.route("/session/<session_id>/finding-context", methods=["POST"])
+def save_finding_context_route(session_id):
+    sess = get_session(session_id)
+    if not sess:
+        return redirect(url_for("home"))
+    finding_id = request.form.get("finding_id", "").strip()
+    note = request.form.get("note", "").strip()
+    if finding_id and note:
+        save_finding_context(session_id, finding_id, note)
+        flash("Context note saved.", "success")
+    elif finding_id and not note:
+        delete_finding_context(session_id, finding_id)
+        flash("Context note removed.", "success")
+    return redirect(url_for("findings_full", session_id=session_id))
 
 
 # ── REPORT DOWNLOAD ─────────────────────────────────────────────
@@ -541,8 +596,14 @@ def download_report(session_id):
         })
 
     try:
+        complete = json.loads(sess.get("sections_complete", "[]"))
+        is_complete = len(complete) >= 10
+        finding_contexts = get_finding_contexts(session_id)
+        amendment_log = get_answer_history(session_id)
         docx_bytes = generate_report(report_data, answers, profile, section_results,
-                                     start_date=start_date)
+                                     start_date=start_date, is_complete=is_complete,
+                                     finding_contexts=finding_contexts,
+                                     amendment_log=amendment_log)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("summary", session_id=session_id))
@@ -631,6 +692,16 @@ def summary(session_id):
     module_label = "IT Assessment" if mid == "module_1" else "Data Governance"
     breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=None)
 
+    # is_complete: used by summary to conditionally show DRAFT note
+    is_complete = sess.get("is_complete", False)
+    if mid == "module_2":
+        dg1_done = "DG1" in complete
+        dg2_done = "DG2" in complete
+        sys_done = any(s.startswith("DG_SYS_") for s in complete)
+        is_complete = dg1_done and dg2_done and sys_done
+    else:
+        is_complete = len(complete) >= 10
+
     return render_template(
         "summary.html",
         session_id=session_id,
@@ -641,6 +712,7 @@ def summary(session_id):
         unknown_summary=unknown_summary,
         total_unknowns=total_unknowns,
         session_breadcrumb=breadcrumb,
+        is_complete=is_complete,
     )
 
 
@@ -679,9 +751,7 @@ def dg_report_setup(session_id):
         return redirect(url_for("home"))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
-        if not start_date:
-            flash("Please enter a start date.", "error")
-            return redirect(url_for("dg_report_setup", session_id=session_id))
+        # start_date is optional — blank means no timeline section
         return redirect(url_for("download_dg_report", session_id=session_id,
                                 start_date=start_date))
     from datetime import date
@@ -709,8 +779,17 @@ def download_dg_report(session_id):
     dg = evaluate_dg(answers, system_names, gen_ids)
 
     try:
+        complete = json.loads(sess.get("sections_complete", "[]"))
+        dg1_done = "DG1" in complete
+        dg2_done = "DG2" in complete
+        sys_done = any(s.startswith("DG_SYS_") for s in complete)
+        is_complete = dg1_done and dg2_done and sys_done
+        finding_contexts = get_finding_contexts(session_id)
+        amendment_log = get_answer_history(session_id)
         docx_bytes = generate_dg_report(dg, answers, profile, system_names, gen_ids,
-                                        start_date=start_date)
+                                        start_date=start_date, is_complete=is_complete,
+                                        finding_contexts=finding_contexts,
+                                        amendment_log=amendment_log)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("dg_report", session_id=session_id))

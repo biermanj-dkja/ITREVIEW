@@ -1,7 +1,7 @@
 """
 report_generator_dg.py  —  DOCX report generator for Module 2
 Data Governance and Data Flow Audit
-v0.5.4.0
+v0.5.4.1
 
 Report sections:
   1. Cover page
@@ -393,35 +393,75 @@ def _dg_scope_box(doc, system_names, per_system_results):
     Render an 'Assessment scope' callout box in the Executive Summary.
     system_names        — full list of systems the user registered
     per_system_results  — SystemResult list; only systems that were scored
+
+    For each audited system, shows the data categories it holds (from
+    SYS.5.1 answers) so a reader unfamiliar with the assessment knows
+    exactly what was examined and why.
     """
-    audited_names = [r.system_name for r in per_system_results]
+    # Build a lookup: system_name -> SystemResult
+    result_by_name = {r.system_name: r for r in per_system_results}
+    audited_names  = [r.system_name for r in per_system_results]
     total_registered = len(system_names)
     total_audited    = len(audited_names)
+    audited_set      = set(audited_names)
+    not_audited      = [n for n in system_names if n not in audited_set]
 
-    # Systems registered but not scored (no answers recorded)
-    audited_set   = set(audited_names)
-    not_audited   = [n for n in system_names if n not in audited_set]
+    # What the DG audit actually examines — shown once at the top
+    AUDIT_AREAS = [
+        "data access controls and user permissions",
+        "data retention and deletion practices",
+        "vendor data-sharing and contractual protections",
+        "backup coverage and recovery readiness",
+        "breach notification and incident response procedures",
+    ]
 
     def builder(cell):
-        p1 = _cp(cell, sb=3, sa=2)
-        _run(p1, "Assessment scope:  ", bold=True, size=10, color=C.accent)
-        _run(p1,
-             f"{total_audited} of {total_registered} registered "
-             f"system{'s' if total_registered != 1 else ''} were audited in this session.",
-             size=10)
-
-        if audited_names:
-            p2 = _cp(cell, sb=2, sa=1)
-            _run(p2, "Systems audited:  ", bold=True, size=9, color=C.faint)
-            _run(p2, ", ".join(audited_names), size=9)
-
-        if not_audited:
-            p3 = _cp(cell, sb=2, sa=3)
-            _run(p3, "Not assessed in this session:  ", bold=True, size=9, color=C.faint)
-            _run(p3, ", ".join(not_audited), italic=True, size=9)
+        # Header
+        p0 = _cp(cell, sb=3, sa=2)
+        _run(p0, "Assessment Scope", bold=True, size=10, color=C.accent)
+        if total_audited == total_registered:
+            _run(p0, f"  -  all {total_registered} registered "
+                     f"system{'s' if total_registered != 1 else ''} were audited.", size=10)
         else:
-            p3 = _cp(cell, sb=2, sa=3)
-            _run(p3, "All registered systems were assessed.", italic=True, size=9, color=C.faint)
+            _run(p0,
+                 f"  -  {total_audited} of {total_registered} registered "
+                 f"system{'s' if total_registered != 1 else ''} were audited in this session.",
+                 size=10)
+
+        # What the audit covers (static areas)
+        pa = _cp(cell, sb=3, sa=1)
+        _run(pa, "For each system, this audit reviewed: ", bold=True, size=9, color=C.faint)
+        _run(pa, "; ".join(AUDIT_AREAS) + ".", size=9, color=C.faint)
+
+        # Per-system breakdown with data categories
+        if audited_names:
+            ph = _cp(cell, sb=4, sa=1)
+            _run(ph, "Systems audited in this session:", bold=True, size=9, color=C.accent)
+            for name in audited_names:
+                result = result_by_name.get(name)
+                data_held = result.data_held if (result and result.data_held) else []
+                p = _cp(cell, sb=1, sa=1)
+                _run(p, f"  + {name}", bold=True, size=9, color=C.accent)
+                if data_held:
+                    _run(p, f"  (data held: {', '.join(data_held)})", size=9)
+                else:
+                    _run(p, "  (data categories not specified)", italic=True, size=9, color=C.faint)
+
+        # Not audited
+        if not_audited:
+            ps = _cp(cell, sb=4, sa=1)
+            _run(ps, "Registered but not audited in this session:", bold=True, size=9, color=C.faint)
+            for name in not_audited:
+                pp = _cp(cell, sb=1, sa=1)
+                _run(pp, f"  - {name}", italic=True, size=9, color=C.faint)
+            pn = _cp(cell, sb=3, sa=3)
+            _run(pn,
+                 "Findings and grades for unaudited systems are not included in this report.",
+                 italic=True, size=9, color=C.faint)
+        else:
+            pe = _cp(cell, sb=4, sa=3)
+            _run(pe, "All registered systems were audited - no gaps in coverage.",
+                 italic=True, size=9, color=C.faint)
 
     _box(doc, "D6EAF8", builder)   # light blue, matches Module 1 scope box
 

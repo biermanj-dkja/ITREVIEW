@@ -1,6 +1,6 @@
 """
 Report Generator for Module 1 — School IT State of the System Report
-v0.5.4.0
+v0.5.4.1
 
 Uses python-docx to produce the DOCX entirely in Python.
 
@@ -64,6 +64,20 @@ SECTION_NAMES = {
     "8": "Security Operations, Filtering, and Safeguards",
     "9": "Documentation and Operational Readiness",
 }
+# One-sentence plain-English description of what each section examines.
+# Used in the dynamic scope statement so a reader who did not fill out
+# the assessment understands exactly what was (and was not) reviewed.
+SECTION_DESCRIPTIONS = {
+    "2": "how IT is staffed, funded, planned, and managed — including budget, vendor contracts, and written policies",
+    "3": "the physical network infrastructure: wiring, wireless access, firewalls, and internet service across all buildings and sites",
+    "4": "user accounts, passwords, directory services, multi-factor authentication, and who has access to what",
+    "5": "staff and student computers, laptops, tablets, printers, projectors, and classroom A/V equipment",
+    "6": "core business systems (SIS, LMS, email, finance), on-premise servers, and key vendor relationships",
+    "7": "how school data is backed up, how quickly it can be restored, and whether recovery has ever been tested",
+    "8": "security monitoring, web filtering, anti-malware, phishing defenses, and student safeguarding controls",
+    "9": "IT runbooks, asset inventories, onboarding/offboarding procedures, and operational continuity documentation",
+}
+
 SEV_ORDER  = {"urgent": 0, "concern": 1, "watch": 2, "healthy": 3, "context_only": 4}
 FSEV_ORDER = {"urgent": 0, "concern": 1, "watch": 2}
 
@@ -366,24 +380,53 @@ def _cost_tier(actions):
 def _scope_box(doc, sections_covered, skipped_section_ids):
     """
     Render a light-blue 'Assessment scope' callout near the top of the
-    Executive Summary.  Lists which sections were completed and which
-    (if any) were not assessed.
+    Executive Summary.  Lists each covered section by name and a plain-English
+    description of its subject matter so a reader who did not complete the
+    questionnaire can quickly understand what was (and was not) reviewed.
     """
-    skipped_names = [SECTION_NAMES.get(s, f"Section {s}") for s in sorted(skipped_section_ids)]
+    total = len(SECTION_NAMES)
+    covered_ids = sorted(set(SECTION_NAMES.keys()) - set(skipped_section_ids))
+    skipped_ids_sorted = sorted(skipped_section_ids)
 
     def builder(cell):
-        p1 = _cp(cell, sb=3, sa=2)
-        _run(p1, "Assessment scope:  ", bold=True, size=10, color=C.accent)
-        _run(p1,
-             f"This report covers {sections_covered} of {len(SECTION_NAMES)} assessed sections.",
-             size=10)
-        if skipped_names:
-            p2 = _cp(cell, sb=2, sa=3)
-            _run(p2, "Not assessed in this session:  ", bold=True, size=9, color=C.faint)
-            _run(p2, "; ".join(skipped_names), italic=True, size=9)
+        # Header
+        p0 = _cp(cell, sb=3, sa=3)
+        _run(p0, "Assessment Scope", bold=True, size=10, color=C.accent)
+        if sections_covered == total:
+            _run(p0, f"  -  all {total} IT domains were reviewed in this assessment.", size=10)
         else:
-            p2 = _cp(cell, sb=2, sa=3)
-            _run(p2, "All assessed sections were completed.", italic=True, size=9, color=C.faint)
+            _run(p0,
+                 f"  -  {sections_covered} of {total} IT domains were reviewed "
+                 f"in this assessment.",
+                 size=10)
+
+        # Covered sections
+        for sid in covered_ids:
+            name = SECTION_NAMES.get(sid, f"Section {sid}")
+            desc = SECTION_DESCRIPTIONS.get(sid, "")
+            p = _cp(cell, sb=1, sa=1)
+            _run(p, f"  + {name}", bold=True, size=9, color=C.accent)
+            if desc:
+                _run(p, f":  {desc}.", size=9)
+
+        # Skipped sections
+        if skipped_ids_sorted:
+            ps = _cp(cell, sb=4, sa=1)
+            _run(ps, "Not reviewed in this session:", bold=True, size=9, color=C.faint)
+            for sid in skipped_ids_sorted:
+                name = SECTION_NAMES.get(sid, f"Section {sid}")
+                desc = SECTION_DESCRIPTIONS.get(sid, "")
+                pp = _cp(cell, sb=1, sa=1)
+                _run(pp, f"  - {name}", bold=True, size=9, color=C.faint)
+                if desc:
+                    _run(pp, f":  {desc}.", italic=True, size=9, color=C.faint)
+            pn = _cp(cell, sb=3, sa=3)
+            _run(pn,
+                 "Findings and scores for unreviewed domains are not included in this report.",
+                 italic=True, size=9, color=C.faint)
+        else:
+            pe = _cp(cell, sb=4, sa=3)
+            _run(pe, "All IT domains were assessed - no gaps in coverage.", italic=True, size=9, color=C.faint)
 
     _box(doc, "D6EAF8", builder)   # light blue
 

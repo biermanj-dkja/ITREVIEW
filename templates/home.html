@@ -88,6 +88,28 @@
           <div class="text-xs text-faint mb-12">~3–5 hours · scales with system count</div>
           <a href="/new_session?module_id=module_2" class="btn btn-primary">+ Start Data Governance Audit</a>
         </div>
+        <div class="card card-sm" style="flex: 1; min-width: 260px; display: flex; flex-direction: column;">
+          <div class="text-xs text-faint mono mb-6">MODULE 3</div>
+          <div style="font-weight: 600; margin-bottom: 6px;">Vendor Register</div>
+          <p class="text-sm text-dim" style="margin-bottom: 16px; line-height: 1.5; flex: 1;">
+            Builds a complete register of every software subscription, licensed application,
+            and vendor contract the school holds. Maps renewal dates, costs, student-data
+            obligations, and support contacts. Produces a renewal risk register and a
+            vendor scorecard. Designed for IT and the Business Office together.
+          </p>
+          <div class="text-xs text-faint mb-12">~15 min setup · ~10 min per vendor</div>
+          <a href="/new_session?module_id=module_3" class="btn btn-primary">+ Start Vendor Register</a>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 16px; border-color: var(--border); background: var(--surface2);">
+        <p class="text-sm text-dim" style="line-height: 1.6; margin: 0;">
+          <strong style="color: var(--text);">Recommended order:</strong>
+          Start with the <strong style="color: var(--text);">IT Assessment (Module 1)</strong> to get a broad picture of your environment,
+          then the <strong style="color: var(--text);">Vendor Register (Module 3)</strong> to build your complete system and subscription inventory,
+          then use that inventory as your starting point for the <strong style="color: var(--text);">Data Governance Audit (Module 2)</strong>.
+          If you already know your environment well, any module works as a standalone starting point.
+        </p>
       </div>
     </div>
 
@@ -112,6 +134,8 @@
                 &nbsp;·&nbsp;
                 {% if sess.module_id == 'module_2' %}
                   <span style="color: var(--watch); font-family: var(--mono);">DATA GOVERNANCE</span>
+                {% elif sess.module_id == 'module_3' %}
+                  <span style="color: var(--concern); font-family: var(--mono);">VENDOR REGISTER</span>
                 {% else %}
                   <span style="color: var(--accent); font-family: var(--mono);">IT ASSESSMENT</span>
                 {% endif %}
@@ -184,6 +208,8 @@
                 &nbsp;·&nbsp;
                 {% if sess.module_id == 'module_2' %}
                   <span style="color: var(--watch); font-family: var(--mono);">DATA GOVERNANCE</span>
+                {% elif sess.module_id == 'module_3' %}
+                  <span style="color: var(--concern); font-family: var(--mono);">VENDOR REGISTER</span>
                 {% else %}
                   <span style="color: var(--accent); font-family: var(--mono);">IT ASSESSMENT</span>
                 {% endif %}

@@ -77,25 +77,25 @@
 
     {% if severity == "urgent" %}
     <div class="alert alert-error" style="text-align: left; margin-top: 8px;">
-      <span><strong>Urgent gaps identified.</strong> You scored {{ pct }}% in this area. Several high-priority issues were found — these will appear as immediate action items in your report. Address these before moving on if possible.</span>
+      <strong>Urgent gaps identified.</strong> This section contains findings that require immediate attention.
     </div>
     {% elif severity == "concern" %}
     <div style="padding: 12px 16px; background: var(--surface2); border: 1px solid var(--concern);
                 border-left: 3px solid var(--concern); border-radius: 6px; text-align: left;
                 font-size: 13px; color: var(--text-dim); margin-top: 8px;">
-      You scored {{ pct }}% in this area. Material gaps were identified — these will appear as prioritized action items in your report. Continue through all sections, then review the full findings to plan your response.
+      Material gaps were identified in this section. These will appear in your action plan.
     </div>
     {% elif severity == "watch" %}
     <div style="padding: 12px 16px; background: var(--surface2); border: 1px solid var(--watch);
                 border-left: 3px solid var(--watch); border-radius: 6px; text-align: left;
                 font-size: 13px; color: var(--text-dim); margin-top: 8px;">
-      You scored {{ pct }}% in this area. Some improvement opportunities were identified. These will appear in your action plan as lower-priority items to address when time allows.
+      Some areas to monitor or improve were identified. These will appear in your action plan.
     </div>
     {% elif severity == "healthy" %}
     <div style="padding: 12px 16px; background: var(--surface2); border: 1px solid var(--healthy);
                 border-left: 3px solid var(--healthy); border-radius: 6px; text-align: left;
                 font-size: 13px; color: var(--text-dim); margin-top: 8px;">
-      You scored {{ pct }}% in this area — well covered. No significant gaps were found here. Continue to the next section to keep building your full picture.
+      This section is well covered. Continue to the next section.
     </div>
     {% endif %}
   </div>

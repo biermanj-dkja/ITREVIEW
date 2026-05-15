@@ -180,8 +180,9 @@
     var saved;
     try { saved = localStorage.getItem('home-tab'); } catch(e) {}
     var hasSessions = {{ 'true' if has_sessions else 'false' }};
-    var defaultTab = hasSessions ? 'saved' : 'new';
-    switchTab(saved || defaultTab);
+    // Only honour the stored preference when sessions exist; otherwise always land on New.
+    var defaultTab = hasSessions ? (saved || 'saved') : 'new';
+    switchTab(defaultTab);
   })();
 </script>
 {% endblock %}

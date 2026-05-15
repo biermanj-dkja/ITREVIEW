@@ -34,5 +34,28 @@
       </div>
     </form>
   </div>
+
+  {% if not profile %}
+  <div class="card mt-24" style="border-color: var(--border);">
+    <h2 style="margin-bottom: 6px; font-size: 1.05rem;">Moving from another machine?</h2>
+    <p class="text-sm text-dim" style="margin-bottom: 20px; line-height: 1.6;">
+      If you have a previously exported session file, you can import it here instead of
+      filling in the form above. Your school profile, all answers, and section status
+      will be restored from the file automatically.
+    </p>
+    <form method="POST" action="{{ url_for('import_session') }}" enctype="multipart/form-data">
+      <input type="hidden" name="from_setup" value="1">
+      <div class="form-group">
+        <label class="field-label">Session Export File (.json)</label>
+        <input type="file" name="session_file" accept=".json"
+               style="padding: 10px 14px; cursor: pointer;">
+      </div>
+      <div style="display: flex; gap: 12px; margin-top: 8px;">
+        <button type="submit" class="btn btn-secondary">⬆ Import &amp; Restore</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

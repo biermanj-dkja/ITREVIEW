@@ -76,6 +76,12 @@
       will still include all findings and the action plan.
     </p>
 
+    {% if last_exported %}
+    <p style="margin-top:0.6rem; text-align:center; font-size:0.8rem; color:var(--text-faint);">
+      Last exported: {{ last_exported[:10] }}
+    </p>
+    {% endif %}
+
   </form>
 </div>
 {% endblock %}

@@ -591,9 +591,10 @@ sections:
       - question_id: "SYS.4.2"
         prompt: "[IT / Business Office] Does the contract require the vendor to notify the school of a data breach — and within what timeframe?"
         help_text: >
-          Florida law requires breach notification to affected individuals
-          within 30 days. The school cannot meet this obligation if vendors
-          notify late. Best practice is 72 hours or less.
+          Applicable law requires prompt breach notification to affected
+          individuals — most jurisdictions require this within 30 to 72 hours.
+          The school cannot meet this obligation if vendors notify late.
+          Best practice is 72 hours or less.
         answer_type: single_select
         status: conditional
         skippable: true
@@ -612,9 +613,9 @@ sections:
       - question_id: "SYS.4.3"
         prompt: "[Business Office] When the contract ends, is the vendor required to delete all school data and provide written confirmation?"
         help_text: >
-          Florida SDPA requires vendors to delete student data when the
-          contract ends. This obligation is only enforceable if it is in
-          the contract.
+          Best practice and applicable law generally require vendors to delete
+          school data and provide written confirmation when a contract ends.
+          This obligation is only enforceable if it is written into the contract.
         answer_type: single_select
         status: conditional
         skippable: true
@@ -681,8 +682,8 @@ sections:
         help_text: >
           Different categories have different legal minimums. Transcripts and
           diplomas may be permanent. Health, financial, and HR records each
-          have requirements under Florida law. If retention periods are not
-          defined, write "not defined" — that is a finding.
+          have minimum retention requirements under federal and state law.
+          If retention periods are not defined, write "not defined" — that is a finding.
         answer_type: long_text
         status: core
         skippable: true
@@ -873,16 +874,16 @@ sections:
       - question_id: "DG2.9"
         prompt: Does the school have a written data retention schedule — a document defining how long each category of data must be kept and when it should be deleted?
         help_text: >
-          Florida law sets minimum retention periods for student records,
-          health records, and financial records. A retention schedule is
-          required to comply.
+          Federal and state law sets minimum retention periods for student records,
+          health records, and financial records. A written retention schedule
+          is the foundation for complying with these requirements.
         answer_type: single_select
         status: core
         skippable: true
         points: 8
         condition: null
         options:
-          - Yes — written schedule aligned to Florida law
+          - Yes — written schedule aligned to applicable law
           - Partial — exists for some data types but not all
           - No
           - Unknown

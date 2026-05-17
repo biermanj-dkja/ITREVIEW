@@ -92,14 +92,14 @@ QUESTION_PROMPTS = {
     "1.7a": "Respondent name",
     "1.7b": "Respondent role",
     "1.8":  "Number of campuses / sites",
-    "1.9":  "Total staff (FTE)",
-    "1.10": "Grades served",
-    "1.11": "School type (K-8, K-12, etc.)",
-    "1.12": "Total student enrollment",
-    "1.13": "Number of student devices",
-    "1.14": "Number of staff devices",
-    "1.15": "Types of technology in use",
-    "1.16": "Other technology notes",
+    "1.9":  "Number of buildings (total across all sites)",
+    "1.10": "Buildings per site",
+    "1.11": "Grades served",
+    "1.12": "Approximate student enrollment",
+    "1.13": "Approximate faculty and staff count",
+    "1.14": "Approximate total managed devices",
+    "1.15": "Device categories in scope",
+    "1.16": "Upcoming calendar events affecting IT planning",
     "2.1":  "IT staffing model",
     "2.2":  "Dedicated IT budget?",
     "2.3":  "IT budget reviewed annually?",
@@ -882,6 +882,50 @@ def _exec_summary(doc, meta, summary, findings, scores, answers=None):
     _run(p, f"{summary['watch_count']} watch", bold=True, color=C.watch)
     _run(p, f" level findings. {summary['suppressed_count']} findings absorbed "
            "into composites (see appendix).")
+
+    # ── Overall weighted score ───────────────────────────────────
+    # Section weights per scoring framework v0.1 (Sections 1 and 10 excluded).
+    SECTION_WEIGHTS = {
+        "2": 0.15, "3": 0.12, "4": 0.14, "5": 0.10,
+        "6": 0.12, "7": 0.15, "8": 0.12, "9": 0.10,
+    }
+    if scores:
+        weighted_sum = 0.0
+        weight_used  = 0.0
+        for s in scores:
+            sid = str(s["section"]["section_id"])
+            w   = SECTION_WEIGHTS.get(sid, 0)
+            if w > 0 and s["max_pts"] > 0:
+                weighted_sum += s["pct"] * w
+                weight_used  += w
+        overall_pct = round(weighted_sum / weight_used) if weight_used > 0 else None
+
+        if overall_pct is not None:
+            sev_band = ("Healthy"  if overall_pct >= 85 else
+                        "Watch"    if overall_pct >= 65 else
+                        "Concern"  if overall_pct >= 40 else "Urgent")
+            band_col = (C.healthy  if sev_band == "Healthy" else
+                        C.watch    if sev_band == "Watch"   else
+                        C.concern  if sev_band == "Concern" else C.urgent)
+
+            def score_builder(cell, op=overall_pct, sb=sev_band, bc=band_col):
+                p = _cp(cell, sb=4, sa=2)
+                _run(p, "Overall Score:  ", bold=True, size=11)
+                _run(p, f"{op}%  ", bold=True, size=14, color=bc)
+                _run(p, f"({sb})", bold=True, size=11, color=bc)
+                p2 = _cp(cell, sb=4, sa=4)
+                _run(p2,
+                     "This score is a weighted average of the eight scored sections "
+                     "(Sections 2–9). Section 1 is school identity context only and "
+                     "Section 10 is a calibration input — neither contributes to the "
+                     "score. Section weights reflect domain importance: Governance and "
+                     "Backup/Recovery are weighted highest at 15% each, reflecting the "
+                     "foundational impact of ownership gaps and the irreversibility of "
+                     "data loss.",
+                     size=9, color=C.faint)
+            fill = ("FDEDEC" if sev_band == "Urgent"  else
+                    "FEF9E7" if sev_band in ("Watch", "Concern") else "EAF4FB")
+            _box(doc, fill, score_builder)
 
     # ── Section Scores table — includes What's Working column ────
     if scores:

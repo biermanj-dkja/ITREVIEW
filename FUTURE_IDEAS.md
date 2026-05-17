@@ -257,3 +257,54 @@ at least one completed Module 1 session to be useful.
 ---
 
 *Last updated: v0.6.0 — Module 3/4/5 roadmap entries added and formally committed as the agreed module roadmap. Module 3 (Software, Licensing, and Vendor Register) is the active build target for v0.7.0. Module 4 (IR and Business Continuity) and Module 5 (Annual Health Check) follow in sequence after Module 3 reaches full status.*
+
+---
+
+## Deferred from v0.7.1 Assessment Quality Review
+
+The following items were identified during a structured review of the Module 1 and Module 2 report outputs against the design documents and rule schema. They are intentionally deferred — each is understood, scoped, and documented here for a future sprint.
+
+---
+
+### RA-003 Full Implementation — Key Risk Group Assembly
+
+**Current state (v0.7.1):** `build_key_risk_groups()` in `rules_engine.py` implements RA-003 Option A only. Group titles and contributing finding IDs are correct per the schema. Severity is aggregated to the highest among fired findings.
+
+**What is missing:**
+- **Mandatory ordering** — RA-002 requires F2-C01 to be the absolute first entry in the Key Risks section if it fires. Not yet enforced; groups are currently sorted by severity only.
+- **Composite severity aggregation** — RA-003 defines specific urgent trigger conditions per group (e.g., Group B is urgent if any of F2-C02, F7-012, F3-C02, F6-C02, F9-C01, or F9-005 fires). The trigger sets are already defined in `urgent_triggers` but the composite aggregation narrative is not rendered as a distinct block.
+- **Absorbed findings appendix** — when a composite finding fires and suppresses its component findings, the suppressed findings should appear in a dedicated appendix section ("Findings absorbed into composites") rather than disappearing silently. The suppression count in the Assessment Overview currently reads "0 absorbed" in many cases because composite trigger conditions are not all met on typical assessments; this needs a separate trace pass before implementation.
+
+**Implementation effort:** M+ (5 days). Requires changes to `rules_engine.py`, `report_generator.py`, and a new appendix section function.
+
+---
+
+### Notes Passthrough — User Text Quoted in Finding Descriptions
+
+**Rule references:** R3-026, R9-006, RA-006 (F6-007, F9-006, and others with a notes passthrough requirement in the rule schema).
+
+**What is required:** When a user types notes into a question that has a notes passthrough rule, that text must appear verbatim in the generated finding description — e.g., "IT person noted: 'Only Sarah knows the firewall config.'" This makes the report traceable to the actual assessment conversation rather than relying entirely on static template text.
+
+**Current state:** All finding descriptions use static template text. The `notes_passthrough` field is referenced in the Priority Findings box renderer in `report_generator.py` but is not populated by the rules engine for any rule.
+
+**Implementation effort:** M (3 days). Requires adding a `notes_passthrough` field population step in each affected rule in `rules_engine.py`, keyed to the specific question IDs listed in the rule schema under RA-006.
+
+---
+
+### Per-Section Data Quality Annotations — R10-007
+
+**What is required:** When question 10.8 identifies specific sections where the respondent had low confidence, those sections' findings should each receive an inline uncertainty annotation — a sentence noting that the answers for this section were self-reported as estimated or uncertain.
+
+**Current state:** A single global data confidence caveat is shown in the Executive Summary (the `confidence_caveat` field in report metadata). The per-section annotation step described in R10-007 is not implemented. Individual findings do not carry an evidence or confidence qualifier.
+
+**Implementation effort:** S+ (1 day). The section IDs from question 10.8 are already retrieved in `get_section_10_metadata()`. The annotation would be applied in `report_generator.py` when rendering per-section findings, checking whether the finding's section is in the uncertain list.
+
+---
+
+### Report Date — Dual Display (Assessment Date + Generation Date)
+
+**What is required:** The report currently shows the generation date (today's date when the DOCX is produced). A future version should show both the date the assessment was conducted (derived from the session's `last_modified` or `created_on` timestamp) and the date the report was generated, so a report produced months after the assessment is not mistaken for a current snapshot.
+
+**Current state:** `date.today().isoformat()` is used as `report_date` in `generate_report()` in `report_generator.py`. The session timestamps are available in the database but not passed through to the report builder.
+
+**Implementation effort:** S (½ day). Pass the session's `last_modified` date into `generate_report()` and display both dates on the cover page and in the report footer.

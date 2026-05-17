@@ -1625,13 +1625,29 @@ def apply_constraint_flags(all_findings, constraint_active):
 
 
 def build_key_risk_groups(active_findings):
+    # ── RA-003 IMPLEMENTATION STATUS ─────────────────────────────────────────
+    # This function implements RA-003 Option A only:
+    #   ✓  Group titles match the rule schema definitions exactly
+    #   ✓  Contributing finding IDs are correct per the schema
+    #   ✓  Severity is aggregated to the highest severity among fired findings
+    #   ✗  Mandatory ordering (F2-C01 always first) — NOT YET IMPLEMENTED
+    #   ✗  Composite findings absorbing components into an appendix — NOT YET IMPLEMENTED
+    #   ✗  Composite severity aggregation rules — NOT YET IMPLEMENTED
+    # Full RA-003 implementation is tracked in FUTURE_IDEAS.md.
+    # ─────────────────────────────────────────────────────────────────────────
     groups = {
-        "A": {"title":"No accountable IT ownership structure","finding_ids":[],"severity":"watch"},
-        "B": {"title":"Single-person dependency creates recovery and continuity risk","finding_ids":[],"severity":"watch"},
-        "C": {"title":"Vendor relationships and renewal visibility","finding_ids":[],"severity":"watch"},
-        "D": {"title":"Student data governance and software approval","finding_ids":[],"severity":"watch"},
-        "E": {"title":"Privileged access and baseline security posture","finding_ids":[],"severity":"watch"},
-        "F": {"title":"Device lifecycle and refresh planning gap","finding_ids":[],"severity":"watch"},
+        "A": {"title": "No accountable IT ownership structure",
+              "finding_ids": [], "severity": "watch"},
+        "B": {"title": "Single-person dependency creates recovery and continuity risk",
+              "finding_ids": [], "severity": "watch"},
+        "C": {"title": "Vendor relationships and renewal visibility",
+              "finding_ids": [], "severity": "watch"},
+        "D": {"title": "Student data governance and software approval",
+              "finding_ids": [], "severity": "watch"},
+        "E": {"title": "Privileged access and baseline security posture",
+              "finding_ids": [], "severity": "watch"},
+        "F": {"title": "Device lifecycle and refresh planning gap",
+              "finding_ids": [], "severity": "watch"},
     }
     sev_order = ["healthy","watch","concern","urgent"]
     urgent_triggers = {

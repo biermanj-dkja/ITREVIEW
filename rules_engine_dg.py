@@ -124,8 +124,11 @@ class DGReport:
 # ── Helpers ────────────────────────────────────────────────────────
 
 def _get(answers, section_id, template_qid):
+    # Try single-underscore separator first (current live-session format).
+    # Fall back to double-underscore (format used by sessions exported before v0.7.1,
+    # when the dynamic_engine temporarily produced keys like DG_SYS_1__SYS.1.3).
     full_qid = f"{section_id}_{template_qid}"
-    rec = answers.get(full_qid, {})
+    rec = answers.get(full_qid) or answers.get(f"{section_id}__{template_qid}") or {}
     if isinstance(rec, dict):
         raw = rec.get("raw_answer")
         if isinstance(raw, bool):
@@ -136,7 +139,7 @@ def _get(answers, section_id, template_qid):
 
 def _answered(answers, section_id, template_qid):
     full_qid = f"{section_id}_{template_qid}"
-    rec = answers.get(full_qid, {})
+    rec = answers.get(full_qid) or answers.get(f"{section_id}__{template_qid}") or {}
     return rec.get("answer_status") == "answered" if isinstance(rec, dict) else False
 
 
@@ -563,8 +566,9 @@ def findings_for_system(answers, section_id, system_name):
                 owner="Business Office", timing="immediate", system_name=system_name,
                 title="No breach notification requirement in contract",
                 detail=(f"The DPA for {system_name} does not require the vendor to "
-                        f"notify the school of a data breach. Florida FIPA requires "
-                        f"notification to affected individuals within 30 days.{data_context}"),
+                        f"notify the school of a data breach. Applicable law in most "
+                        f"jurisdictions requires prompt notification — typically within "
+                        f"30 to 72 hours.{data_context}"),
                 action=("Amend the contract to require breach notification within 72 hours. "
                         "This is a standard clause and most vendors will accept it.")
             ))
@@ -574,8 +578,8 @@ def findings_for_system(answers, section_id, system_name):
                 owner="Business Office", timing="near_term", system_name=system_name,
                 title="Breach notification window exceeds best practice",
                 detail=(f"The breach notification window in the {system_name} contract "
-                        f"exceeds 72 hours. This may make it difficult to meet "
-                        f"Florida FIPA obligations.{data_context}"),
+                        f"exceeds 72 hours. This may make it difficult to meet applicable "
+                        f"breach notification requirements.{data_context}"),
                 action=("Negotiate the notification window down to 72 hours or less "
                         "at the next contract renewal.")
             ))
@@ -617,8 +621,8 @@ def findings_for_system(answers, section_id, system_name):
                 title="No data deletion process — data accumulates indefinitely",
                 detail=(f"{system_name} has no process to delete data at the end of its "
                         f"retention period. Data accumulating indefinitely increases "
-                        f"liability and may violate Florida records retention requirements."
-                        f"{data_context}"),
+                        f"legal liability and makes it harder to respond to data requests "
+                        f"or incidents.{data_context}"),
                 action=("Define and document a deletion schedule for each data category "
                         "held in this system. Confirm the schedule with the Business Office "
                         "and assign a named owner responsible for annual execution.")
@@ -774,9 +778,9 @@ def findings_for_school_wide(answers):
             owner="Head of School / IT Director", timing="immediate",
             title="No documented data breach response plan",
             detail=("The school does not have a written plan for responding to a data breach. "
-                    "Florida FIPA requires breach notification to affected individuals within "
-                    "30 days — extremely difficult without a pre-existing response plan that "
-                    "names who does what and in what order."),
+                    "Applicable law requires prompt breach notification to affected individuals — "
+                    "typically within 30 to 72 hours — which is extremely difficult without a "
+                    "pre-existing response plan that names who does what and in what order."),
             action=("Create a breach response plan. It does not need to be long — a one-page "
                     "flowchart naming who does what and within what timeframes is sufficient. "
                     "Test it annually and update it when key staff change.")
@@ -861,11 +865,12 @@ def findings_for_school_wide(answers):
             owner="IT Director / Business Office", timing="near_term",
             title="No data retention schedule",
             detail=("The school does not have a written data retention schedule defining "
-                    "how long each category of data must be kept. Florida law sets minimum "
-                    "retention periods for student, health, and financial records."),
-            action=("Create a data retention schedule aligned to Florida requirements. "
-                    "Start with the highest-risk categories: student records, health records, "
-                    "HR files, and financial data. Assign a named owner and review annually.")
+                    "how long each category of data must be kept. Federal and state law "
+                    "sets minimum retention periods for student, health, and financial records."),
+            action=("Create a data retention schedule aligned to applicable federal and state "
+                    "requirements. Start with the highest-risk categories: student records, "
+                    "health records, HR files, and financial data. Assign a named owner and "
+                    "review annually.")
         ))
 
     return findings

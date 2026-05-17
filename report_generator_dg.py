@@ -1,7 +1,7 @@
 """
 report_generator_dg.py  —  DOCX report generator for Module 2
 Data Governance and Data Flow Audit
-v0.5.4.1
+v0.7.1
 
 Report sections:
   1. Cover page
@@ -646,7 +646,24 @@ def _per_system_findings(doc, dg_report, finding_contexts=None):
     _para(doc,
           "One section per system. Findings are ordered by severity. "
           "Effort ratings: S=½ day · S+=1 day · M=3 days · M+=5 days · L=10 days.",
-          size=10, color=C.faint, sb=4, sa=10)
+          size=10, color=C.faint, sb=4, sa=8)
+
+    # ── Severity scale legend ────────────────────────────────────
+    def legend_builder(cell):
+        p = _cp(cell, sb=2, sa=2)
+        _run(p, "How to read this section — two severity scales are used:\n",
+             bold=True, size=9)
+        _run(p, "System Status", bold=True, size=9)
+        _run(p, " (Urgent / Concern / Watch / Healthy) is derived from the system's "
+                "overall score percentage. It tells you how the system performed across "
+                "all assessed controls.\n", size=9, color=C.faint)
+        _run(p, "Finding Severity", bold=True, size=9)
+        _run(p, " (Critical / High / Medium / Low) reflects the direct risk level of "
+                "each individual control gap, independent of the overall score. A system "
+                "can score Watch overall but still have one Critical finding that needs "
+                "immediate attention.", size=9, color=C.faint)
+    _box(doc, "EAF4FB", legend_builder)
+    doc.add_paragraph().paragraph_format.space_after = Pt(4)
 
     for result in dg_report.per_system_results:
         _h(doc, result.system_name, 2)

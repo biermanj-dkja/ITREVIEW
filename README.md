@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.0
+## v0.7.1.2
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -404,7 +404,161 @@ or any technical setup.
 
 ## What's in this version
 
-**v0.7.0** adds Module 3 — Software, Licensing, and Vendor Register — and a recommended module order note.
+**v0.7.1.2** is a documentation and design-record release. No code changes from v0.7.2.
+Version string updated to reflect that v0.7.1 and v0.7.2 were sequential patch releases.
+All design documents are now current as of this release.
+
+---
+
+**v0.7.2** adds four new Module 3 finding rules, resolves all open Module 3 design questions,
+fixes the Module 2 overall grade calculation, and documents the Module 2 scoring calibration
+as an intentional design decision.
+
+### New Module 3 finding rules (`rules_engine_vr.py`)
+
+- **VR-R6 — Cancellation notice window unknown** — fires when a vendor auto-renews and the
+  required cancellation notice period is Unknown or not specified in the contract. Medium
+  severity, near-term. Schools caught in an auto-renewal without knowing the notice window
+  have no reliable way to cancel before committing to another term.
+
+- **VR-S4 — No escalation path for core system vendor** — fires when a vendor's category
+  is in the core/critical list (SIS, LMS, Identity Provider, Firewall, VoIP, etc.) and the
+  escalation path beyond standard support is not documented. Medium severity, near-term.
+  Non-critical vendors produce no finding for this question.
+
+- **VR-R6 cost escalation modifier** — `V.COST.amount` is now used as a conditional severity
+  escalator. If a vendor is unbudgeted and the annual cost is $5,000 or more, the existing
+  budget finding escalates from Medium/near-term to High/immediate, with the dollar amount
+  appended to the finding detail.
+
+- **VR2.3 — No spend threshold policy** — new school-wide finding. If no IT procurement spend
+  threshold policy exists, a Medium/Concern finding fires about shadow IT risk. An informal
+  policy (understood but not written down) fires a Low finding.
+
+### Module 3 YAML (`module_3.yaml`)
+
+- `V.COST.amount` point value corrected to 0. It was previously assigned 3 points in the YAML
+  but was never included in scoring — the point value was misleading. It is now correctly
+  documented as financial metadata used to populate the vendor register and as a conditional
+  severity modifier.
+
+### Module 2 overall grade — sensitivity-weighted average (`rules_engine_dg.py`)
+
+The Module 2 overall report grade is now a **sensitivity-weighted average** rather than a
+simple average of per-system scores. Systems holding higher-sensitivity data carry more
+weight, preventing strong scores on low-risk tools from masking failures in the school's
+primary data systems.
+
+Multipliers are derived from the data categories recorded in SYS.5.1:
+- **3×** — student health records, staff HR records, financial and payment data
+- **2×** — student academic records, behavioral records, admissions data, auth credentials
+- **1×** — everything else (content filters, logging tools, etc.)
+
+For a typical assessment where the SIS holds health and academic records and scores poorly,
+the weighted grade will be substantially lower than the simple average — accurately reflecting
+the school's real risk posture rather than averaging it away.
+
+### Module 2 scoring calibration — documented as intentional
+
+The Module 2 scoring model is intentionally calibrated toward governance rigor. A well-managed
+system with partial MFA, vendor-managed backups, and no formal DPA review will score in the
+Watch/C range. This is correct: Module 2 is a data governance audit, not an operational health
+check. This decision is now formally recorded in `FUTURE_IDEAS.md`.
+
+### Report generator (`report_generator.py`)
+
+The "0 findings absorbed into composites (see appendix)" placeholder text has been replaced
+with: "Note: composite finding suppression is not yet enabled in this version — all findings
+are listed individually." This reads as a versioned design decision rather than a broken counter.
+
+### Documentation
+
+- `module_2_rule_schema_and_scoring_v0_1.md` — updated to document the sensitivity-weighted
+  average and mark the simple-average gap as resolved.
+- `module_3_rule_schema_and_scoring_v0_1.md` — known gaps table updated to mark all four
+  resolved items.
+- `FUTURE_IDEAS.md` — M3-Q1 and M3-Q2 open question sections replaced with a resolved
+  decision log; Module 2 scoring calibration entry added.
+
+---
+
+**v0.7.1** is an assessment quality and correctness release. It fixes the most significant
+report accuracy issues identified in a structured review of the Module 1 and Module 2 outputs
+against the design documentation and rule schema.
+
+### Module 2 per-system findings — critical bug fixed (`rules_engine_dg.py`)
+
+Every system was previously scoring 0% / F / urgent with zero findings and the message
+"all assessed controls appear to be in place" — a direct contradiction. Root cause: a key
+format mismatch between how question IDs were stored in sessions exported from an earlier
+build (double-underscore separator: `DG_SYS_1__SYS.1.3`) and how the rules engine looked
+them up (single-underscore: `DG_SYS_1_SYS.1.3`). Every answer lookup silently returned
+None, producing zero scores and zero findings simultaneously.
+
+Fixed in `_get()` and `_answered()` with a fallback that tries both formats. Per-system
+results now correctly evaluate worksheet answers:
+- Veracross: 29% / 6 findings / urgent
+- Google Workspace: 68% / 4 findings / watch
+- Seesaw: 25% / 4 findings / urgent
+- Lightspeed Filter: 65% / 2 findings / watch
+- Bark for Schools: 65% / 1 finding / watch
+
+### State-specific legal citations removed (`rules_engine_dg.py`, `module_2.yaml`)
+
+All references to Florida FIPA, Florida SDPA, and "Florida law" have been removed from both
+the rules engine finding text and the YAML help text. Replaced with generic federal and
+applicable-law language (FERPA, COPPA, general best practice). The tool is now legally
+accurate for schools in any jurisdiction.
+
+### Module 1 appendix label drift fixed (`report_generator.py`)
+
+The appendix label dictionary was written against an older version of `module_1.yaml` before
+the buildings sub-question was inserted at positions 1.9/1.10. This shifted all subsequent
+labels by one, causing the appendix to show the right values under wrong headings (e.g. staff
+count displayed under "Number of student devices"). Labels for questions 1.8–1.16 now match
+the current YAML exactly.
+
+### Overall weighted score added to Module 1 executive summary (`report_generator.py`)
+
+The overall weighted score is now displayed in the executive summary as a coloured score box
+showing the numeric percentage, severity band, and a plain-language explanation of how it was
+calculated. Sections 2–9 are weighted using the section weight table from the scoring framework
+document. Sections 1 and 10 are excluded (context and calibration inputs respectively).
+
+### Severity legend added to Module 2 report (`report_generator_dg.py`)
+
+A legend box has been added at the top of the Per-System Findings section explaining the two
+severity scales used in the report: System Status (Urgent/Concern/Watch/Healthy, derived from
+score percentage) and Finding Severity (Critical/High/Medium/Low, per individual control gap).
+These are two distinct dimensions; the legend makes the distinction explicit for readers.
+
+### Key Risk Groups — RA-003 status documented (`rules_engine.py`)
+
+A clearly labelled comment block has been added above `build_key_risk_groups()` documenting
+what is and is not implemented (Option A only: correct titles and finding IDs; severity
+aggregation and mandatory ordering not yet implemented). Full RA-003 implementation is tracked
+in `FUTURE_IDEAS.md`.
+
+### Design documentation (`FUTURE_IDEAS.md`)
+
+Four deferred items added with full context, current state, and implementation effort estimates:
+RA-003 full implementation, Notes Passthrough (R9-006/R3-026), Per-Section Data Quality
+Annotations (R10-007), and Report Date dual display.
+
+### New design documents
+
+Three new reference documents added covering all three modules:
+- `module_2_rule_schema_and_scoring_v0_1.md` — complete rule schema and scoring weights for
+  the Data Governance Audit, derived from the source code.
+- `module_3_rule_schema_and_scoring_v0_1.md` — complete rule schema and scoring weights for
+  the Vendor Register, derived from the source code.
+- `module_1_scoring_weights_v0_1.md` — v0.2 addendum appended, documenting escalation rules
+  and composite behaviours added after the original document was written, plus a known gaps
+  table for the score display features not yet implemented.
+
+---
+
+adds Module 3 — Software, Licensing, and Vendor Register — and a recommended module order note.
 
 - **Module 3 — Vendor Register** — a structured register of every software subscription, licensed application, and vendor contract the school holds. Uses the same dynamic worksheet pattern as Module 2: list your vendors in the discovery section (VR1), get one worksheet per vendor, complete a school-wide governance section (VR2). Produces a renewal risk register, per-vendor grade cards (A–F), school-wide governance findings, and a DOCX report with action plan.
 - **Recommended module order** — the home page and README now include a short guidance note: start with Module 1 (broad IT orientation), then Module 3 (build your complete vendor inventory), then Module 2 (data governance audit using that inventory as your starting point).
@@ -550,3 +704,6 @@ dynamic section engine, and a per-system report card. See the
 - Logo/crest file upload is not yet implemented.
 - Module 1 Sections 1 and 10 generate no findings (context only by design).
 - Archived (deprecated) sessions are accessible via the Archived tab on the home page. They can be restored, exported, or permanently deleted from there.
+- Composite finding suppression is not yet enabled — all findings are listed individually. Full RA-003 implementation is tracked in the roadmap.
+- The Module 1 report shows the date the report was generated, not the date the assessment was conducted. If you generate a report weeks after completing the assessment, both dates will differ. Dual date display is on the roadmap.
+- Module 3 `V.SUPPORT.escalation` finding (VR-S4) uses vendor category text matching to identify core systems. If your vendor category answer does not closely match one of the recognised core categories (SIS, LMS, Identity Provider, Firewall, VoIP, Phone System, Core Infrastructure), the finding will not fire even if the vendor is critical. Review and correct vendor categories in the register if you are not seeing expected findings for core vendors.

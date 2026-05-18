@@ -990,8 +990,46 @@ def evaluate_dg(answers, system_names, generated_section_ids):
     watch   = sum(1 for r in per_system_results if r.severity == "watch")
     healthy = sum(1 for r in per_system_results if r.severity == "healthy")
 
-    all_pcts = [r.score_pct for r in per_system_results if r.max_pts > 0]
-    overall_pct = round(sum(all_pcts) / len(all_pcts)) if all_pcts else 0
+    # ── Sensitivity-weighted overall grade ───────────────────────────
+    # Systems holding higher-sensitivity data carry more weight in the overall
+    # grade. This prevents a strong score on low-risk tools masking critical
+    # failures in the school's primary data systems.
+    #
+    # Multiplier logic (per SYS.5.1 data categories):
+    #   3x  — health/counseling records or financial/HR data
+    #   2x  — student academic, behavioral, admissions, or auth credentials
+    #   1x  — everything else (content filters, logging tools, etc.)
+    _HIGH_SENSITIVITY = {
+        "Student health records (medical, counseling, nurse)",
+        "Staff HR records (employment, performance)",
+        "Financial and payment data",
+    }
+    _MEDIUM_SENSITIVITY = {
+        "Student academic records (grades, transcripts, reports)",
+        "Student behavioral records (discipline, incidents)",
+        "Admissions and enrollment data",
+        "Authentication credentials (usernames, passwords, tokens)",
+    }
+
+    def _sensitivity_multiplier(data_held):
+        if not data_held:
+            return 1
+        cats = set(data_held) if isinstance(data_held, list) else {data_held}
+        if cats & _HIGH_SENSITIVITY:
+            return 3
+        if cats & _MEDIUM_SENSITIVITY:
+            return 2
+        return 1
+
+    weighted_sum = 0.0
+    weight_total = 0.0
+    for r in per_system_results:
+        if r.max_pts > 0:
+            w = _sensitivity_multiplier(r.data_held)
+            weighted_sum += r.score_pct * w
+            weight_total += w
+
+    overall_pct = round(weighted_sum / weight_total) if weight_total > 0 else 0
     overall_grade = _grade(overall_pct)
 
     all_findings = [f for r in per_system_results for f in r.findings] + school_wide

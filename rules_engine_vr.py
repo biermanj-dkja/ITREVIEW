@@ -600,6 +600,78 @@ def findings_for_vendor(answers, section_id, vendor_name):
                     "is to cancel, confirm the cancellation process and any notice requirements.")
         ))
 
+    # ── Cancellation notice window (VR-R6) ───────────────────────
+    # Fires when vendor auto-renews and the required cancellation notice period
+    # is unknown or not specified — creating financial exposure.
+    notice = g("V.RENEW.notice")
+    if (auto_renew == "Yes — auto-renews; cancellation notice required before renewal date"
+            and notice in ("Unknown", "Not specified in contract", None)):
+        findings.append(VRFinding(
+            area="Renewal Management", severity="medium", effort="S",
+            owner="IT Director / Business Office", timing="near_term",
+            vendor_name=vendor_name,
+            title="Cancellation notice window unknown for auto-renewing contract",
+            detail=(f"{vendor_name} auto-renews and the required cancellation notice "
+                    f"period is not documented. Without knowing the notice window, "
+                    f"the school cannot reliably cancel before being committed to "
+                    f"another term."),
+            action=("Check the contract or vendor portal to confirm how many days "
+                    "notice are required before the renewal date to cancel. Record "
+                    "this in the vendor register and set a calendar reminder accordingly.")
+        ))
+
+    # ── Escalation path for core/critical vendors (VR-S4) ────────
+    # A missing escalation path is low-risk for utility tools but a material
+    # operational gap for core infrastructure vendors (SIS, LMS, identity
+    # providers, network infrastructure, communications).
+    _CORE_CATEGORIES = {
+        "SIS", "Student Information System",
+        "LMS", "Learning Management System",
+        "Identity Provider", "SSO",
+        "Network Infrastructure", "Firewall",
+        "Communications", "VoIP", "Phone System",
+        "Core Infrastructure",
+    }
+    escalation = g("V.SUPPORT.escalation")
+    vendor_category = g("V.ID.category") or ""
+    is_core = any(cat.lower() in vendor_category.lower() for cat in _CORE_CATEGORIES)
+    if escalation in ("No — escalation path not documented", "Unknown") and is_core:
+        findings.append(VRFinding(
+            area="Support & Access", severity="medium", effort="S",
+            owner="IT Director", timing="near_term",
+            vendor_name=vendor_name,
+            title="No escalation path documented for core system vendor",
+            detail=(f"{vendor_name} is a core system and there is no documented "
+                    f"escalation path for when standard support is unresponsive. "
+                    f"For critical platforms, knowing who to call next — an account "
+                    f"manager, support VP, or emergency line — can be the difference "
+                    f"between a 2-hour and a 2-day outage."),
+            action=("Ask your account manager or vendor contact to provide an "
+                    "escalation contact — typically a named account manager or "
+                    "a priority support line. Document it in the vendor register "
+                    "alongside the regular support contact.")
+        ))
+
+    # ── Budget finding severity escalation when cost is high ─────
+    # V.COST.amount is metadata (points=0) but is used here as a conditional
+    # modifier: if a vendor is not budgeted AND the annual cost is material
+    # (above $5,000), escalate the existing budget finding from medium to high.
+    # This modifies findings already appended above — scan and upgrade in place.
+    amount_raw = g("V.COST.amount")
+    try:
+        annual_cost_num = float(str(amount_raw).replace(",", "").replace("$", "").strip())
+    except (TypeError, ValueError):
+        annual_cost_num = 0.0
+    if annual_cost_num >= 5000:
+        for f in findings:
+            if f.title == "Subscription not in current budget":
+                f.severity = "high"
+                f.timing = "immediate"
+                f.detail = (f.detail + f" Annual cost is approximately "
+                            f"${annual_cost_num:,.0f} — an unbudgeted commitment "
+                            f"at this level requires prompt finance visibility.")
+                break
+
     return findings
 
 
@@ -732,6 +804,37 @@ def findings_for_school_wide(answers):
             action=("Write down the signing authority policy — even a one-paragraph "
                     "email to relevant staff is a starting point. Formalise it in the "
                     "staff handbook or IT policy document.")
+        ))
+
+    # ── VR2.3: Spend threshold policy ────────────────────────────
+    vr2_3 = g("VR2.3")
+    if vr2_3 in ("No — no spend threshold policy", "Unknown", None):
+        findings.append(VRFinding(
+            area="Vendor Governance", severity="medium", effort="S+",
+            owner="IT Director / Head of School", timing="near_term",
+            title="No IT procurement spend threshold — shadow IT risk",
+            detail=("There is no defined spend threshold below which IT or departments "
+                    "must obtain review before adopting a new tool. Without a threshold "
+                    "policy, staff can subscribe to tools that hold student data, "
+                    "auto-renew indefinitely, or create security gaps — all without "
+                    "IT or finance visibility. This is one of the most common sources "
+                    "of shadow IT in schools."),
+            action=("Define a simple spend threshold policy: for example, any subscription "
+                    "above $500/year or any tool that holds student or staff data requires "
+                    "IT review before adoption. A one-page policy shared with staff closes "
+                    "the most common gap. Pair it with the software approval process.")
+        ))
+    elif vr2_3 == "Informal — general understanding but not documented":
+        findings.append(VRFinding(
+            area="Vendor Governance", severity="low", effort="S",
+            owner="IT Director / Head of School", timing="planned",
+            title="Spend threshold policy informal — not documented",
+            detail=("A general understanding exists about spend thresholds for IT "
+                    "purchases, but it is not written down. Informal policies fail "
+                    "when new staff join or when edge cases arise."),
+            action=("Write the threshold policy down — even a one-paragraph description "
+                    "with a dollar amount and what triggers IT review. Add it to the "
+                    "staff handbook or the IT policy document.")
         ))
 
     vr2_4 = g("VR2.4")

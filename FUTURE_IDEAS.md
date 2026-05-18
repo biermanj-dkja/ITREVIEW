@@ -311,54 +311,44 @@ The following items were identified during a structured review of the Module 1 a
 
 ---
 
-## Module 3 — Open Design Questions (decision pending)
+## Module 3 — Design Decisions Resolved in v0.7.2
 
-The following items were surfaced during the v0.7.1 documentation review of Module 3. They
-require a design decision before any code or schema change is made. No action should be taken
-on these until the questions are answered.
-
----
-
-### M3-Q1 — Three questions with YAML point values not in engine scoring
-
-**Questions affected:** `V.COST.amount` (3 pts), `V.RENEW.notice` (2 pts), `V.SUPPORT.escalation` (2 pts)
-
-**The situation:** These three per-vendor template questions have non-zero point values assigned
-in `module_3.yaml`, which suggests the original design intended them to contribute to the vendor
-score. However, none of them appear in `QUESTION_WEIGHTS` in `rules_engine_vr.py`, so they are
-currently collected but have no effect on scoring or findings.
-
-**Decision needed:** For each question, one of the following:
-- **Add to scoring** — define the answer-to-points mapping in `QUESTION_WEIGHTS` and confirm
-  whether a finding rule should also fire for poor/unknown answers. This will raise the maximum
-  possible score and may shift some vendor grades.
-- **Set YAML points to 0** — confirm the question is context-only (collected for report
-  narrative or future use) and remove the point value to avoid implying it affects the score.
-
-**What each question asks:**
-- `V.COST.amount` — the actual annual dollar cost (free-text or number). Currently used to
-  populate the `annual_cost` field in the vendor register display but not scored.
-- `V.RENEW.notice` — the cancellation notice period required before the auto-renewal date
-  (conditional on `V.RENEW.auto`). Already used in the renewal risk register logic to
-  annotate notice windows, but not scored.
-- `V.SUPPORT.escalation` — whether an escalation path beyond the normal support contact is
-  documented. Collected but not used in any finding rule.
+The following items were open questions as of v0.7.1. All four have been resolved and
+implemented. They are retained here as a decision log.
 
 ---
 
-### M3-Q2 — VR2.3 has 4 YAML points and no finding rule
+### M3-Q1 — Three questions with YAML point values (resolved v0.7.2)
 
-**Question:** `VR2.3` — "Is there a spend threshold below which IT or a department can approve
-purchases without a formal review?" (4 pts in YAML)
+- **`V.COST.amount`** → Set to 0 points. Context metadata only. Used as a conditional
+  severity escalator: if a vendor is unbudgeted and annual cost ≥ $5,000, the budget
+  finding escalates from Medium to High. No direct scoring.
+- **`V.RENEW.notice`** → Kept at 2 points. Finding rule VR-R6 added: if auto-renews and
+  notice period is Unknown or not specified in contract → Medium finding.
+- **`V.SUPPORT.escalation`** → Kept at 2 points. Finding rule VR-S4 added: if vendor
+  category matches core/critical categories and escalation path is not documented → Medium
+  finding. Non-critical vendors produce no finding for this question.
 
-**The situation:** This question is in `module_2.yaml` as a school-wide governance question
-and is scored in the YAML at 4 points, but there is no corresponding finding rule for it in
-`rules_engine_vr.py`. The question is collected but has no consequence — it does not fire a
-finding and does not appear to affect any other rule.
+### M3-Q2 — VR2.3 spend threshold policy (resolved v0.7.2)
 
-**Decision needed:** One of the following:
-- **Add a finding rule** — define what answer values are problematic and what the finding
-  should say. For example: no spend threshold defined → medium finding suggesting a simple
-  approval policy for purchases above a dollar value.
-- **Set YAML points to 0** — confirm the question is context-gathering only and the spend
-  threshold information is captured for the appendix but intentionally produces no finding.
+Finding rule added. No policy → Medium/Concern school-wide finding about shadow IT risk.
+Informal policy → Low finding noting the policy is understood but not written down.
+
+---
+
+## Module 2 — Scoring Calibration (intentional design decision, v0.7.2)
+
+**Decision:** The Module 2 scoring model is intentionally calibrated toward governance rigor
+rather than operational maturity. A reasonably well-managed system (e.g. Google Workspace
+with MFA partial, backup vendor-managed, no formal DPA review) will score in the 65–70%
+range (Watch/C). This is correct and intentional.
+
+**Rationale:** Module 2 is a data governance audit, not an operational health check. The
+scoring reflects contractual and compliance posture — not how well the tool works day-to-day.
+A school can have a fully functional Google Workspace and still have real governance gaps
+(no DPA, backup restore never tested, audit logs not reviewed) that warrant a Watch rating.
+
+**This decision should not be revisited** unless the module's stated purpose changes from
+governance rigor to operational maturity scoring.
+
+---

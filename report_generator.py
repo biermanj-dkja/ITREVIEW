@@ -880,8 +880,9 @@ def _exec_summary(doc, meta, summary, findings, scores, answers=None):
     _run(p, f"{summary['concern_count']} concern", bold=True, color=C.concern)
     _run(p, ", and ")
     _run(p, f"{summary['watch_count']} watch", bold=True, color=C.watch)
-    _run(p, f" level findings. {summary['suppressed_count']} findings absorbed "
-           "into composites (see appendix).")
+    _run(p, " level findings. ")
+    _run(p, "Note: composite finding suppression is not yet enabled in this version — "
+           "all findings are listed individually.", italic=True, color=C.faint)
 
     # ── Overall weighted score ───────────────────────────────────
     # Section weights per scoring framework v0.1 (Sections 1 and 10 excluded).

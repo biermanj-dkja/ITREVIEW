@@ -247,8 +247,11 @@ sections:
         answer_type: short_text
         status: core
         skippable: true
-        points: 3
+        points: 0
         condition: null
+        # points=0: V.COST.amount is financial metadata, not a scored control.
+        # Used to populate the vendor register and to escalate budget findings.
+        # See rules_engine_vr.py findings_for_vendor() and FUTURE_IDEAS.md M3-Q1.
 
       - question_id: "V.COST.known"
         prompt: "Is the annual cost confirmed and tracked?"
@@ -329,6 +332,8 @@ sections:
         status: conditional
         skippable: true
         points: 2
+        # Finding rule: VR-R6 fires when auto-renews and notice is Unknown
+        # or not specified. See rules_engine_vr.py findings_for_vendor().
         condition:
           type: answer_is
           question_id: "V.RENEW.auto"
@@ -401,6 +406,8 @@ sections:
         status: core
         skippable: true
         points: 2
+        # Finding rule: VR-S4 fires for core/critical category vendors when
+        # escalation path is not documented. See rules_engine_vr.py.
         condition: null
         options:
           - Yes — escalation path documented

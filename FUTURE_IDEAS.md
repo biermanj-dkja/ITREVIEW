@@ -308,3 +308,57 @@ The following items were identified during a structured review of the Module 1 a
 **Current state:** `date.today().isoformat()` is used as `report_date` in `generate_report()` in `report_generator.py`. The session timestamps are available in the database but not passed through to the report builder.
 
 **Implementation effort:** S (½ day). Pass the session's `last_modified` date into `generate_report()` and display both dates on the cover page and in the report footer.
+
+---
+
+## Module 3 — Open Design Questions (decision pending)
+
+The following items were surfaced during the v0.7.1 documentation review of Module 3. They
+require a design decision before any code or schema change is made. No action should be taken
+on these until the questions are answered.
+
+---
+
+### M3-Q1 — Three questions with YAML point values not in engine scoring
+
+**Questions affected:** `V.COST.amount` (3 pts), `V.RENEW.notice` (2 pts), `V.SUPPORT.escalation` (2 pts)
+
+**The situation:** These three per-vendor template questions have non-zero point values assigned
+in `module_3.yaml`, which suggests the original design intended them to contribute to the vendor
+score. However, none of them appear in `QUESTION_WEIGHTS` in `rules_engine_vr.py`, so they are
+currently collected but have no effect on scoring or findings.
+
+**Decision needed:** For each question, one of the following:
+- **Add to scoring** — define the answer-to-points mapping in `QUESTION_WEIGHTS` and confirm
+  whether a finding rule should also fire for poor/unknown answers. This will raise the maximum
+  possible score and may shift some vendor grades.
+- **Set YAML points to 0** — confirm the question is context-only (collected for report
+  narrative or future use) and remove the point value to avoid implying it affects the score.
+
+**What each question asks:**
+- `V.COST.amount` — the actual annual dollar cost (free-text or number). Currently used to
+  populate the `annual_cost` field in the vendor register display but not scored.
+- `V.RENEW.notice` — the cancellation notice period required before the auto-renewal date
+  (conditional on `V.RENEW.auto`). Already used in the renewal risk register logic to
+  annotate notice windows, but not scored.
+- `V.SUPPORT.escalation` — whether an escalation path beyond the normal support contact is
+  documented. Collected but not used in any finding rule.
+
+---
+
+### M3-Q2 — VR2.3 has 4 YAML points and no finding rule
+
+**Question:** `VR2.3` — "Is there a spend threshold below which IT or a department can approve
+purchases without a formal review?" (4 pts in YAML)
+
+**The situation:** This question is in `module_2.yaml` as a school-wide governance question
+and is scored in the YAML at 4 points, but there is no corresponding finding rule for it in
+`rules_engine_vr.py`. The question is collected but has no consequence — it does not fire a
+finding and does not appear to affect any other rule.
+
+**Decision needed:** One of the following:
+- **Add a finding rule** — define what answer values are problematic and what the finding
+  should say. For example: no spend threshold defined → medium finding suggesting a simple
+  approval policy for purchases above a dollar value.
+- **Set YAML points to 0** — confirm the question is context-gathering only and the spend
+  threshold information is captured for the appendix but intentionally produces no finding.

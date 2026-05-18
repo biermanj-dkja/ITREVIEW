@@ -343,11 +343,26 @@ finding rule currently implemented.
 
 ## Overall Report Grade
 
-The overall grade and overall status shown on the report cover page are computed from the
-simple average (not weighted) of all per-system score percentages. This is a ⚠ known gap:
-the design intent is a weighted average that accounts for system sensitivity (student health
-data should carry more weight than a content filtering tool), but weighted averaging is not
-yet implemented.
+The overall grade shown on the report cover page is a **sensitivity-weighted average** of all
+per-system score percentages. Systems holding higher-sensitivity data carry more weight,
+preventing a strong score on low-risk tools from masking critical failures in the school's
+primary data systems.
+
+### Sensitivity multipliers (derived from SYS.5.1 data categories)
+
+| Multiplier | Trigger categories |
+|------------|-------------------|
+| 3× | Student health records (medical, counseling, nurse) · Staff HR records · Financial and payment data |
+| 2× | Student academic records · Student behavioral records · Admissions and enrollment data · Authentication credentials |
+| 1× | All other categories (content filters, logging tools, communications, etc.) |
+
+A system with no SYS.5.1 answer defaults to 1×.
+
+**Example:** If Veracross (SIS holding health + academic records) scores 29% and a content
+filter scores 65%, the weighted average will be pulled substantially toward the 29% score,
+reflecting that Veracross's data exposure is the more consequential risk. A simple average
+would return ~47%; the sensitivity-weighted average returns a lower number that better
+represents the school's actual risk posture.
 
 ---
 
@@ -367,7 +382,7 @@ yet implemented.
 | # | Gap | Status |
 |---|-----|--------|
 | 1 | DG2 section score not separately displayed in report | Deferred |
-| 2 | Overall grade uses simple average, not sensitivity-weighted average | Deferred |
+| 2 | Overall grade uses simple average, not sensitivity-weighted average | **Resolved v0.7.2** — see Overall Report Grade section above |
 | 3 | Notes passthrough — user-typed notes not quoted in finding descriptions | Deferred to FUTURE_IDEAS.md |
 | 4 | Per-section data quality annotations (R10-007 equivalent for Module 2) | Deferred to FUTURE_IDEAS.md |
 | 5 | DG2.3 "Partial" answer fires a low finding but DG2.3 scoring partial credit is not defined in YAML | Minor — no user impact |

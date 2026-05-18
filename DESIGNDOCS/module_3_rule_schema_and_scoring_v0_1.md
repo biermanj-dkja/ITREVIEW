@@ -383,8 +383,8 @@ The following cross-vendor statistics are computed and displayed in the report s
 
 | # | Gap | Notes |
 |---|-----|-------|
-| 1 | V.COST.amount, V.RENEW.notice, V.SUPPORT.escalation have YAML points > 0 but are not in engine scoring | Confirm intent — add to scoring or set YAML pts to 0 |
-| 2 | VR2.3 (spend threshold) has 4 YAML points and no finding rule | Add a finding or set points to 0 |
+| 1 | V.COST.amount, V.RENEW.notice, V.SUPPORT.escalation had YAML points but no engine logic | **Resolved v0.7.2** — V.COST.amount set to 0 pts (conditional escalator); VR-R6 and VR-S4 finding rules added |
+| 2 | VR2.3 (spend threshold) had 4 YAML points and no finding rule | **Resolved v0.7.2** — finding rule added |
 | 3 | Overall grade uses simple average; sensitivity weighting not implemented | Low priority — vendor module is less severity-differentiated than data governance |
 | 4 | No composite or cross-vendor finding rules | No equivalent to Module 1's Key Risk Groups |
 | 5 | No amplification mechanism (Module 3 has no equivalent of Module 1's RA-011) | Not needed at this time |

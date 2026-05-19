@@ -1,0 +1,763 @@
+module_id: module_3
+module_name: Software, Licensing, and Vendor Register
+version: "1.0"
+target_audience: School IT Director and Business Office
+description: >
+  A structured register of every software subscription, licensed application,
+  and vendor contract the school holds. Maps renewal dates, costs, ownership,
+  student-data obligations, and support contacts into a single managed document.
+  Produces a renewal risk register and a vendor scorecard. Designed to be
+  completed jointly by IT and the Business Office.
+
+# ─────────────────────────────────────────────────────────────────
+# MODULE-LEVEL FEATURE FLAGS
+# dynamic_sections: true enables the per-vendor repeating section
+#   pattern. The engine reads the vendor inventory collected in
+#   Section VR1 and generates one instance of the template section
+#   (section_id: "VR_VENDOR_TEMPLATE") for each named vendor.
+# ─────────────────────────────────────────────────────────────────
+dynamic_sections:
+  enabled: true
+  inventory_question_id: "VR1.3"       # list_of_items answer that names each vendor
+  template_section_id: "VR_VENDOR_TEMPLATE"
+  generated_section_id_prefix: "VR_V_"   # e.g. VR_V_1, VR_V_2 …
+  max_systems: 60
+
+# ─────────────────────────────────────────────────────────────────
+# CORE VENDOR CATEGORIES  (used by VR-S4 finding rule)
+# Vendors whose category field matches any entry in this list
+# (case-insensitive substring match) are treated as core/critical
+# systems. A missing escalation path for these vendors fires a
+# Medium finding. To add a new core category, add it here — no
+# Python changes needed.
+# ─────────────────────────────────────────────────────────────────
+core_vendor_categories:
+  - SIS
+  - Student Information System
+  - LMS
+  - Learning Management System
+  - Identity Provider
+  - SSO
+  - Network Infrastructure
+  - Firewall
+  - Communications
+  - VoIP
+  - Phone System
+  - Core Infrastructure
+
+sections:
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION VR1  —  Vendor Discovery  (~15 min)
+# Discovery phase. Names every vendor/subscription.
+# Drives the dynamic per-vendor worksheets.
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "VR1"
+    display_id: "1"
+    title: "Vendor Inventory — Discovery"
+    estimated_minutes: 15
+    estimated_minutes_note: >
+      Approximately 15 minutes to list vendors. Allow longer for schools
+      with many subscriptions or if the business office is contributing.
+      Completeness matters more than speed — a missing vendor is a
+      missing renewal risk.
+    description: >
+      List every software subscription, licensed application, and vendor contract
+      the school holds. This list drives the rest of the register: one per-vendor
+      worksheet will be generated for each entry. Include everything — free tools,
+      student apps, staff tools, classroom platforms, and administrative systems.
+      Do not skip a vendor because you are unsure of the details; you can fill
+      those in on the worksheet.
+    order: 1
+    scoring_note: >
+      This section is context only. All scoring happens in the per-vendor
+      worksheets and the school-wide governance section (VR2).
+    questions:
+
+      - question_id: "VR1.1"
+        prompt: Name of the person completing this register
+        help_text: "e.g. Alex Smith, Director of Technology"
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "VR1.1b"
+        prompt: Role or title of the person completing this register
+        help_text: "e.g. Director of Technology, Business Manager, IT Coordinator"
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "VR1.2"
+        prompt: Date the register was started
+        help_text: Used to date-stamp the report.
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "VR1.3"
+        prompt: "List every vendor, subscription, or licensed software the school holds"
+        help_text: >
+          Enter one vendor or product name per line. Include:
+          student information systems, learning management systems, email and
+          productivity suites, cloud storage, finance software, HR systems,
+          admissions platforms, parent communication apps, classroom tools,
+          assessment platforms, library systems, security tools, background-check
+          services, payment processors, maintenance/facilities software, and any
+          free tools that hold school or student data.
+          Include expired or under-review subscriptions — they belong on the list.
+          This list generates one per-vendor worksheet for each entry.
+          Press Save Progress when the list is complete to generate your worksheets.
+        answer_type: list_of_items
+        status: core
+        skippable: false
+        triggers_save: true
+        points: 0
+        condition: null
+
+      - question_id: "VR1.4"
+        prompt: "How many vendors are on your list?"
+        help_text: >
+          Filled automatically from your list above. Confirm it looks right
+          before saving. This number drives how many worksheets are created.
+        answer_type: count
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "VR1.5"
+        prompt: Are there vendors you know exist but could not name yet?
+        help_text: >
+          Note anything you know the school is paying for or using but could not
+          identify — e.g. "a tool the art teacher uses for portfolios." These
+          become open items in the findings report.
+        answer_type: long_text
+        status: optional
+        skippable: true
+        points: 0
+        condition: null
+
+      - question_id: "VR1.6"
+        prompt: Does the school have an existing vendor or subscription list you are working from?
+        help_text: >
+          e.g. a spreadsheet, a budget document, or a list in a management tool.
+          This helps us understand the starting point for this register.
+        answer_type: single_select
+        status: optional
+        skippable: true
+        points: 0
+        condition: null
+        options:
+          - Yes — complete and current list
+          - Yes — partial or outdated list
+          - No — building from memory
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION VR_VENDOR_TEMPLATE  —  Per-Vendor Worksheet (repeated)
+# This section is a template. The engine clones it once per vendor
+# found in VR1.3, substituting {system_name} and {system_index}
+# throughout. Generated sections are numbered VR_V_1 … VR_V_N.
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "VR_VENDOR_TEMPLATE"
+    display_id: "Vendor {system_index}"
+    title: "Vendor Worksheet — {system_name}"
+    estimated_minutes: 10
+    estimated_minutes_note: >
+      Approximately 10 minutes per vendor. IT can complete the technical
+      fields; the Business Office should contribute cost, contract, and
+      billing information. Both can work in parallel.
+    description: >
+      Complete the profile for vendor {system_index} of {system_total}: {system_name}.
+      Fill in every field that applies. If you do not know the answer, select
+      or type "Unknown" — an honest unknown is a finding that can be tracked
+      and fixed. Do not leave fields blank to avoid a finding; blanks and
+      unknowns are treated the same way.
+    order: 100
+    is_template: true
+    questions:
+
+      # ── Identification ────────────────────────────────────────────
+      - question_id: "V.ID.name"
+        prompt: "Confirm the vendor or product name"
+        help_text: >
+          Pre-filled from your inventory. Correct or expand it here —
+          e.g. add the full product name alongside the vendor name.
+        answer_type: short_text
+        status: core
+        skippable: false
+        points: 0
+        condition: null
+
+      - question_id: "V.ID.category"
+        prompt: "What category best describes this vendor or product?"
+        help_text: >
+          Choose the closest match. Use "Other" if none fits.
+          Category is used to group vendors in the report and spot coverage gaps.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 0
+        condition: null
+        options:
+          - Student Information System (SIS)
+          - Learning Management System (LMS)
+          - Email and Productivity
+          - Cloud Storage and Collaboration
+          - Finance and Accounting
+          - HR and Payroll
+          - Admissions and Enrollment
+          - Parent and Community Communication
+          - Classroom and Curriculum Tools
+          - Assessment and Testing
+          - Library and Resource Management
+          - Security and Identity
+          - Infrastructure and Networking
+          - Background Checks and Compliance
+          - Payment Processing
+          - Maintenance and Facilities
+          - Other
+
+      - question_id: "V.ID.status"
+        prompt: "What is the current status of this subscription or contract?"
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 0
+        condition: null
+        options:
+          - Active — in regular use
+          - Active — limited or infrequent use
+          - Under evaluation
+          - Expired — access may still exist
+          - Cancelled — no longer in use
+          - Unknown
+
+      - question_id: "V.ID.owner"
+        prompt: "Who is the named owner of this vendor relationship at the school?"
+        help_text: >
+          The person responsible for renewals, support escalation, and contract
+          decisions. This should be a named individual, not just a department.
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 2
+        condition: null
+
+      - question_id: "V.ID.dept"
+        prompt: "Which department or team is the primary user?"
+        help_text: "e.g. Academics, Finance, IT, HR, Admissions, All departments."
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+
+      # ── Cost and billing ──────────────────────────────────────────
+      - question_id: "V.COST.amount"
+        prompt: "What is the annual cost of this subscription or contract?"
+        help_text: >
+          Enter the total annual amount in dollars. If billed monthly, multiply
+          by 12. If cost is unknown, enter 0 and note it as unknown below.
+          Free tools: enter 0.
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+        # points=0: V.COST.amount is financial metadata, not a scored control.
+        # Used to populate the vendor register and to escalate budget findings.
+        # See rules_engine_vr.py findings_for_vendor() and FUTURE_IDEAS.md M3-Q1.
+
+      - question_id: "V.COST.known"
+        prompt: "Is the annual cost confirmed and tracked?"
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 4
+        condition: null
+        options:
+          - Yes — confirmed and tracked in a budget or register
+          - Approximate — estimated but not confirmed
+          - No — cost is not known
+          - Free — no cost
+
+      - question_id: "V.COST.cycle"
+        prompt: "What is the billing cycle?"
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+        options:
+          - Annual
+          - Monthly
+          - Multi-year contract
+          - One-time purchase
+          - Free
+          - Unknown
+
+      - question_id: "V.COST.budget"
+        prompt: "Is this subscription included in the current year's budget?"
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 3
+        condition: null
+        options:
+          - Yes — in the approved budget
+          - Partial — partially budgeted
+          - No — not currently budgeted
+          - Unknown
+
+      # ── Renewal and contract ──────────────────────────────────────
+      - question_id: "V.RENEW.date"
+        prompt: "When does this contract or subscription renew or expire?"
+        help_text: >
+          Enter the renewal or expiry date in any format (e.g. June 2025,
+          2025-06-30). If ongoing with no fixed term, write "Rolling."
+          If unknown, write "Unknown."
+        answer_type: short_text
+        status: core
+        skippable: true
+        points: 5
+        condition: null
+
+      - question_id: "V.RENEW.auto"
+        prompt: "Does this contract auto-renew?"
+        help_text: >
+          Auto-renewing contracts can commit budget without an active decision.
+          If yes, the renewal date is the last date to cancel without incurring
+          another term.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 4
+        condition: null
+        options:
+          - Yes — auto-renews; cancellation notice required before renewal date
+          - No — requires active renewal decision
+          - Unknown
+
+      - question_id: "V.RENEW.notice"
+        prompt: "If auto-renewing, how many days notice is required to cancel?"
+        help_text: >
+          Many contracts require 30, 60, or 90 days notice before the renewal
+          date to avoid being committed to another term.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        points: 2
+        # Finding rule: VR-R6 fires when auto-renews and notice is Unknown
+        # or not specified. See rules_engine_vr.py findings_for_vendor().
+        condition:
+          type: answer_is
+          question_id: "V.RENEW.auto"
+          value:
+            - "Yes — auto-renews; cancellation notice required before renewal date"
+        options:
+          - 30 days or less
+          - 31–60 days
+          - 61–90 days
+          - More than 90 days
+          - Not specified in contract
+          - Unknown
+
+      - question_id: "V.RENEW.tracked"
+        prompt: "Is the renewal date tracked in a calendar, tickler, or reminder system?"
+        help_text: >
+          This is the key control for avoiding surprise renewals or lapses.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 5
+        condition: null
+        options:
+          - Yes — in a calendar or system with a reminder set
+          - Tracked — but no reminder set
+          - No — renewal date known but not tracked
+          - No — renewal date is not known
+          - Unknown
+
+      - question_id: "V.RENEW.signed"
+        prompt: "Is there a signed contract or order form on file?"
+        help_text: >
+          A signed contract is the legal record of what was agreed.
+          Knowing where it is stored is as important as having it.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 3
+        condition: null
+        options:
+          - Yes — signed contract on file and location is known
+          - Yes — contract exists but location is unclear
+          - No — no signed contract
+          - Not applicable — verbal or click-through agreement only
+          - Unknown
+
+      # ── Support and escalation ────────────────────────────────────
+      - question_id: "V.SUPPORT.contact"
+        prompt: "Is the vendor support contact documented?"
+        help_text: >
+          At minimum: support email or phone number. Ideally: account number,
+          support portal URL, and named account manager if one exists.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 4
+        condition: null
+        options:
+          - Yes — full support contact documented and accessible
+          - Partial — some contact info documented
+          - No — support contact not documented
+          - Unknown
+
+      - question_id: "V.SUPPORT.escalation"
+        prompt: "Is there a documented escalation path if standard support fails?"
+        help_text: >
+          For critical systems: who do you call if the normal support channel
+          is unresponsive? Account manager, VP of support, etc.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 2
+        # Finding rule: VR-S4 fires for core/critical category vendors when
+        # escalation path is not documented. See rules_engine_vr.py.
+        condition: null
+        options:
+          - Yes — escalation path documented
+          - No — escalation path not documented
+          - Not applicable — not a critical system
+          - Unknown
+
+      - question_id: "V.SUPPORT.admin"
+        prompt: "Are admin credentials for this system documented and securely stored?"
+        help_text: >
+          If the person who manages this system left tomorrow, could someone
+          else access the admin account? Credentials should be in a password
+          manager or documented access process — not in one person's head.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 5
+        condition: null
+        options:
+          - Yes — credentials in a shared password manager or documented process
+          - Partial — credentials known to IT but not formally documented
+          - No — credentials are not documented
+          - Unknown
+
+      # ── Student data and compliance ───────────────────────────────
+      - question_id: "V.DATA.student"
+        prompt: "Does this vendor hold or process student data?"
+        help_text: >
+          Student data includes: names, grades, attendance, health information,
+          behavioral records, photos, or any information that could identify
+          a student. If in doubt, answer Yes.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 0
+        condition: null
+        options:
+          - Yes — holds or processes student data
+          - No — does not hold student data
+          - Unknown
+
+      - question_id: "V.DATA.ferpa"
+        prompt: "Has FERPA or COPPA compliance been reviewed for this vendor?"
+        help_text: >
+          Schools are responsible for ensuring third-party vendors handling
+          student data comply with FERPA (all schools) and COPPA (tools used
+          by children under 13). A Data Processing Agreement (DPA) or
+          Student Data Privacy Agreement is the standard mechanism.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        points: 6
+        condition:
+          type: answer_is
+          question_id: "V.DATA.student"
+          value:
+            - "Yes — holds or processes student data"
+        options:
+          - Yes — DPA or privacy agreement in place and signed
+          - Yes — reviewed but no formal agreement signed
+          - Partial — under review
+          - No — not reviewed
+          - Unknown
+
+      - question_id: "V.DATA.dpa"
+        prompt: "Is a signed Data Processing Agreement (DPA) or Student Data Privacy Agreement on file?"
+        help_text: >
+          A DPA defines how the vendor may use student data, how long they
+          retain it, and their obligations in the event of a breach. Many
+          states and EdTech frameworks require one for any vendor with student data.
+        answer_type: single_select
+        status: conditional
+        skippable: true
+        points: 5
+        condition:
+          type: answer_is
+          question_id: "V.DATA.student"
+          value:
+            - "Yes — holds or processes student data"
+        options:
+          - Yes — signed DPA on file, location known
+          - Yes — DPA exists but location is unclear
+          - No — no DPA in place
+          - Vendor does not offer a DPA
+          - Unknown
+
+      - question_id: "V.DATA.staff"
+        prompt: "Does this vendor hold or process confidential staff or HR data?"
+        help_text: >
+          Staff data includes: payroll, health records, background check results,
+          performance reviews, or any personnel information.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+        options:
+          - Yes — holds or processes confidential staff data
+          - No
+          - Unknown
+
+      # ── Usage and value assessment ────────────────────────────────
+      - question_id: "V.USE.active"
+        prompt: "Is this vendor or subscription actively used?"
+        help_text: >
+          "Actively used" means staff or students use it at least monthly
+          during the school year. Tools that are paid for but rarely opened
+          are candidates for cancellation at renewal.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 0
+        condition: null
+        options:
+          - Yes — used regularly by staff or students
+          - Occasionally — used but infrequently
+          - Rarely — barely used
+          - No — not currently in use
+          - Unknown
+
+      - question_id: "V.USE.value"
+        prompt: "Is this subscription delivering clear value to the school?"
+        help_text: >
+          This is a judgment call. An honest "No" or "Unsure" here is a
+          useful signal that this vendor should be reviewed at renewal.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 0
+        condition: null
+        options:
+          - Yes — clear value, would renew without question
+          - Probably — value is there but could be better
+          - Unsure — unclear whether to renew
+          - No — low value, renewal is in question
+          - Unknown
+
+      - question_id: "V.USE.notes"
+        prompt: "Any notes about this vendor? (optional)"
+        help_text: >
+          e.g. upcoming features being evaluated, a known issue with support,
+          a contract clause to watch, or context about why this tool exists.
+        answer_type: long_text
+        status: optional
+        skippable: true
+        points: 0
+        condition: null
+
+# ─────────────────────────────────────────────────────────────────
+# SECTION VR2  —  School-Wide Vendor Governance  (~20 min)
+# Completed AFTER all per-vendor worksheets are done.
+# Covers the policies and processes that govern the vendor portfolio
+# as a whole, not any individual vendor.
+# ─────────────────────────────────────────────────────────────────
+  - section_id: "VR2"
+    display_id: "2"
+    title: "School-Wide Vendor Governance"
+    estimated_minutes: 20
+    estimated_minutes_note: >
+      Approximately 20 minutes, completed by IT and school leadership
+      together. Best done after all per-vendor worksheets are returned.
+    description: >
+      These questions cover the policies, processes, and ownership structures
+      that govern the school's vendor relationships as a whole. Complete this
+      section after all per-vendor worksheets are returned.
+    order: 200
+    questions:
+
+      - question_id: "VR2.1"
+        prompt: Is there a formal process for approving new software or vendor purchases before they are adopted?
+        help_text: >
+          Shadow IT — tools adopted without IT or business office review —
+          is one of the most common sources of untracked spend and compliance gaps
+          in schools. A formal process does not need to be complex.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 8
+        condition: null
+        options:
+          - Yes — formal approval process, documented and followed
+          - Informal — IT or business office is usually consulted but not required
+          - No — staff can adopt tools without review
+          - Unknown
+
+      - question_id: "VR2.2"
+        prompt: Who has authority to sign vendor contracts at the school?
+        help_text: >
+          This may be the Head of School, Business Manager, or a shared
+          approval. The key question is whether there is a clear, known rule.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 5
+        condition: null
+        options:
+          - Clear policy — named role(s) with documented signing authority
+          - Informal — generally understood but not written down
+          - No clear policy — contracts can be signed by multiple people without oversight
+          - Unknown
+
+      - question_id: "VR2.3"
+        prompt: Is there a spend threshold below which IT or a department can approve a subscription without finance sign-off?
+        help_text: >
+          e.g. subscriptions under $500/year can be approved by IT;
+          above that requires Business Manager approval. A threshold policy
+          prevents small subscriptions accumulating unnoticed.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 4
+        condition: null
+        options:
+          - Yes — documented spend threshold in place
+          - Informal — general understanding but not documented
+          - No — no spend threshold policy
+          - Unknown
+
+      - question_id: "VR2.4"
+        prompt: Does the school maintain a single master list of all active vendor contracts and subscriptions?
+        help_text: >
+          This register is what this module is building. The question is
+          whether one existed before — and whether IT and the Business Office
+          were working from the same list.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 7
+        condition: null
+        options:
+          - Yes — maintained jointly by IT and Business Office
+          - Partial — IT has a list and Business Office has a list, but they are separate
+          - Partial — one list exists but it is incomplete or outdated
+          - No — this register is the first attempt
+          - Unknown
+
+      - question_id: "VR2.5"
+        prompt: Does the school use a centralized password manager or secure credential store for vendor admin accounts?
+        help_text: >
+          Vendor admin credentials in personal email or spreadsheets create
+          significant risk when staff leave. A shared password manager solves this.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 7
+        condition: null
+        options:
+          - Yes — centralized password manager used by IT for all vendor admin accounts
+          - Partial — used for some accounts but not all
+          - No — credentials stored informally (email, personal notes, spreadsheet)
+          - Unknown
+
+      - question_id: "VR2.6"
+        prompt: Does the Business Office receive advance notice of contract renewals — or does IT manage renewal tracking alone?
+        help_text: >
+          Renewals that IT manages without business office visibility can
+          result in budget surprises. Renewals that business office manages
+          without IT visibility can result in cancelled or auto-renewed tools
+          IT depends on.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 5
+        condition: null
+        options:
+          - Yes — shared renewal calendar with IT and Business Office both notified
+          - Partial — one party tracks renewals and notifies the other informally
+          - No — IT and Business Office track renewals independently with no shared system
+          - Unknown
+
+      - question_id: "VR2.7"
+        prompt: When a staff member leaves the school, is there a process to transfer or revoke vendor account ownership?
+        help_text: >
+          If a Business Manager or IT coordinator leaves, vendor portal logins,
+          billing contacts, and contract records may go with them. An offboarding
+          checklist should cover vendor accounts alongside system access.
+        answer_type: single_select
+        status: core
+        skippable: false
+        points: 6
+        condition: null
+        options:
+          - Yes — offboarding checklist explicitly covers vendor account transfer
+          - Partial — handled informally, not part of a documented checklist
+          - No — vendor account ownership is not addressed in offboarding
+          - Unknown
+
+      - question_id: "VR2.8"
+        prompt: Are student data privacy agreements (DPAs) tracked centrally — with a record of which vendors have signed them?
+        help_text: >
+          Many districts and states require a DPA for any vendor with student data.
+          Tracking which vendors have signed — and which have not — is a governance
+          requirement. A spreadsheet or register is sufficient.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 6
+        condition: null
+        options:
+          - Yes — central DPA register maintained and current
+          - Partial — some DPAs tracked but not all vendors covered
+          - No — DPAs not centrally tracked
+          - Unknown
+
+      - question_id: "VR2.9"
+        prompt: Does the school conduct an annual vendor review — a deliberate pass through all contracts to confirm renewals, cancel unused tools, and assess value?
+        help_text: >
+          An annual review is the single most effective control for preventing
+          subscription sprawl. Even an informal pass with the budget spreadsheet
+          counts if it is done consistently.
+        answer_type: single_select
+        status: core
+        skippable: true
+        points: 6
+        condition: null
+        options:
+          - Yes — formal annual review, documented
+          - Informal — review happens but is not scheduled or documented
+          - No — no annual review
+          - Unknown
+
+      - question_id: "VR2.10"
+        prompt: What is the school's biggest unresolved vendor or subscription management concern, in your own words?
+        help_text: >
+          Optional. Your answer is included in the report appendix and
+          used to prioritise recommendations.
+        answer_type: long_text
+        status: optional
+        skippable: true
+        points: 0
+        condition: null

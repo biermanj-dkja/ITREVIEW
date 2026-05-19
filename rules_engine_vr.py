@@ -66,6 +66,8 @@ Timing buckets:
 
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Tuple
+import os
+import yaml
 
 
 # ── Data classes ───────────────────────────────────────────────────
@@ -346,7 +348,7 @@ def _detect_strengths(answers, section_id):
 
 # ── Per-vendor findings ────────────────────────────────────────────
 
-def findings_for_vendor(answers, section_id, vendor_name):
+def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
     findings = []
     g = lambda qid: _get(answers, section_id, qid)
 
@@ -624,17 +626,12 @@ def findings_for_vendor(answers, section_id, vendor_name):
     # A missing escalation path is low-risk for utility tools but a material
     # operational gap for core infrastructure vendors (SIS, LMS, identity
     # providers, network infrastructure, communications).
-    _CORE_CATEGORIES = {
-        "SIS", "Student Information System",
-        "LMS", "Learning Management System",
-        "Identity Provider", "SSO",
-        "Network Infrastructure", "Firewall",
-        "Communications", "VoIP", "Phone System",
-        "Core Infrastructure",
-    }
+    # The list of core categories is loaded from module_3.yaml — no Python
+    # changes needed to add or adjust categories.
+    _core = core_categories or []
     escalation = g("V.SUPPORT.escalation")
     vendor_category = g("V.ID.category") or ""
-    is_core = any(cat.lower() in vendor_category.lower() for cat in _CORE_CATEGORIES)
+    is_core = any(cat.lower() in vendor_category.lower() for cat in _core)
     if escalation in ("No — escalation path not documented", "Unknown") and is_core:
         findings.append(VRFinding(
             area="Support & Access", severity="medium", effort="S",
@@ -1014,6 +1011,16 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
     Evaluate all vendor worksheets and school-wide governance (VR2).
     Returns a VRReport.
     """
+    # Load core vendor categories from module_3.yaml so VR-S4 matching
+    # is driven by data, not hardcoded Python.
+    try:
+        _yaml_path = os.path.join(os.path.dirname(__file__), "module_3.yaml")
+        with open(_yaml_path, "r", encoding="utf-8") as _f:
+            _m3 = yaml.safe_load(_f)
+        core_categories = _m3.get("core_vendor_categories", [])
+    except Exception:
+        core_categories = []
+
     per_vendor_results = []
 
     for name, sid in zip(vendor_names, generated_section_ids):
@@ -1022,7 +1029,8 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
         grade = _grade(pct)
         severity = _severity_from_pct(pct)
 
-        vendor_findings = findings_for_vendor(answers, sid, name)
+        vendor_findings = findings_for_vendor(answers, sid, name,
+                                              core_categories=core_categories)
         strengths = _detect_strengths(answers, sid) if not vendor_findings else []
 
         category = _get(answers, sid, "V.ID.category") or "Unknown"

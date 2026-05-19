@@ -948,9 +948,13 @@ def _exec_summary(doc, meta, summary, findings, scores, answers=None):
     _run(p, f"{summary['concern_count']} concern", bold=True, color=C.concern)
     _run(p, ", and ")
     _run(p, f"{summary['watch_count']} watch", bold=True, color=C.watch)
-    _run(p, " level findings. ")
-    _run(p, "Note: composite finding suppression is not yet enabled in this version — "
-           "all findings are listed individually.", italic=True, color=C.faint)
+    _run(p, " level findings")
+    suppressed_count = summary.get("suppressed_count", 0)
+    if suppressed_count:
+        _run(p, f" — {suppressed_count} component finding"
+               f"{'s' if suppressed_count != 1 else ''} absorbed into composite findings "
+               f"(see Appendix A for traceability)")
+    _run(p, ".")
 
     # ── Overall weighted score ───────────────────────────────────
     # Section weights per scoring framework v0.1 (Sections 1 and 10 excluded).
@@ -1175,8 +1179,13 @@ def _key_risks(doc, key_risks, findings):
 
     by_id = {f["finding_id"]: f for f in findings}
 
-    # Sort groups by severity
-    sorted_risks = sorted(key_risks, key=lambda g: SEV_ORDER.get(g["severity"], 9))
+    # ── Mandatory ordering: group containing F2-C01 always first (RA-002) ──
+    # Within the remainder, sort by severity descending.
+    def _group_sort_key(g):
+        has_f2c01 = "F2-C01" in g.get("finding_ids", [])
+        return (0 if has_f2c01 else 1, SEV_ORDER.get(g["severity"], 9))
+
+    sorted_risks = sorted(key_risks, key=_group_sort_key)
 
     for group in sorted_risks:
         fill = ("FDEDEC" if group["severity"] == "urgent" else
@@ -1191,7 +1200,6 @@ def _key_risks(doc, key_risks, findings):
                 group_findings,
                 key=lambda f: (
                     SEV_ORDER.get(f["severity"], 9),
-                    # largest effort first (lowest rank number)
                     min(effort_rank.get(a.get("effort", "M"), 5)
                         for a in f.get("actions", [{}])) if f.get("actions") else 5
                 )
@@ -1203,6 +1211,16 @@ def _key_risks(doc, key_risks, findings):
             _run(p1, f"[{SEV_LABEL.get(g['severity'], g['severity'])}]  ",
                  bold=True, size=10, color=SEV_COLOR.get(g["severity"], C.text))
             _run(p1, g["title"], bold=True, size=12)
+
+            # ── Urgent trigger narrative (RA-003) ──────────────────
+            triggers = g.get("urgent_trigger_fired", [])
+            if triggers and g["severity"] == "urgent":
+                pt = _cp(cell, sb=2, sa=4)
+                pt.paragraph_format.left_indent = Pt(12)
+                _run(pt, "Rated Urgent because:  ", bold=True, size=9, color=C.urgent)
+                trigger_parts = [f"{t['title']} ({t['finding_id']})" for t in triggers]
+                _run(pt, ";  ".join(trigger_parts), size=9, italic=True, color=C.text)
+
             for fid in g["finding_ids"]:
                 f = by_id.get(fid)
                 if not f:

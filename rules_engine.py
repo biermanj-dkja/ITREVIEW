@@ -1626,28 +1626,29 @@ def apply_constraint_flags(all_findings, constraint_active):
 
 def build_key_risk_groups(active_findings):
     # ── RA-003 IMPLEMENTATION STATUS ─────────────────────────────────────────
-    # This function implements RA-003 Option A only:
+    # v0.7.5.0 — RA-003 fully implemented:
     #   ✓  Group titles match the rule schema definitions exactly
     #   ✓  Contributing finding IDs are correct per the schema
     #   ✓  Severity is aggregated to the highest severity among fired findings
-    #   ✗  Mandatory ordering (F2-C01 always first) — NOT YET IMPLEMENTED
-    #   ✗  Composite findings absorbing components into an appendix — NOT YET IMPLEMENTED
-    #   ✗  Composite severity aggregation rules — NOT YET IMPLEMENTED
-    # Full RA-003 implementation is tracked in FUTURE_IDEAS.md.
+    #   ✓  Mandatory ordering (F2-C01 group always first) — enforced in report_generator.py
+    #   ✓  Composite severity aggregation narrative — urgent_trigger_fired list added
+    #       so report_generator.py can render "Rated Urgent because: <title> (<fid>)"
+    #   ✓  Absorbed findings appendix — suppressed findings rendered in Appendix A;
+    #       Assessment Overview now shows accurate suppressed count
     # ─────────────────────────────────────────────────────────────────────────
     groups = {
         "A": {"title": "No accountable IT ownership structure",
-              "finding_ids": [], "severity": "watch"},
+              "finding_ids": [], "severity": "watch", "urgent_trigger_fired": []},
         "B": {"title": "Single-person dependency creates recovery and continuity risk",
-              "finding_ids": [], "severity": "watch"},
+              "finding_ids": [], "severity": "watch", "urgent_trigger_fired": []},
         "C": {"title": "Vendor relationships and renewal visibility",
-              "finding_ids": [], "severity": "watch"},
+              "finding_ids": [], "severity": "watch", "urgent_trigger_fired": []},
         "D": {"title": "Student data governance and software approval",
-              "finding_ids": [], "severity": "watch"},
+              "finding_ids": [], "severity": "watch", "urgent_trigger_fired": []},
         "E": {"title": "Privileged access and baseline security posture",
-              "finding_ids": [], "severity": "watch"},
+              "finding_ids": [], "severity": "watch", "urgent_trigger_fired": []},
         "F": {"title": "Device lifecycle and refresh planning gap",
-              "finding_ids": [], "severity": "watch"},
+              "finding_ids": [], "severity": "watch", "urgent_trigger_fired": []},
     }
     sev_order = ["healthy","watch","concern","urgent"]
     urgent_triggers = {
@@ -1658,6 +1659,8 @@ def build_key_risk_groups(active_findings):
         "E": {"F4-C01","F4-005","F4-006","F8-C01"},
         "F": {"F5-C02"},
     }
+    # Build a map of finding_id -> title for the trigger narrative
+    fid_to_title = {f.finding_id: f.title for f in active_findings}
     fired_ids = {f.finding_id for f in active_findings}
 
     for f in active_findings:
@@ -1669,8 +1672,15 @@ def build_key_risk_groups(active_findings):
                 groups[gid]["severity"] = sev_order[max(cur, new)]
 
     for gid, triggers in urgent_triggers.items():
-        if triggers & fired_ids:
+        fired_triggers = triggers & fired_ids
+        if fired_triggers:
             groups[gid]["severity"] = "urgent"
+            # Record each trigger that fired as {finding_id, title} for narrative rendering
+            for fid in sorted(fired_triggers):
+                groups[gid]["urgent_trigger_fired"].append({
+                    "finding_id": fid,
+                    "title": fid_to_title.get(fid, fid),
+                })
 
     return {k: v for k, v in groups.items() if v["finding_ids"]}
 

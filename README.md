@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.4.0
+## v0.7.5.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -403,6 +403,41 @@ or any technical setup.
 
 
 ## What's in this version
+
+**v0.7.5.0** completes RA-003 — the Key Risks section is now fully deterministic.
+
+Three sub-items were outstanding. All three are done.
+
+### Mandatory F2-C01 ordering (RA-002)
+
+The group containing finding F2-C01 ("No accountable IT ownership") now always appears
+first in the Key Risks section when it fires, regardless of how other groups are sorted
+by severity. Previously groups were sorted by severity only, which could push the
+ownership finding below others. A dedicated sort key in `_key_risks()` enforces this.
+
+### Composite severity aggregation narrative (RA-003)
+
+When a Key Risk group is escalated to Urgent by one of its defined trigger findings,
+the group box now shows a plain-language line explaining why:
+
+> *Rated Urgent because: No backup IT coverage exists (F2-C02)*
+
+Multiple triggers are listed separated by semicolons. The trigger finding IDs and
+titles are recorded in `build_key_risk_groups()` in `rules_engine.py` via a new
+`urgent_trigger_fired` list on each group dict, and rendered in `report_generator.py`.
+
+### Assessment Overview — accurate suppression count
+
+The Assessment Overview sentence previously ended with an italic disclaimer:
+*"Note: composite finding suppression is not yet enabled in this version."*
+This was false — suppression has been active since v0.5. The sentence now reads
+accurately: *"X component findings absorbed into composite findings (see Appendix A
+for traceability)"* — or simply ends with a period when nothing was suppressed.
+
+**Files changed:** `rules_engine.py`, `report_generator.py`, `app.py`,
+`FUTURE_IDEAS.md`, `README.md`
+
+---
 
 **v0.7.4.0** delivers two Tier 2 framework improvements: targeted notes passthrough
 for Modules 2 and 3, and schema-driven appendix labels for Module 1.

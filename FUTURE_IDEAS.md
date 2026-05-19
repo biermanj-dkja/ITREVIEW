@@ -445,17 +445,12 @@ that is also called out in the README Known Limitations.
 
 These should be done before adding any new module or major feature.
 
-#### 4. RA-003 full implementation *(M+ — ~5 days)*
+#### 4. RA-003 full implementation ✅ Done (v0.7.5.0)
 
-Already documented in detail above under "RA-003 Full Implementation." Promoted to Tier 2
-because the Key Risks section currently makes implicit promises (primary finding, severity
-aggregation, mandatory ordering) that are only partially honored. Until this is done, the
-Key Risks section is display-only, not deterministic.
-
-Priority sub-items:
-- Mandatory `F2-C01` first ordering when it fires
-- Composite severity aggregation narrative block
-- Absorbed findings appendix (replaces the current misleading "0 absorbed" counter)
+All three sub-items implemented:
+- Mandatory `F2-C01` first ordering when it fires — enforced in `_key_risks()` sort
+- Composite severity aggregation narrative — "Rated Urgent because: <title> (<fid>)" line rendered in each urgent Key Risk group box
+- Assessment Overview suppression count — replaces the previous "not yet enabled" note with an accurate count of absorbed findings, linking to Appendix A
 
 ---
 

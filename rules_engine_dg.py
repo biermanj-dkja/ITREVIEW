@@ -124,11 +124,10 @@ class DGReport:
 # ── Helpers ────────────────────────────────────────────────────────
 
 def _get(answers, section_id, template_qid):
-    # Try single-underscore separator first (current live-session format).
-    # Fall back to double-underscore (format used by sessions exported before v0.7.1,
-    # when the dynamic_engine temporarily produced keys like DG_SYS_1__SYS.1.3).
+    # Canonical key format: DG_SYS_1_SYS.1.3  (single underscore between section and template qid).
+    # dynamic_engine.py writes this format exclusively. No legacy fallback needed.
     full_qid = f"{section_id}_{template_qid}"
-    rec = answers.get(full_qid) or answers.get(f"{section_id}__{template_qid}") or {}
+    rec = answers.get(full_qid) or {}
     if isinstance(rec, dict):
         raw = rec.get("raw_answer")
         if isinstance(raw, bool):
@@ -139,7 +138,7 @@ def _get(answers, section_id, template_qid):
 
 def _answered(answers, section_id, template_qid):
     full_qid = f"{section_id}_{template_qid}"
-    rec = answers.get(full_qid) or answers.get(f"{section_id}__{template_qid}") or {}
+    rec = answers.get(full_qid) or {}
     return rec.get("answer_status") == "answered" if isinstance(rec, dict) else False
 
 

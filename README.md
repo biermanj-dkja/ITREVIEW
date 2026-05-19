@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.1.2
+## v0.7.1.3
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -404,13 +404,30 @@ or any technical setup.
 
 ## What's in this version
 
-**v0.7.1.2** is a documentation and design-record release. No code changes from v0.7.2.
-Version string updated to reflect that v0.7.1 and v0.7.2 were sequential patch releases.
+**v0.7.1.3** is a housekeeping release. One code change, one documentation update.
+
+- **`rules_engine_dg.py`** — removed the legacy double-underscore fallback from `_get()`
+  and `_answered()`. The fallback (`answers.get(f"{section_id}__{template_qid}")`) was
+  added in v0.7.1 as an emergency patch for sessions exported with an older key format
+  (`DG_SYS_1__SYS.1.3`). On review, `dynamic_engine.py` has always written the canonical
+  single-underscore format (`DG_SYS_1_SYS.1.3`), the test JSONs were regenerated in
+  v0.7.1, and no user data in the old format exists. The fallback was dead code. Removed
+  and the comment updated to document the canonical format.
+- **`FUTURE_IDEAS.md`** — roadmap section added covering the agreed v0.8 → v1.0 plan,
+  including the double-underscore issue resolution and explicit decisions about what is
+  and is not being built before v1.0.
+
+No scoring changes. No report changes. No YAML changes.
+
+---
+
+**v0.7.1.2** is a documentation and design-record release. No code changes from v0.7.1.1.
+Version string updated to reflect that v0.7.1 and v0.7.1.1 were sequential patch releases.
 All design documents are now current as of this release.
 
 ---
 
-**v0.7.2** adds four new Module 3 finding rules, resolves all open Module 3 design questions,
+**v0.7.1.1** adds four new Module 3 finding rules, resolves all open Module 3 design questions,
 fixes the Module 2 overall grade calculation, and documents the Module 2 scoring calibration
 as an intentional design decision.
 

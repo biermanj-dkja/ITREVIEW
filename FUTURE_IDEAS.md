@@ -256,7 +256,7 @@ at least one completed Module 1 session to be useful.
 
 ---
 
-*Last updated: v0.6.0 — Module 3/4/5 roadmap entries added and formally committed as the agreed module roadmap. Module 3 (Software, Licensing, and Vendor Register) is the active build target for v0.7.0. Module 4 (IR and Business Continuity) and Module 5 (Annual Health Check) follow in sequence after Module 3 reaches full status.*
+*Last updated: v0.7.1.3 — double-underscore fallback removed from rules_engine_dg.py; canonical key format confirmed clean throughout the app. v0.8 roadmap section added.*
 
 ---
 
@@ -350,5 +350,232 @@ A school can have a fully functional Google Workspace and still have real govern
 
 **This decision should not be revisited** unless the module's stated purpose changes from
 governance rigor to operational maturity scoring.
+
+---
+
+## Roadmap: v0.8 and Path to v1.0
+
+*Agreed plan following the post-v0.7 multi-reviewer audit. Supersedes the two AI-generated
+roadmaps produced during that review (both are preserved in the session summary document).
+Where this plan diverges from those roadmaps, this document is authoritative.*
+
+---
+
+### What we are not doing, and why
+
+**The double-underscore key normalization refactor is fully resolved as of v0.7.1.3.**
+
+Two external reviewers both pushed hard for centralizing the `DG_SYS_1_SYS.1.3` vs
+`DG_SYS_1__SYS.1.3` key format into a canonical normalization layer at ingestion. Here
+is the actual situation and what was done:
+
+- `dynamic_engine.py` has always written keys in single-underscore format
+  (`DG_SYS_1_SYS.1.3`). One canonical format, consistently, everywhere.
+- The only remnant of the old double-underscore format was a two-line `or` fallback in
+  `_get()` and `_answered()` in `rules_engine_dg.py`. No separate compatibility layer,
+  no migration system — just two `or` chains.
+- The test JSONs were regenerated in the correct single-underscore format in v0.7.1.
+  No user data in the old format exists.
+- In v0.7.1.3 those two fallback lines were removed and the comment updated to document
+  the canonical format. Syntax verified clean.
+
+**This issue is fully closed.** No further normalization work is needed unless a new module
+introduces a third dynamic worksheet pattern with a different key convention — in which case,
+revisit then.
+
+The larger refactor the reviewers recommended (ingestion-layer normalization, validation
+reports, per-import debug summaries) is not warranted for a single-machine, single-operator
+localhost application. The app has one canonical format and all parts of it use that format.
+
+---
+
+### Tier 1 — Quick Wins, High Credibility
+
+These are small, self-contained, high-value. Do these first.
+
+#### 1. Dual date display on all report covers *(S — ½ day)*
+
+The report currently shows only the generation date (`date.today()`). A report produced
+weeks after the assessment is completed will show the wrong date in context. Show both:
+
+- **Assessment conducted:** derived from the session's `last_modified` timestamp
+- **Report generated:** `date.today()`
+
+**Scope:** Pass `session.last_modified` into each `generate_report()` call. Display both
+dates on the cover page and in the report footer. Three report generators to update
+(`report_generator.py`, `report_generator_dg.py`, `report_generator_vr.py`).
+
+This is the same item documented above under "Report Date — Dual Display" but is now
+promoted to Tier 1 because polished reports make the single-date ambiguity look like a bug.
+
+---
+
+#### 2. Section-by-section score contribution table in Module 1 DOCX *(S — 1 day)*
+
+The executive summary score box shows the overall weighted percentage but not how each
+section contributed. Add a simple table immediately below the score box:
+
+| Section | Weight | Section Score | Weighted Contribution |
+|---------|--------|---------------|-----------------------|
+| §2 Staffing & IT Structure | 10% | 72% | 7.2% |
+| ... | | | |
+| **Overall** | **100%** | | **XX%** |
+
+Sections 1 and 10 are shown in the table as "Context only — not scored" rather than being
+omitted silently. This makes the grade fully explainable without the reader needing to ask.
+
+**Scope:** New helper function in `report_generator.py`. Uses the existing section weight
+table already defined in the scoring framework. No rules engine changes.
+
+---
+
+#### 3. Move VR-S4 core category list from Python to YAML *(S — ½ day)*
+
+`rules_engine_vr.py` contains a hardcoded list of vendor categories that trigger the VR-S4
+escalation path (SIS, LMS, Identity Provider, Firewall, VoIP, etc.). This is a maintenance
+trap — adding a new category type requires editing Python rather than data.
+
+Move the list to a `core_vendor_categories` key in `module_3.yaml`. The rules engine reads
+it at evaluation time. No behavior change. No scoring change. Removes a known brittleness
+that is also called out in the README Known Limitations.
+
+---
+
+### Tier 2 — Framework Integrity
+
+These should be done before adding any new module or major feature.
+
+#### 4. RA-003 full implementation *(M+ — ~5 days)*
+
+Already documented in detail above under "RA-003 Full Implementation." Promoted to Tier 2
+because the Key Risks section currently makes implicit promises (primary finding, severity
+aggregation, mandatory ordering) that are only partially honored. Until this is done, the
+Key Risks section is display-only, not deterministic.
+
+Priority sub-items:
+- Mandatory `F2-C01` first ordering when it fires
+- Composite severity aggregation narrative block
+- Absorbed findings appendix (replaces the current misleading "0 absorbed" counter)
+
+---
+
+#### 5. Notes passthrough — targeted, not global *(M — ~3 days)*
+
+Already documented above. Two specific high-value passthrough points only:
+
+- **Module 2:** `DG2.10` (unresolved school-wide risks) → quoted in the executive overview
+  narrative
+- **Module 3:** `VR2.10` (vendor notes) → quoted in the Renewal Risk Register entry for
+  that vendor
+
+Do not implement globally. The full notes passthrough requirement (R3-026, R9-006, RA-006)
+is a larger effort and belongs in a later sprint.
+
+---
+
+#### 6. Schema-driven appendix labels in Module 1 *(M — ~2 days)*
+
+The appendix label drift bug (fixed in v0.7.1 by re-aligning a hardcoded dict) will happen
+again the next time a question is inserted or renumbered in `module_1.yaml`. The root fix
+is to replace the hardcoded label dictionary in `report_generator.py` with a YAML-driven
+lookup.
+
+**Scope:** Build a shared `get_question_label(module_id, question_id)` helper (probably in
+a new `schema_utils.py` or added to `engine.py`) that reads the active YAML and returns the
+question's `prompt` field. Use it in the appendix renderer. Keep the hardcoded dict as a
+fallback with a loud log warning so unknown IDs are visible rather than silent.
+
+This is the foundation for the broader schema-driven reporting goal in the external roadmaps.
+For v1.0, Module 1 appendix is sufficient. Modules 2 and 3 can follow.
+
+---
+
+### Tier 3 — Scoring Credibility
+
+Important for report trustworthiness, but not urgent for day-to-day use.
+
+#### 7. Critical floor rules for Modules 2 and 3 *(M — ~2 days)*
+
+Certain single-system failures should cap the overall grade regardless of average score.
+Examples: no DPA on a student-data SIS; no admin access for a core infrastructure system;
+unknown vendor owner for a critical tool. Without floor rules, a strong score on a dozen
+low-risk tools can obscure a catastrophic gap in the one system that matters most.
+
+Module 2 already has sensitivity-weighted scoring (implemented v0.7.2). Module 3 does not
+yet. The floor rules are a complement to weighting — weighting lowers the average from
+strong peripheral scores; floor rules ensure certain failures are visible regardless of
+average.
+
+**Scope:** A `critical_floor_check()` function in each rules engine that returns a grade
+cap when specific conditions are met. Applied after the weighted average is calculated.
+The report should note when a floor rule affected the grade ("Overall grade capped at D
+due to critical gap in [system/vendor]").
+
+---
+
+#### 8. Module 3 sensitivity-weighted scoring *(S-M — ~1 day)*
+
+Module 3 uses a simple average across all vendors. Mirror the Module 2 approach: weight
+each vendor's score by criticality + data sensitivity. A critical vendor (SIS, firewall,
+identity provider) holding student data should have more weight than a supplemental tool
+holding only rosters.
+
+Weighting factors: annual spend tier, auto-renewal status, student data held, staff
+confidential data, contract/DPA status, known admin access.
+
+---
+
+### Tier 4 — Testing and Traceability
+
+Good to have. Do these after the Tier 1–3 items are stable, and before adding a new module.
+
+#### 9. Rule evaluation trace / debug output *(M — ~3 days)*
+
+An optional `--debug` flag (or `FLASK_DEBUG_TRACE=1` env var) that writes a sidecar JSON
+file alongside report generation, mapping:
+
+```
+[Answer value] → Rule ID → Finding ID → Severity → Report section(s)
+```
+
+The trace file should also include: normalized answers, fired findings, suppressed findings,
+score calculation, and key risk groups. This replaces manual DOCX inspection as the primary
+debugging tool. It also makes regression testing possible without diffing Word documents.
+
+---
+
+#### 10. Golden test fixtures *(M — ~2 days)*
+
+Three fixture schools per module: Strong (minimal findings, high score), Typical (Bit-By-Bit
+Academy — already exists), High-Risk (catastrophic gaps, zero documentation). Assert against
+trace JSON output, not DOCX content. A single test command should run all three fixtures
+through all three modules and report any deviation from expected finding IDs, scores, and
+severity bands.
+
+---
+
+### What is explicitly deferred past v1.0
+
+- Full rules-in-YAML migration for all modules (valuable long-term; not a v1.0 blocker)
+- Module 4 (IR and Business Continuity) and Module 5 (Annual Health Check)
+- Executive / board-facing report variant
+- PDF export
+- Multi-user / shared sessions
+- Anonymous benchmarking (requires server infrastructure)
+- Full global notes passthrough (R3-026, R9-006, RA-006)
+- Re-assessment tracking and score delta reports
+
+---
+
+### Suggested version increments
+
+| Version | Focus |
+|---------|-------|
+| v0.7.1.x | Bug fixes and doc-only patches (current) |
+| v0.8.0 | Tier 1 quick wins complete |
+| v0.8.5 | Tier 2 framework integrity complete |
+| v0.9.0 | Tier 3 scoring credibility complete |
+| v0.9.5 | Tier 4 testing and traceability complete |
+| v1.0.0 | Final polish, docs aligned, demo-ready |
 
 ---

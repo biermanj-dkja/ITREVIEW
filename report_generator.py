@@ -940,6 +940,85 @@ def _exec_summary(doc, meta, summary, findings, scores, answers=None):
                     "FEF9E7" if sev_band in ("Watch", "Concern") else "EAF4FB")
             _box(doc, fill, score_builder)
 
+    # ── Score Contribution table ─────────────────────────────────
+    # Shows each section's weight, score, and weighted contribution
+    # so the reader can see exactly how the overall score was built.
+    if scores:
+        _h(doc, "Score Breakdown by Section", 2)
+        ctbl = doc.add_table(rows=1, cols=4)
+        ctbl.style = "Table Grid"
+        col_widths = [Inches(2.8), Inches(0.8), Inches(1.2), Inches(1.6)]
+        for i, (txt, w) in enumerate(zip(
+            ["Section", "Weight", "Section Score", "Weighted Contribution"],
+            col_widths,
+        )):
+            c = ctbl.rows[0].cells[i]
+            _cell_bg(c, _hex(C.accent))
+            c.paragraphs[0].clear()
+            r = c.paragraphs[0].add_run(txt)
+            r.bold = True
+            r.font.size = Pt(9)
+            r.font.color.rgb = C.white
+            c.width = w
+
+        total_contribution = 0.0
+        for idx, s in enumerate(scores):
+            sid = str(s["section"]["section_id"])
+            row = ctbl.add_row().cells
+            fill_r = "FFFFFF" if idx % 2 == 0 else "F8F9FA"
+            for c in row:
+                _cell_bg(c, fill_r)
+
+            is_ctx = sid in ("1", "10") or s["max_pts"] == 0
+            w = SECTION_WEIGHTS.get(sid, 0)
+            sec_label = f"§{sid}  {s['section']['title']}"
+
+            if is_ctx:
+                weight_txt  = "—"
+                score_txt   = "Context only — not scored"
+                contrib_txt = "—"
+                name_col = C.faint
+            else:
+                pct = s["pct"]
+                contrib = round(pct * w, 1)
+                total_contribution += pct * w
+                weight_txt  = f"{int(w * 100)}%"
+                score_txt   = f"{pct}%"
+                contrib_txt = f"{contrib:.1f}%"
+                name_col = C.text
+
+            for c, txt, clr, bold_flag in [
+                (row[0], sec_label,   name_col, False),
+                (row[1], weight_txt,  C.faint if is_ctx else C.text, False),
+                (row[2], score_txt,   C.faint if is_ctx else C.text, False),
+                (row[3], contrib_txt, C.faint if is_ctx else C.text, False),
+            ]:
+                c.paragraphs[0].clear()
+                r = c.paragraphs[0].add_run(txt)
+                r.font.size = Pt(9)
+                r.font.color.rgb = clr
+                r.bold = bold_flag
+
+        # Totals row
+        tot_row = ctbl.add_row().cells
+        _cell_bg(tot_row[0], "E8ECF0")
+        _cell_bg(tot_row[1], "E8ECF0")
+        _cell_bg(tot_row[2], "E8ECF0")
+        _cell_bg(tot_row[3], "E8ECF0")
+        for c, txt, bold_flag in [
+            (tot_row[0], "Overall weighted score", True),
+            (tot_row[1], "100%", True),
+            (tot_row[2], "—",   False),
+            (tot_row[3], f"{round(total_contribution)}%", True),
+        ]:
+            c.paragraphs[0].clear()
+            r = c.paragraphs[0].add_run(txt)
+            r.font.size = Pt(9)
+            r.font.color.rgb = C.text
+            r.bold = bold_flag
+
+        doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
     # ── Section Scores table — includes What's Working column ────
     if scores:
         _h(doc, "Section Scores", 2)

@@ -30,7 +30,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.7.3.0'
+app.config['VERSION'] = '0.7.3.1'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads

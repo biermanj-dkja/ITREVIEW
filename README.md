@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.3.0
+## v0.7.3.1
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -403,6 +403,27 @@ or any technical setup.
 
 
 ## What's in this version
+
+**v0.7.3.1** adds a score contribution table to the Module 1 DOCX executive summary.
+
+A new "Score Breakdown by Section" table now appears immediately after the overall
+score box, showing exactly how each section contributes to the overall weighted score:
+
+| Column | Contents |
+|--------|----------|
+| Section | Section number and title |
+| Weight | The section's weight in the overall score (e.g. 15%) |
+| Section Score | The raw percentage earned in that section |
+| Weighted Contribution | Section Score × Weight — what it actually adds to the total |
+
+Sections 1 and 10 appear in the table as "Context only — not scored" so they are
+not silently omitted, making clear to the reader that the overall score is built
+from Sections 2–9 only. A totals row confirms the 100% weight sum and the final
+overall percentage. No scoring logic, rules engine, or other files were changed.
+
+**Files changed:** `report_generator.py`, `app.py`, `README.md`
+
+---
 
 **v0.7.3.0** moves the VR-S4 core vendor category list from hardcoded Python to `module_3.yaml`.
 

@@ -494,7 +494,7 @@ def _dg_scope_box(doc, system_names, per_system_results):
     _box(doc, "D6EAF8", builder)   # light blue, matches Module 1 scope box
 
 
-def _exec_summary(doc, dg_report, school_name, system_names=None, is_draft=False):
+def _exec_summary(doc, dg_report, school_name, system_names=None, is_draft=False, answers=None):
     _page_break(doc)
     _h(doc, "Executive Summary", 1)
 
@@ -647,6 +647,22 @@ def _exec_summary(doc, dg_report, school_name, system_names=None, is_draft=False
               f"{'s' if len(summary.school_wide_findings) != 1 else ''} identified — "
               "see the School-Wide Findings section for detail and recommended actions.",
               size=10, color=C.faint, sb=4, sa=8)
+
+    # ── DG2.10 — Biggest unresolved concern (notes passthrough) ──
+    # If the respondent filled in the free-text concern field, quote
+    # it prominently here so it is not buried in the appendix.
+    if answers:
+        dg210 = answers.get("DG2.10", {})
+        dg210_text = (dg210.get("raw_answer") or "") if isinstance(dg210, dict) else ""
+        if dg210_text and str(dg210_text).strip():
+            concern_text = str(dg210_text).strip()
+            def dg210_builder(cell, ct=concern_text):
+                p = _cp(cell, sb=4, sa=2)
+                _run(p, "Respondent's biggest unresolved concern  ", bold=True,
+                     size=10, color=C.accent)
+                p2 = _cp(cell, sb=2, sa=4)
+                _run(p2, f'"{ct}"', size=10, italic=True, color=C.text)
+            _box(doc, "EAF4FB", dg210_builder)
 
 
 def _per_system_findings(doc, dg_report, finding_contexts=None):
@@ -1252,7 +1268,7 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
     _cover(doc, school_name, respondent_name, respondent_role, report_date,
            is_draft=is_draft, assessment_date=assessment_date)
     _exec_summary(doc, dg_report_obj, school_name, system_names=system_names,
-                  is_draft=is_draft)
+                  is_draft=is_draft, answers=answers)
     _per_system_findings(doc, dg_report_obj, finding_contexts=finding_contexts)
     _school_wide_findings(doc, dg_report_obj)
     _action_plan(doc, dg_report_obj)

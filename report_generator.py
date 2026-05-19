@@ -23,12 +23,15 @@ Report structure:
 """
 
 import io
+import os
+import logging
 from datetime import date
 from docx import Document
 from docx.shared import Pt, RGBColor, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+import yaml
 
 # ── Colour palette ────────────────────────────────────────────────
 class C:
@@ -212,6 +215,59 @@ QUESTION_PROMPTS = {
     "10.7": "Confidence in assessment answers",
     "10.8": "Anything else to add",
 }
+
+
+# ── Schema-driven question label lookup (Item #6) ─────────────────
+# Reads module_1.yaml once at import time and builds a lookup dict
+# from question_id → prompt. Falls back to QUESTION_PROMPTS for any
+# question not found, logging a warning so gaps are visible.
+
+def _build_yaml_prompts():
+    """Load question prompts from module_1.yaml. Returns {} on failure."""
+    yaml_path = os.path.join(os.path.dirname(__file__), "module_1.yaml")
+    try:
+        with open(yaml_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        out = {}
+        for section in data.get("sections", []):
+            for q in section.get("questions", []):
+                qid = q.get("question_id")
+                prompt = q.get("prompt", "")
+                if qid:
+                    # Trim to a short label: first sentence or first 80 chars
+                    label = str(prompt).split("?")[0].split(".")[0].strip()
+                    if len(label) > 80:
+                        label = label[:77] + "…"
+                    elif "?" not in str(prompt) and "." not in str(prompt):
+                        label = str(prompt).strip()[:80]
+                    else:
+                        label = label + ("?" if "?" in str(prompt) else "")
+                    out[qid] = label
+        return out
+    except Exception as exc:
+        logging.warning("report_generator: could not load module_1.yaml prompts: %s", exc)
+        return {}
+
+
+_YAML_PROMPTS = _build_yaml_prompts()
+
+
+def get_question_label(question_id: str) -> str:
+    """Return the display label for a Module 1 question ID.
+
+    Priority: YAML-derived prompt → QUESTION_PROMPTS fallback → empty string.
+    Logs a warning when falling back, so label drift is visible.
+    """
+    label = _YAML_PROMPTS.get(question_id)
+    if label:
+        return label
+    fallback = QUESTION_PROMPTS.get(question_id, "")
+    if fallback:
+        logging.warning(
+            "report_generator: question %s not found in YAML; using hardcoded label '%s'",
+            question_id, fallback
+        )
+    return fallback
 
 
 # ── Low-level helpers ─────────────────────────────────────────────
@@ -1459,7 +1515,7 @@ def _appendix(doc, suppressed, unknown_log, response_log, amendment_log=None):
             _cell_bg(c, fill)
         status_col = (C.concern if row_data["status"] == "unknown" else
                       C.faint if row_data["status"] == "skipped" else C.text)
-        prompt = QUESTION_PROMPTS.get(row_data["question_id"], "")
+        prompt = get_question_label(row_data["question_id"])
         answer_txt = (row_data["answer"] or f"({row_data['status']})")[:150]
         for c, txt, col in [
             (row[0], row_data["question_id"], C.faint),

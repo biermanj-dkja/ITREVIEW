@@ -370,7 +370,7 @@ def _exec_summary(doc, vr_report, school_name, is_draft=False):
 
 # ── Renewal Risk Register ─────────────────────────────────────────
 
-def _renewal_register(doc, vr_report):
+def _renewal_register(doc, vr_report, answers=None):
     _h(doc, "Renewal Risk Register")
     _para(doc,
           "Vendors sorted by renewal risk. High-risk items should be actioned before "
@@ -414,6 +414,24 @@ def _renewal_register(doc, vr_report):
                 _run(p, val, size=9, color=C.text)
 
     doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+    # ── VR2.10 — Biggest unresolved vendor concern (notes passthrough) ──
+    # Quote the respondent's free-text concern directly in the register
+    # so it surfaces alongside renewal risk data rather than only in the appendix.
+    if answers:
+        vr210 = answers.get("VR2.10", {})
+        vr210_text = (vr210.get("raw_answer") or "") if isinstance(vr210, dict) else ""
+        if vr210_text and str(vr210_text).strip():
+            concern_text = str(vr210_text).strip()
+            def vr210_builder(cell, ct=concern_text):
+                p = _cp(cell, sb=4, sa=2)
+                _run(p, "Respondent's biggest unresolved vendor concern  ",
+                     bold=True, size=10, color=C.accent)
+                p2 = _cp(cell, sb=2, sa=4)
+                _run(p2, f'"{ct}"', size=10, italic=True, color=C.text)
+            _box(doc, vr210_builder, border_hex="1A5276", bg_hex="EAF4FB")
+            doc.add_paragraph().paragraph_format.space_after = Pt(4)
+
     _page_break(doc)
 
 
@@ -811,7 +829,7 @@ def generate_vr_report(vr_report_obj, answers, profile, vendor_names,
     _cover(doc, school_name, respondent_name, respondent_role, report_date,
            is_draft=is_draft, assessment_date=assessment_date)
     _exec_summary(doc, vr_report_obj, school_name, is_draft=is_draft)
-    _renewal_register(doc, vr_report_obj)
+    _renewal_register(doc, vr_report_obj, answers=answers)
     _category_overview(doc, vr_report_obj)
     _per_vendor_findings(doc, vr_report_obj, finding_contexts=finding_contexts)
     _school_wide_findings(doc, vr_report_obj)

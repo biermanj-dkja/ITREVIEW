@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.3.1
+## v0.7.4.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -403,6 +403,47 @@ or any technical setup.
 
 
 ## What's in this version
+
+**v0.7.4.0** delivers two Tier 2 framework improvements: targeted notes passthrough
+for Modules 2 and 3, and schema-driven appendix labels for Module 1.
+
+### Notes passthrough — Module 2 (DG2.10) and Module 3 (VR2.10)
+
+The free-text "biggest unresolved concern" fields in both modules are now quoted
+prominently in the report rather than only appearing in the appendix.
+
+- **Module 2** (`report_generator_dg.py`): If the respondent answered DG2.10
+  ("biggest unresolved data governance concern"), a highlighted callout box
+  appears at the end of the Executive Summary, quoting the answer verbatim.
+- **Module 3** (`report_generator_vr.py`): If the respondent answered VR2.10
+  ("biggest unresolved vendor concern"), a highlighted callout box appears
+  immediately after the Renewal Risk Register table, where it sits alongside
+  the renewal data it most directly informs.
+
+Both callouts are suppressed when the question was skipped or left blank —
+they only appear when the respondent actually wrote something.
+
+### Schema-driven appendix labels — Module 1 (report_generator.py)
+
+The Module 1 DOCX appendix (Appendix C — Full Response Log) previously used a
+hardcoded `QUESTION_PROMPTS` dict to display a short label next to each question ID.
+Adding or renumbering a question in `module_1.yaml` would silently leave the
+appendix showing a blank label for the new question.
+
+The appendix now reads question prompts directly from `module_1.yaml` at import time
+via a new `get_question_label()` helper. The helper:
+- Builds a lookup from `module_1.yaml` on startup (once, not per-report)
+- Falls back to the hardcoded `QUESTION_PROMPTS` dict for any question not found in YAML
+- Logs a warning on fallback, making label drift visible in server output
+- Is exported so other modules can reuse it if needed
+
+The hardcoded dict is retained as a fallback safety net and will be removed in a
+future cleanup pass once the YAML-driven path has been validated.
+
+**Files changed:** `report_generator.py`, `report_generator_dg.py`,
+`report_generator_vr.py`, `app.py`, `README.md`
+
+---
 
 **v0.7.3.1** adds a score contribution table to the Module 1 DOCX executive summary.
 

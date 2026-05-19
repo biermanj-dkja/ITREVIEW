@@ -217,20 +217,22 @@ def _box(doc, builder_fn, border_hex="2E86C1", bg_hex=None):
     doc.add_paragraph().paragraph_format.space_after = Pt(4)
 
 
-def _set_hf(doc, school_name, report_date):
+def _set_hf(doc, school_name, report_date, assessment_date=None):
     for section in doc.sections:
         header = section.header
         hp = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
         hp.clear()
         hp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        _run(hp, f"{school_name}  ·  Vendor Register  ·  {report_date}",
+        date_label = f"Assessed: {assessment_date}  ·  Generated: {report_date}" \
+                     if assessment_date and assessment_date != report_date else report_date
+        _run(hp, f"{school_name}  ·  Vendor Register  ·  {date_label}",
              size=8, color=C.faint, italic=True)
 
 
 # ── Cover page ────────────────────────────────────────────────────
 
 def _cover(doc, school_name, respondent_name, respondent_role, report_date,
-           is_draft=False):
+           is_draft=False, assessment_date=None):
     if is_draft:
         dp = doc.add_paragraph()
         dp.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -256,8 +258,16 @@ def _cover(doc, school_name, respondent_name, respondent_role, report_date,
 
     date_p = doc.add_paragraph()
     date_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    date_p.paragraph_format.space_after = Pt(32)
-    _run(date_p, f"Generated {report_date}", size=11, color=C.faint)
+    date_p.paragraph_format.space_after = Pt(4)
+    if assessment_date and assessment_date != report_date:
+        _run(date_p, f"Assessment conducted: {assessment_date}", size=11, color=C.faint)
+        date_p2 = doc.add_paragraph()
+        date_p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        date_p2.paragraph_format.space_after = Pt(32)
+        _run(date_p2, f"Report generated: {report_date}", size=11, color=C.faint)
+    else:
+        date_p.paragraph_format.space_after = Pt(32)
+        _run(date_p, f"Generated {report_date}", size=11, color=C.faint)
 
     if respondent_name or respondent_role:
         by_p = doc.add_paragraph()
@@ -770,7 +780,7 @@ def _appendix(doc, vr_report, answers, vendor_names, generated_section_ids,
 def generate_vr_report(vr_report_obj, answers, profile, vendor_names,
                        generated_section_ids, start_date=None,
                        is_complete=False, finding_contexts=None,
-                       amendment_log=None):
+                       amendment_log=None, assessment_date=None):
     """
     Generate the Vendor Register DOCX report.
     Returns bytes.
@@ -797,9 +807,9 @@ def generate_vr_report(vr_report_obj, answers, profile, vendor_names,
         sec.left_margin   = Inches(0.9)
         sec.right_margin  = Inches(0.9)
 
-    _set_hf(doc, school_name, report_date)
+    _set_hf(doc, school_name, report_date, assessment_date=assessment_date)
     _cover(doc, school_name, respondent_name, respondent_role, report_date,
-           is_draft=is_draft)
+           is_draft=is_draft, assessment_date=assessment_date)
     _exec_summary(doc, vr_report_obj, school_name, is_draft=is_draft)
     _renewal_register(doc, vr_report_obj)
     _category_overview(doc, vr_report_obj)

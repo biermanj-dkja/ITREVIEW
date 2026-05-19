@@ -431,7 +431,7 @@ def _scope_box(doc, sections_covered, skipped_section_ids):
     _box(doc, "D6EAF8", builder)   # light blue
 
 
-def _set_hf(doc, school, report_date, caveat):
+def _set_hf(doc, school, report_date, caveat, assessment_date=None):
     sec = doc.sections[0]
     hdr = sec.header
     hdr.is_linked_to_previous = False
@@ -453,7 +453,9 @@ def _set_hf(doc, school, report_date, caveat):
     fp = ftr.add_paragraph()
     fp.paragraph_format.space_before = Pt(2)
     fp.paragraph_format.space_after = Pt(0)
-    _run(fp, f"{report_date}    Page ", size=8, color=C.faint)
+    date_label = f"Assessed: {assessment_date}  ·  Generated: {report_date}" \
+                 if assessment_date and assessment_date != report_date else report_date
+    _run(fp, f"{date_label}    Page ", size=8, color=C.faint)
     r = fp.add_run()
     for tag in ("begin", "separate", "end"):
         fc = OxmlElement("w:fldChar")
@@ -717,7 +719,17 @@ def _cover(doc, meta):
     pd = doc.add_paragraph()
     pd.alignment = WD_ALIGN_PARAGRAPH.CENTER
     pd.paragraph_format.space_before = Pt(10)
-    _run(pd, meta.get("report_date", date.today().isoformat()), size=9, color=C.faint)
+    pd.paragraph_format.space_after = Pt(2)
+    assessment_date = meta.get("assessment_date", "")
+    report_date     = meta.get("report_date", date.today().isoformat())
+    if assessment_date and assessment_date != report_date:
+        _run(pd, f"Assessment conducted: {assessment_date}", size=9, color=C.faint)
+        pg = doc.add_paragraph()
+        pg.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        pg.paragraph_format.space_before = Pt(0)
+        _run(pg, f"Report generated: {report_date}", size=9, color=C.faint)
+    else:
+        _run(pd, report_date, size=9, color=C.faint)
 
     # DRAFT watermark — shown when assessment is not yet complete
     if meta.get("is_draft"):
@@ -1423,7 +1435,7 @@ def _appendix(doc, suppressed, unknown_log, response_log, amendment_log=None):
 
 def generate_report(report_data, answers, profile, section_results=None,
                     start_date=None, is_complete=True, finding_contexts=None,
-                    amendment_log=None):
+                    amendment_log=None, assessment_date=None):
     school_name     = _get(answers, "1.1") or (profile or {}).get("school_name", "School")
     school_mission  = _get(answers, "1.5")
     respondent_name = _get(answers, "1.7a")
@@ -1449,6 +1461,7 @@ def generate_report(report_data, answers, profile, section_results=None,
         "respondent_name":   respondent_name,
         "respondent_role":   respondent_role,
         "report_date":       report_date,
+        "assessment_date":   assessment_date or report_date,
         "confidence_caveat": confidence_caveat,
         "is_draft":          is_draft,
     }
@@ -1525,7 +1538,8 @@ def generate_report(report_data, answers, profile, section_results=None,
     # Apply heading styles with outlineLevel so TOC works
     _apply_heading_styles(doc)
 
-    _set_hf(doc, school_name, report_date, confidence_caveat)
+    _set_hf(doc, school_name, report_date, confidence_caveat,
+            assessment_date=meta.get("assessment_date"))
     _cover(doc, meta)
     _toc(doc)
     _exec_summary(doc, meta, summary, findings, section_results or [], answers=answers)

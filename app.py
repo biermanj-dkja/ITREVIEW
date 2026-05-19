@@ -30,7 +30,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.7.1.3'
+app.config['VERSION'] = '0.7.2.0'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -621,7 +621,8 @@ def download_report(session_id):
         docx_bytes = generate_report(report_data, answers, profile, section_results,
                                      start_date=start_date, is_complete=is_complete,
                                      finding_contexts=finding_contexts,
-                                     amendment_log=amendment_log)
+                                     amendment_log=amendment_log,
+                                     assessment_date=sess.get("last_modified", "")[:10])
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("summary", session_id=session_id))
@@ -817,7 +818,8 @@ def download_dg_report(session_id):
         docx_bytes = generate_dg_report(dg, answers, profile, system_names, gen_ids,
                                         start_date=start_date, is_complete=is_complete,
                                         finding_contexts=finding_contexts,
-                                        amendment_log=amendment_log)
+                                        amendment_log=amendment_log,
+                                        assessment_date=sess.get("last_modified", "")[:10])
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("dg_report", session_id=session_id))
@@ -904,7 +906,8 @@ def download_vr_report(session_id):
         docx_bytes = generate_vr_report(vr, answers, profile, vendor_names, gen_ids,
                                         start_date=start_date, is_complete=is_complete,
                                         finding_contexts=finding_contexts,
-                                        amendment_log=amendment_log)
+                                        amendment_log=amendment_log,
+                                        assessment_date=sess.get("last_modified", "")[:10])
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("vr_report", session_id=session_id))

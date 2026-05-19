@@ -245,7 +245,7 @@ def _cp(cell, text="", bold=False, italic=False, size=10, color=None, sb=2, sa=2
     return p
 
 
-def _set_hf(doc, school, report_date):
+def _set_hf(doc, school, report_date, assessment_date=None):
     sec = doc.sections[0]
     hdr = sec.header
     hdr.is_linked_to_previous = False
@@ -261,7 +261,9 @@ def _set_hf(doc, school, report_date):
     fp = ftr.add_paragraph()
     fp.paragraph_format.space_before = Pt(2)
     fp.paragraph_format.space_after = Pt(0)
-    _run(fp, f"{report_date}    Page ", size=8, color=C.faint)
+    date_label = f"Assessed: {assessment_date}  ·  Generated: {report_date}" \
+                 if assessment_date and assessment_date != report_date else report_date
+    _run(fp, f"{date_label}    Page ", size=8, color=C.faint)
     r = fp.add_run()
     for tag in ("begin", "separate", "end"):
         fc = OxmlElement("w:fldChar")
@@ -334,7 +336,7 @@ def _area_score_table(doc, area_scores):
 # ── Report sections ───────────────────────────────────────────────
 
 def _cover(doc, school_name, respondent_name, respondent_role, report_date,
-           is_draft=False):
+           is_draft=False, assessment_date=None):
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_before = Pt(60)
@@ -386,7 +388,15 @@ def _cover(doc, school_name, respondent_name, respondent_role, report_date,
     pd = doc.add_paragraph()
     pd.alignment = WD_ALIGN_PARAGRAPH.CENTER
     pd.paragraph_format.space_before = Pt(16)
-    _run(pd, report_date, size=9, color=C.faint)
+    pd.paragraph_format.space_after = Pt(2)
+    if assessment_date and assessment_date != report_date:
+        _run(pd, f"Assessment conducted: {assessment_date}", size=9, color=C.faint)
+        pg = doc.add_paragraph()
+        pg.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        pg.paragraph_format.space_before = Pt(0)
+        _run(pg, f"Report generated: {report_date}", size=9, color=C.faint)
+    else:
+        _run(pd, report_date, size=9, color=C.faint)
 
     if is_draft:
         draft_p = doc.add_paragraph()
@@ -1196,7 +1206,8 @@ def _dg_timeline_section(doc, timeline):
 
 def generate_dg_report(dg_report_obj, answers, profile, system_names,
                        generated_section_ids, start_date=None,
-                       is_complete=True, finding_contexts=None, amendment_log=None):
+                       is_complete=True, finding_contexts=None, amendment_log=None,
+                       assessment_date=None):
     """
     Parameters
     ----------
@@ -1237,9 +1248,9 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
         sec.left_margin   = Inches(0.9)
         sec.right_margin  = Inches(0.9)
 
-    _set_hf(doc, school_name, report_date)
+    _set_hf(doc, school_name, report_date, assessment_date=assessment_date)
     _cover(doc, school_name, respondent_name, respondent_role, report_date,
-           is_draft=is_draft)
+           is_draft=is_draft, assessment_date=assessment_date)
     _exec_summary(doc, dg_report_obj, school_name, system_names=system_names,
                   is_draft=is_draft)
     _per_system_findings(doc, dg_report_obj, finding_contexts=finding_contexts)

@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.1.3
+## v0.7.2.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -404,6 +404,28 @@ or any technical setup.
 
 ## What's in this version
 
+**v0.7.2.0** adds dual date display to all three report covers and footers.
+
+Reports now show both the date the assessment was conducted and the date the report
+was generated, so a DOCX produced weeks or months after the session was completed
+is not mistaken for a current snapshot.
+
+- **Cover page** — when the two dates differ, the cover shows:
+  `Assessment conducted: YYYY-MM-DD` and `Report generated: YYYY-MM-DD` as separate
+  lines. When the report is downloaded the same day the session was last saved, only
+  a single date is shown (no redundant duplication).
+- **Footer** — similarly shows `Assessed: X · Generated: Y` when dates differ, or
+  the single date when they match. Module 3 (Vendor Register) also updates its
+  header line, which previously included the date.
+- The assessment date is derived from `session.last_modified` — the timestamp of the
+  most recent answer save in the session. This is the closest available proxy for
+  "when the assessment was conducted."
+
+**Files changed:** `app.py`, `report_generator.py`, `report_generator_dg.py`,
+`report_generator_vr.py`
+
+---
+
 **v0.7.1.3** is a housekeeping release. One code change, one documentation update.
 
 - **`rules_engine_dg.py`** — removed the legacy double-underscore fallback from `_get()`
@@ -722,5 +744,4 @@ dynamic section engine, and a per-system report card. See the
 - Module 1 Sections 1 and 10 generate no findings (context only by design).
 - Archived (deprecated) sessions are accessible via the Archived tab on the home page. They can be restored, exported, or permanently deleted from there.
 - Composite finding suppression is not yet enabled — all findings are listed individually. Full RA-003 implementation is tracked in the roadmap.
-- The Module 1 report shows the date the report was generated, not the date the assessment was conducted. If you generate a report weeks after completing the assessment, both dates will differ. Dual date display is on the roadmap.
 - Module 3 `V.SUPPORT.escalation` finding (VR-S4) uses vendor category text matching to identify core systems. If your vendor category answer does not closely match one of the recognised core categories (SIS, LMS, Identity Provider, Firewall, VoIP, Phone System, Core Infrastructure), the finding will not fire even if the vendor is critical. Review and correct vendor categories in the register if you are not seeing expected findings for core vendors.

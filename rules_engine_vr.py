@@ -1,6 +1,6 @@
 """
 rules_engine_vr.py  —  Vendor Register findings engine for module_3
-v0.7.0
+v0.7.6.0
 
 Generates deterministic findings and a report card from the answers
 collected in the Software, Licensing, and Vendor Register (module_3).
@@ -14,6 +14,7 @@ VRReport contains:
   - school_wide_results  : list of VRFinding (VR2 section)
   - summary              : VRSummary (counts, overall grade, risk register)
   - renewal_risk_register: list of RenewalRisk (sorted by urgency)
+  - floor_cap            : FloorCap | None  — set when a critical floor rule fires
 
 Each VendorResult has:
   - vendor_name
@@ -50,6 +51,12 @@ RenewalRisk fields:
   - notice_days  : str | None
   - risk_level   : str  ("high" / "medium" / "low")
   - risk_reason  : str
+
+FloorCap fields:
+  - cap_grade      : str   — the grade ceiling applied ("D" typically)
+  - reason         : str   — human-readable explanation
+  - trigger_vendors: list of str  — vendors that triggered the floor
+  - trigger_finding: str   — the finding title that triggered it
 
 Effort ratings:
   S   = half a day (~4 hours)
@@ -141,6 +148,20 @@ class VRReport:
     school_wide_results: List[VRFinding]
     summary: VRSummary
     renewal_risk_register: List[RenewalRisk] = field(default_factory=list)
+    floor_cap: Optional["FloorCap"] = None
+
+
+@dataclass
+class FloorCap:
+    """
+    Set when a critical floor rule fires for the module.
+    The overall_grade is capped at cap_grade regardless of the
+    weighted average. The report shows this cap explicitly.
+    """
+    cap_grade: str            # "D"
+    reason: str
+    trigger_vendors: List[str]
+    trigger_finding: str
 
 
 # ── Helpers ────────────────────────────────────────────────────────
@@ -1004,6 +1025,109 @@ def _build_category_breakdown(per_vendor_results):
     return breakdown
 
 
+# ── Critical floor rules ───────────────────────────────────────────
+
+def critical_floor_check(per_vendor_results):
+    """
+    Check whether any critical floor condition is met across the vendor portfolio.
+
+    A critical floor caps the module overall grade at D regardless of the
+    weighted average. This prevents a strong portfolio average from masking
+    a genuinely dangerous gap in one or more critical vendors.
+
+    Floor conditions (any one is sufficient to trigger the cap):
+      VR-FLOOR-1: Any student-data vendor has no DPA AND no FERPA review
+                  (both missing, not just one) — most severe compliance gap
+      VR-FLOOR-2: Three or more high-priority vendors have undocumented admin
+                  credentials (core-category or student-data vendors only)
+      VR-FLOOR-3: Any vendor whose category is core/critical scores below 30%
+                  (catastrophic operational control failure)
+
+    Returns FloorCap if a floor condition fires, else None.
+    """
+    # VR-FLOOR-1: student-data vendor with BOTH no DPA AND no FERPA review
+    floor1_vendors = []
+    for r in per_vendor_results:
+        if r.holds_student_data:
+            has_no_dpa = any(
+                f.title == "No Data Processing Agreement in place"
+                for f in r.findings
+            )
+            has_no_ferpa = any(
+                "FERPA/COPPA compliance not reviewed" in f.title
+                for f in r.findings
+            )
+            if has_no_dpa and has_no_ferpa:
+                floor1_vendors.append(r.vendor_name)
+
+    if floor1_vendors:
+        return FloorCap(
+            cap_grade="D",
+            reason=(
+                "One or more vendors that hold student data have no signed DPA and "
+                "no FERPA/COPPA compliance review. This is a direct FERPA compliance "
+                "failure. The overall grade is capped at D until both gaps are resolved."
+            ),
+            trigger_vendors=floor1_vendors,
+            trigger_finding="No Data Processing Agreement in place + FERPA/COPPA compliance not reviewed",
+        )
+
+    # VR-FLOOR-2: Three or more student-data or core-category vendors with
+    # undocumented admin credentials
+    try:
+        _yaml_path = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                  "module_3.yaml")
+        with open(_yaml_path, "r", encoding="utf-8") as _f:
+            _m3 = yaml.safe_load(_f)
+        _core_cats = [c.lower() for c in _m3.get("core_vendor_categories", [])]
+    except Exception:
+        _core_cats = []
+
+    def _is_core(category):
+        return any(c in (category or "").lower() for c in _core_cats)
+
+    cred_vendors = []
+    for r in per_vendor_results:
+        if r.holds_student_data or _is_core(r.category):
+            if any(f.title == "Admin credentials not documented" and f.severity in ("high", "critical")
+                   for f in r.findings):
+                cred_vendors.append(r.vendor_name)
+
+    if len(cred_vendors) >= 3:
+        return FloorCap(
+            cap_grade="D",
+            reason=(
+                f"{len(cred_vendors)} core or student-data vendors have undocumented "
+                "admin credentials. Loss of access to this many critical systems during "
+                "a staff transition is a severe operational continuity risk. The overall "
+                "grade is capped at D until credentials are documented."
+            ),
+            trigger_vendors=cred_vendors,
+            trigger_finding="Admin credentials not documented",
+        )
+
+    # VR-FLOOR-3: Any core-category vendor scores below 30%
+    floor3_vendors = []
+    for r in per_vendor_results:
+        if _is_core(r.category) and r.max_pts > 0 and r.score_pct < 30:
+            floor3_vendors.append(r.vendor_name)
+
+    if floor3_vendors:
+        return FloorCap(
+            cap_grade="D",
+            reason=(
+                "One or more core/critical systems scored below 30%, indicating a "
+                "near-complete absence of governance controls for a system the school "
+                "depends on daily. The overall grade is capped at D until controls "
+                "for these systems are documented."
+            ),
+            trigger_vendors=floor3_vendors,
+            trigger_finding="Core/critical vendor — critically low governance score",
+        )
+
+    return None
+
+
 # ── Main evaluation entry point ────────────────────────────────────
 
 def evaluate_vr(answers, vendor_names, generated_section_ids):
@@ -1064,6 +1188,14 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
     overall_pct = round(sum(all_pcts) / len(all_pcts)) if all_pcts else 0
     overall_grade = _grade(overall_pct)
 
+    # ── Critical floor check ────────────────────────────────────────
+    floor_cap = critical_floor_check(per_vendor_results)
+    if floor_cap:
+        _grade_order = ["A", "B", "C", "D", "F"]
+        _ci = _grade_order.index(floor_cap.cap_grade) if floor_cap.cap_grade in _grade_order else 3
+        _gi = _grade_order.index(overall_grade) if overall_grade in _grade_order else 4
+        overall_grade = _grade_order[max(_ci, _gi)]
+
     all_findings = [f for r in per_vendor_results for f in r.findings] + school_wide
     critical_count = sum(1 for f in all_findings if f.severity == "critical")
     high_count     = sum(1 for f in all_findings if f.severity == "high")
@@ -1108,4 +1240,5 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
         school_wide_results=school_wide,
         summary=summary,
         renewal_risk_register=renewal_register,
+        floor_cap=floor_cap,
     )

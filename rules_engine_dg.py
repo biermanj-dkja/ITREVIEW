@@ -114,11 +114,25 @@ class DGSummary:
 
 
 @dataclass
+class FloorCap:
+    """
+    Set when a critical floor rule fires for the module.
+    The overall_grade is capped at cap_grade regardless of the
+    sensitivity-weighted average. The report shows this cap explicitly.
+    """
+    cap_grade: str            # "D"
+    reason: str
+    trigger_systems: List[str]
+    trigger_finding: str
+
+
+@dataclass
 class DGReport:
     per_system_results: List[SystemResult]
     school_wide_results: List[Finding]
     summary: DGSummary
     getting_started: GettingStarted = field(default_factory=GettingStarted)
+    floor_cap: Optional[FloorCap] = None
 
 
 # ── Helpers ────────────────────────────────────────────────────────
@@ -957,6 +971,110 @@ def _build_data_at_risk_summary(per_system_results):
             "These categories carry the highest regulatory and reputational risk.")
 
 
+# ── Critical floor rules ───────────────────────────────────────────
+
+def critical_floor_check(per_system_results):
+    """
+    Check whether any critical floor condition is met across the assessed systems.
+
+    A critical floor caps the module overall grade at D regardless of the
+    sensitivity-weighted average. This prevents strong scores on peripheral
+    systems from masking a genuinely dangerous gap in a primary data system.
+
+    Floor conditions (any one is sufficient to trigger the cap):
+      DG-FLOOR-1: Any system holds high-sensitivity data AND has former staff
+                  accounts still active (SYS.1.1a = yes) — direct breach risk
+      DG-FLOOR-2: Any system holds high-sensitivity data AND has NO MFA AND
+                  no backup — two critical controls simultaneously absent
+      DG-FLOOR-3: Any system holds high-sensitivity data AND has no DPA
+                  AND no breach notification clause — contractual compliance failure
+
+    Returns FloorCap if a floor condition fires, else None.
+    """
+    _HIGH_SENSITIVITY_KEYWORDS = {
+        "health", "financial", "payroll", "hr records", "academic records",
+        "behavioral", "credentials", "admissions"
+    }
+
+    def _is_high_sensitivity(data_held):
+        if not data_held:
+            return False
+        combined = " ".join(d.lower() for d in data_held)
+        return any(kw in combined for kw in _HIGH_SENSITIVITY_KEYWORDS)
+
+    # DG-FLOOR-1: Former staff accounts active on a sensitive system
+    floor1_systems = []
+    for r in per_system_results:
+        if _is_high_sensitivity(r.data_held):
+            if any(f.title == "Former staff accounts still active" for f in r.findings):
+                floor1_systems.append(r.system_name)
+
+    if floor1_systems:
+        return FloorCap(
+            cap_grade="D",
+            reason=(
+                "One or more systems holding sensitive data have confirmed active accounts "
+                "belonging to former staff. This is an active security risk — former employees "
+                "retain access to student, financial, or health data. The overall grade is "
+                "capped at D until all former staff accounts are revoked."
+            ),
+            trigger_systems=floor1_systems,
+            trigger_finding="Former staff accounts still active",
+        )
+
+    # DG-FLOOR-2: High-sensitivity system with no MFA AND no backup
+    floor2_systems = []
+    for r in per_system_results:
+        if _is_high_sensitivity(r.data_held):
+            has_no_mfa    = any("MFA not enabled" in f.title for f in r.findings)
+            has_no_backup = any(
+                "not backed up" in f.title.lower() or "no backup" in f.title.lower()
+                for f in r.findings
+            )
+            if has_no_mfa and has_no_backup:
+                floor2_systems.append(r.system_name)
+
+    if floor2_systems:
+        return FloorCap(
+            cap_grade="D",
+            reason=(
+                "One or more systems holding sensitive data have both MFA and backup "
+                "controls absent simultaneously. This combination — no authentication "
+                "protection and no recovery path — represents a critical unmitigated risk. "
+                "The overall grade is capped at D until at least one of these gaps is closed "
+                "on each affected system."
+            ),
+            trigger_systems=floor2_systems,
+            trigger_finding="MFA not enabled and no backup — sensitive data system",
+        )
+
+    # DG-FLOOR-3: High-sensitivity system with no DPA and no breach notification clause
+    floor3_systems = []
+    for r in per_system_results:
+        if _is_high_sensitivity(r.data_held):
+            has_no_dpa    = any("No DPA" in f.title or "no agreement" in f.title.lower()
+                                for f in r.findings)
+            has_no_breach = any("breach notification" in f.title.lower()
+                                for f in r.findings)
+            if has_no_dpa and has_no_breach:
+                floor3_systems.append(r.system_name)
+
+    if floor3_systems:
+        return FloorCap(
+            cap_grade="D",
+            reason=(
+                "One or more systems holding sensitive data have no Data Processing Agreement "
+                "and no breach notification clause — both contractual compliance controls "
+                "are absent. This is a direct FERPA compliance gap. The overall grade is "
+                "capped at D until DPA obligations are established for these systems."
+            ),
+            trigger_systems=floor3_systems,
+            trigger_finding="No DPA and no breach notification clause — sensitive data system",
+        )
+
+    return None
+
+
 # ── Main evaluation entry point ────────────────────────────────────
 
 def evaluate_dg(answers, system_names, generated_section_ids):
@@ -1031,6 +1149,15 @@ def evaluate_dg(answers, system_names, generated_section_ids):
     overall_pct = round(weighted_sum / weight_total) if weight_total > 0 else 0
     overall_grade = _grade(overall_pct)
 
+    # ── Critical floor check ────────────────────────────────────────────────────
+    floor_cap = critical_floor_check(per_system_results)
+    if floor_cap:
+        # Cap grade at floor_cap.cap_grade if the computed grade is better
+        order = ["A", "B", "C", "D", "F"]
+        ci = order.index(floor_cap.cap_grade) if floor_cap.cap_grade in order else 3
+        gi = order.index(overall_grade) if overall_grade in order else 4
+        overall_grade = order[max(ci, gi)]
+
     all_findings = [f for r in per_system_results for f in r.findings] + school_wide
     critical_count = sum(1 for f in all_findings if f.severity == "critical")
     high_count     = sum(1 for f in all_findings if f.severity == "high")
@@ -1055,4 +1182,5 @@ def evaluate_dg(answers, system_names, generated_section_ids):
         school_wide_results=school_wide,
         summary=summary,
         getting_started=getting_started,
+        floor_cap=floor_cap,
     )

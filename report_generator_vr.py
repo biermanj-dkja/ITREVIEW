@@ -551,7 +551,7 @@ def _per_vendor_findings(doc, vr_report, finding_contexts=None):
         else:
             for f in sorted(result.findings,
                             key=lambda x: {"critical": 0, "high": 1, "medium": 2, "low": 3}.get(x.severity, 9)):
-                _finding_box(doc, f, finding_contexts)
+                _finding_box(doc, f, finding_contexts, section_id=result.section_id)
 
 
 def _area_score_table(doc, area_scores):
@@ -581,11 +581,15 @@ def _area_score_table(doc, area_scores):
     doc.add_paragraph().paragraph_format.space_after = Pt(4)
 
 
-def _finding_box(doc, f, finding_contexts=None):
+def _finding_box(doc, f, finding_contexts=None, section_id=None):
     finding_contexts = finding_contexts or {}
     sev_col = FSEV_COLOR.get(f.severity, C.text)
     sev_hex = _hex(sev_col)
-    timing_col = TIMING_COLOR.get(getattr(f, "timing", "planned"), C.text)
+
+    # Build stable context lookup key: "{section_id}:{area[:3].upper()}"
+    # Matches the key format used in the phased timeline and DG report.
+    fid_key = f"{section_id}:{f.area[:3].upper()}" if section_id else None
+    ctx = finding_contexts.get(fid_key) if fid_key else None
 
     def _builder(cell):
         p = _cp(cell, sb=4, sa=2)
@@ -614,12 +618,27 @@ def _finding_box(doc, f, finding_contexts=None):
         _run(ap, "→ ", bold=True, size=9, color=C.accent)
         _run(ap, f.action, size=9, color=C.text, italic=True)
 
+        # Context note — rendered when a reviewer has annotated this finding
+        if ctx:
+            ph = cell.add_paragraph()
+            ph.paragraph_format.space_before = Pt(6)
+            ph.paragraph_format.space_after = Pt(1)
+            ph.paragraph_format.left_indent = Pt(6)
+            _run(ph, "📋  Context note  ", bold=True, size=9, color=C.healthy)
+            _run(ph, f"(added {ctx['added_at'][:10]})", size=8, color=C.faint)
+            pb = cell.add_paragraph()
+            pb.paragraph_format.space_before = Pt(1)
+            pb.paragraph_format.space_after = Pt(4)
+            pb.paragraph_format.left_indent = Pt(6)
+            _run(pb, ctx["note"], size=9, italic=True, color=C.text)
+
     _box(doc, _builder, border_hex=sev_hex)
 
 
 # ── School-Wide Governance Findings ──────────────────────────────
 
-def _school_wide_findings(doc, vr_report):
+def _school_wide_findings(doc, vr_report, finding_contexts=None):
+    finding_contexts = finding_contexts or {}
     if not vr_report.school_wide_results:
         return
     _page_break(doc)
@@ -631,7 +650,7 @@ def _school_wide_findings(doc, vr_report):
           size=10, color=C.faint, sb=4, sa=10)
     for f in sorted(vr_report.school_wide_results,
                     key=lambda x: {"critical": 0, "high": 1, "medium": 2, "low": 3}.get(x.severity, 9)):
-        _finding_box(doc, f, {})
+        _finding_box(doc, f, finding_contexts, section_id="VR2")
 
 
 # ── Action Plan ───────────────────────────────────────────────────
@@ -845,7 +864,7 @@ def generate_vr_report(vr_report_obj, answers, profile, vendor_names,
     _renewal_register(doc, vr_report_obj, answers=answers)
     _category_overview(doc, vr_report_obj)
     _per_vendor_findings(doc, vr_report_obj, finding_contexts=finding_contexts)
-    _school_wide_findings(doc, vr_report_obj)
+    _school_wide_findings(doc, vr_report_obj, finding_contexts=finding_contexts)
     _action_plan(doc, vr_report_obj)
 
     if start_date:

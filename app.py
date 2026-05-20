@@ -30,7 +30,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.7.7.0'
+app.config['VERSION'] = '0.7.7.1'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -372,7 +372,9 @@ def section(session_id, section_id):
     # (used to show the server-round-trip hint for worksheet generation)
     has_hidden_conditionals = any(q.get("triggers_save") for q in all_questions)
 
-    module_label = "IT Assessment" if mid == "module_1" else "Data Governance"
+    module_label = ("IT Assessment" if mid == "module_1"
+                    else "Vendor Register" if mid == "module_3"
+                    else "Data Governance")
     section_label_bc = f"Section {sec.get('display_id', section_id)}: {sec['title']}"
     breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=section_label_bc)
 
@@ -763,12 +765,16 @@ def dg_report(session_id):
     system_names = module.get("_system_names", [])
     dg = evaluate_dg(answers, system_names, gen_ids)
 
+    finding_contexts = get_finding_contexts(session_id)
+    last_exported = get_last_exported(session_id)
     return render_template(
         "dg_report.html",
         session_id=session_id,
         sess=sess,
         dg=dg,
         module=module,
+        finding_contexts=finding_contexts,
+        last_exported=last_exported,
     )
 
 
@@ -851,12 +857,16 @@ def vr_report(session_id):
     vendor_names = module.get("_system_names", [])
     vr = evaluate_vr(answers, vendor_names, gen_ids)
 
+    finding_contexts = get_finding_contexts(session_id)
+    last_exported = get_last_exported(session_id)
     return render_template(
         "vr_report.html",
         session_id=session_id,
         sess=sess,
         vr=vr,
         module=module,
+        finding_contexts=finding_contexts,
+        last_exported=last_exported,
     )
 
 
@@ -1020,11 +1030,15 @@ def import_session():
         sess_data.get("school_name", "Imported School"),
     )
 
-    # Restore sections_complete, sections_flagged, status
+    # Restore sections_complete, sections_flagged, status, and original last_modified.
+    # Preserve the original last_modified from the export so the dual-date logic on
+    # report covers reflects when the data was actually collected, not when it was
+    # imported.  Fall back to now only if the field is absent (legacy exports).
     db_obj = __import__("database")
     db = db_obj.get_db()
     from datetime import datetime as _dt
     now = _dt.utcnow().isoformat()
+    original_last_modified = sess_data.get("last_modified") or now
     db.execute("""
         UPDATE assessment_session
         SET sections_complete=?, sections_flagged=?, status=?, last_modified=?
@@ -1033,7 +1047,7 @@ def import_session():
         sess_data.get("sections_complete", "[]"),
         sess_data.get("sections_flagged", "[]"),
         sess_data.get("status", "in_progress"),
-        now,
+        original_last_modified,
         session_id,
     ))
     db.commit()

@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.7.0
+## v0.7.8.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -403,6 +403,82 @@ or any technical setup.
 
 
 ## What's in this version
+
+**v0.7.8.0** adds rule evaluation tracing — a developer debugging tool that writes a
+structured JSON record alongside every DOCX report download.
+
+### Rule evaluation trace (`trace.py`)
+
+A new optional mode controlled by the environment variable `FLASK_DEBUG_TRACE=1`. When
+enabled, each report download writes a sidecar JSON file to `data/traces/` named
+`{session_id[:8]}_{module}_{timestamp}.json`. The trace file is the authoritative debugging
+record for a report run — it captures everything the rules engine saw and decided, without
+requiring manual DOCX inspection.
+
+**What each trace records:**
+
+- **Normalized answers** — every question in the session: raw value, the normalized token
+  the rules engine actually tested against (e.g. `"yes"`, `"partial"`, `"unknown"`), and
+  the DB status. This makes it immediately clear why a rule fired or didn't.
+- **Fired findings** — every finding that was generated, with its ID/key, severity, source
+  section/system/vendor, timing, effort, and owner.
+- **Suppressed findings** (Module 1) — findings that fired but were absorbed by a composite,
+  with the reason recorded.
+- **Score breakdown** — per-section (M1), per-system (M2), or per-vendor (M3) earned/max
+  scores and area breakdowns, plus the weighted overall grade calculation.
+- **Floor cap detail** — when a critical floor rule triggers, the trace records which
+  cap applied, which systems/vendors triggered it, and the finding to resolve.
+- **Key risk groups** (Module 1) — the full group membership and severity aggregation
+  that drives the Key Risks section of the report.
+- **Renewal risk register** (Module 3) — the full register with risk levels and reasons.
+
+To enable tracing, set the env var before starting the app:
+
+```bash
+FLASK_DEBUG_TRACE=1 python app.py
+```
+
+Trace write failures never abort report generation — if the write fails for any reason,
+a warning is printed to the console and the DOCX download proceeds normally.
+
+**Files changed:** `trace.py` (new), `app.py`
+
+---
+
+**v0.7.7.1** is a bug fix and parity release. No scoring changes.
+
+### Bug fixes
+
+- **Import restores original `last_modified`** — the session import route previously
+  stamped `last_modified` with the current UTC time, discarding the original value from
+  the export file. This caused the dual-date logic on report covers to show only one date
+  (since both dates matched). The import now restores the original `last_modified` from
+  the export, falling back to the current time only when the field is absent.
+- **Module 3 breadcrumb label** — section pages for Module 3 (Vendor Register) were
+  labelled "Data Governance" in the breadcrumb. Now correctly labelled "Vendor Register".
+- **Context note entry UI — Modules 2 and 3** — the "Add context note" UI was only
+  available on the Module 1 full findings page. Modules 2 and 3 report card pages
+  (`dg_report.html`, `vr_report.html`) now show the same context note entry UI on every
+  finding, gated on `last_exported` as in Module 1.
+- **Module 3 DOCX context notes not rendering** — `_finding_box()` in
+  `report_generator_vr.py` accepted `finding_contexts` but never looked up or rendered
+  the note. Now fixed — context notes appear in the DOCX alongside Module 3 findings.
+- **School-wide findings (M3) missing context note support** — `_school_wide_findings()`
+  was passing an empty dict to `_finding_box()`. Now correctly forwards `finding_contexts`
+  and the `VR2` section ID.
+
+### UX improvement
+
+- **Context note UI more visible** — on the Module 1 full findings page, the "Add context
+  note" control was a faint collapsed `<details>` arrow that was easy to miss. It is now
+  an open, always-visible dashed card with a heading and explanatory text. Existing notes
+  display prominently with a green left border; the edit/remove form stays collapsed behind
+  a `<details>` toggle so it does not clutter findings that already have notes.
+
+**Files changed:** `app.py`, `dg_report.html`, `vr_report.html`, `report_generator_vr.py`,
+`findings.html`
+
+---
 
 **v0.7.7.0** adds criticality-weighted scoring to the Module 3 (Vendor Register) overall grade.
 

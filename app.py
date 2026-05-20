@@ -15,6 +15,7 @@ from database import (
     deprecate_session
 )
 from rules_engine import evaluate_all, evaluate_section, findings_to_dict
+from trace import write_trace_m1, write_trace_dg, write_trace_vr
 from report_generator import generate_report
 from engine import (
     load_module, get_section, get_visible_questions,
@@ -30,7 +31,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.7.7.1'
+app.config['VERSION'] = '0.7.8.0'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -625,6 +626,7 @@ def download_report(session_id):
                                      finding_contexts=finding_contexts,
                                      amendment_log=amendment_log,
                                      assessment_date=sess.get("last_modified", "")[:10])
+        write_trace_m1(session_id, answers, report)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("summary", session_id=session_id))
@@ -826,6 +828,7 @@ def download_dg_report(session_id):
                                         finding_contexts=finding_contexts,
                                         amendment_log=amendment_log,
                                         assessment_date=sess.get("last_modified", "")[:10])
+        write_trace_dg(session_id, answers, dg, system_names, gen_ids)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("dg_report", session_id=session_id))
@@ -918,6 +921,7 @@ def download_vr_report(session_id):
                                         finding_contexts=finding_contexts,
                                         amendment_log=amendment_log,
                                         assessment_date=sess.get("last_modified", "")[:10])
+        write_trace_vr(session_id, answers, vr, vendor_names, gen_ids)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("vr_report", session_id=session_id))

@@ -224,7 +224,7 @@ QUESTION_PROMPTS = {
 
 def _build_yaml_prompts():
     """Load question prompts from module_1.yaml. Returns {} on failure."""
-    yaml_path = os.path.join(os.path.dirname(__file__), "module_1.yaml")
+    yaml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "module_1.yaml")
     try:
         with open(yaml_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)

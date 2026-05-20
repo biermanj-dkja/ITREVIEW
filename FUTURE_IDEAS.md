@@ -260,6 +260,72 @@ at least one completed Module 1 session to be useful.
 
 ---
 
+## Resolved Decisions Log
+*(Items previously listed as deferred — now implemented or closed)*
+
+---
+
+### Report Date — Dual Display ✅ Done (v0.7.2.0)
+
+All three report generators show both assessment date (from `session.last_modified`) and
+generation date (`date.today()`). When dates match, a single date is shown. Resolved.
+
+---
+
+### RA-003 Full Implementation — Key Risk Group Assembly ✅ Done (v0.7.5.0)
+
+`build_key_risk_groups()` now fully implements RA-003:
+- Group titles and contributing finding IDs correct per schema
+- Severity aggregated to highest among fired findings
+- Mandatory F2-C01 first ordering enforced in `_key_risks()` sort (RA-002)
+- "Rated Urgent because: \<title\> (\<fid\>)" narrative rendered in urgent group boxes
+- Assessment Overview shows accurate absorbed-findings count linked to Appendix A
+
+---
+
+### Notes Passthrough — Targeted (DG2.10 and VR2.10) ✅ Done (v0.7.4.0)
+
+Two specific high-value passthrough points implemented:
+- **Module 2:** `DG2.10` free-text quoted in a callout box at the end of the Executive Summary
+- **Module 3:** `VR2.10` free-text quoted in a callout box after the Renewal Risk Register table
+
+Full global notes passthrough (R3-026, R9-006, RA-006) remains future work.
+
+---
+
+### Schema-Driven Appendix Labels — Module 1 ✅ Done (v0.7.4.0, path fixed v0.7.5.1)
+
+`get_question_label()` in `report_generator.py` reads prompts from `modules/module_1.yaml`
+at import time and uses them in the Appendix C response log. Hardcoded `QUESTION_PROMPTS`
+dict retained as a fallback with a log warning. Path bug fixed in v0.7.5.1.
+
+---
+
+### VR-S4 Core Category List Moved to YAML ✅ Done (v0.7.3.0)
+
+`core_vendor_categories` moved from a hardcoded set in `rules_engine_vr.py` to
+`module_3.yaml`. Adding a new core category now requires only a YAML edit.
+
+---
+
+### Score Contribution Table in Module 1 DOCX ✅ Done (v0.7.3.1)
+
+"Score Breakdown by Section" table added to the Module 1 executive summary, showing
+section weight, section score, and weighted contribution. Sections 1 and 10 shown as
+"Context only — not scored."
+
+---
+
+### Per-Section Data Quality Annotations — R10-007
+
+**Current state:** A single global confidence caveat is shown in the Executive Summary.
+Per-section annotation (individual findings flagged when the respondent reported low
+confidence for that section) is not yet implemented.
+
+**Implementation effort:** S+ (~1 day). Still a future item — not yet scheduled.
+
+---
+
 ## Deferred from v0.7.1 Assessment Quality Review
 
 The following items were identified during a structured review of the Module 1 and Module 2 report outputs against the design documents and rule schema. They are intentionally deferred — each is understood, scoped, and documented here for a future sprint.
@@ -391,53 +457,26 @@ localhost application. The app has one canonical format and all parts of it use 
 
 ### Tier 1 — Quick Wins, High Credibility
 
-These are small, self-contained, high-value. Do these first.
+All Tier 1 items are complete.
 
-#### 1. Dual date display on all report covers *(S — ½ day)*
+#### 1. Dual date display on all report covers ✅ Done (v0.7.2.0)
 
-The report currently shows only the generation date (`date.today()`). A report produced
-weeks after the assessment is completed will show the wrong date in context. Show both:
-
-- **Assessment conducted:** derived from the session's `last_modified` timestamp
-- **Report generated:** `date.today()`
-
-**Scope:** Pass `session.last_modified` into each `generate_report()` call. Display both
-dates on the cover page and in the report footer. Three report generators to update
-(`report_generator.py`, `report_generator_dg.py`, `report_generator_vr.py`).
-
-This is the same item documented above under "Report Date — Dual Display" but is now
-promoted to Tier 1 because polished reports make the single-date ambiguity look like a bug.
+Both assessment date and generation date shown on all three report covers and footers.
+Single date shown when both are the same day.
 
 ---
 
-#### 2. Section-by-section score contribution table in Module 1 DOCX *(S — 1 day)*
+#### 2. Section-by-section score contribution table in Module 1 DOCX ✅ Done (v0.7.3.1)
 
-The executive summary score box shows the overall weighted percentage but not how each
-section contributed. Add a simple table immediately below the score box:
-
-| Section | Weight | Section Score | Weighted Contribution |
-|---------|--------|---------------|-----------------------|
-| §2 Staffing & IT Structure | 10% | 72% | 7.2% |
-| ... | | | |
-| **Overall** | **100%** | | **XX%** |
-
-Sections 1 and 10 are shown in the table as "Context only — not scored" rather than being
-omitted silently. This makes the grade fully explainable without the reader needing to ask.
-
-**Scope:** New helper function in `report_generator.py`. Uses the existing section weight
-table already defined in the scoring framework. No rules engine changes.
+"Score Breakdown by Section" table in the Module 1 executive summary. Sections 1 and 10
+shown as "Context only — not scored." Totals row confirms 100% weight sum.
 
 ---
 
-#### 3. Move VR-S4 core category list from Python to YAML *(S — ½ day)*
+#### 3. Move VR-S4 core category list from Python to YAML ✅ Done (v0.7.3.0)
 
-`rules_engine_vr.py` contains a hardcoded list of vendor categories that trigger the VR-S4
-escalation path (SIS, LMS, Identity Provider, Firewall, VoIP, etc.). This is a maintenance
-trap — adding a new category type requires editing Python rather than data.
-
-Move the list to a `core_vendor_categories` key in `module_3.yaml`. The rules engine reads
-it at evaluation time. No behavior change. No scoring change. Removes a known brittleness
-that is also called out in the README Known Limitations.
+`core_vendor_categories` key added to `module_3.yaml`. Adding a new core vendor category
+now requires only a YAML edit, not a Python change.
 
 ---
 
@@ -454,34 +493,19 @@ All three sub-items implemented:
 
 ---
 
-#### 5. Notes passthrough — targeted, not global *(M — ~3 days)*
+#### 5. Notes passthrough — targeted, not global ✅ Done (v0.7.4.0)
 
-Already documented above. Two specific high-value passthrough points only:
+- **Module 2:** `DG2.10` quoted in a callout box at the end of the Executive Summary
+- **Module 3:** `VR2.10` quoted in a callout box after the Renewal Risk Register table
 
-- **Module 2:** `DG2.10` (unresolved school-wide risks) → quoted in the executive overview
-  narrative
-- **Module 3:** `VR2.10` (vendor notes) → quoted in the Renewal Risk Register entry for
-  that vendor
-
-Do not implement globally. The full notes passthrough requirement (R3-026, R9-006, RA-006)
-is a larger effort and belongs in a later sprint.
+Full global notes passthrough (R3-026, R9-006, RA-006) remains future work.
 
 ---
 
-#### 6. Schema-driven appendix labels in Module 1 *(M — ~2 days)*
+#### 6. Schema-driven appendix labels in Module 1 ✅ Done (v0.7.4.0, path fixed v0.7.5.1)
 
-The appendix label drift bug (fixed in v0.7.1 by re-aligning a hardcoded dict) will happen
-again the next time a question is inserted or renumbered in `module_1.yaml`. The root fix
-is to replace the hardcoded label dictionary in `report_generator.py` with a YAML-driven
-lookup.
-
-**Scope:** Build a shared `get_question_label(module_id, question_id)` helper (probably in
-a new `schema_utils.py` or added to `engine.py`) that reads the active YAML and returns the
-question's `prompt` field. Use it in the appendix renderer. Keep the hardcoded dict as a
-fallback with a loud log warning so unknown IDs are visible rather than silent.
-
-This is the foundation for the broader schema-driven reporting goal in the external roadmaps.
-For v1.0, Module 1 appendix is sufficient. Modules 2 and 3 can follow.
+`get_question_label()` reads prompts from `modules/module_1.yaml` at import time.
+Hardcoded `QUESTION_PROMPTS` dict retained as a fallback with a log warning.
 
 ---
 

@@ -30,7 +30,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.7.5.0'
+app.config['VERSION'] = '0.7.5.1'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -941,7 +941,7 @@ def export_session(session_id):
     export_data = {
         "export_format":  "school_it_engine_session_v1",
         "exported_on":    _dt.utcnow().isoformat() + "Z",
-        "engine_version": "0.5.3",
+        "app_version":    app.config['VERSION'],
         "school_profile": profile,
         "session":        dict(sess),
         "answers":        answers,

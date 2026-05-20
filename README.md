@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.5.0
+## v0.7.5.1
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -403,6 +403,41 @@ or any technical setup.
 
 
 ## What's in this version
+
+**v0.7.5.1** is a synchronisation and cleanup release — no new features.
+
+- **YAML path fix (`report_generator.py`):** The schema-driven appendix label lookup
+  was looking for `module_1.yaml` in the project root; the file lives in `modules/`.
+  Path corrected to `modules/module_1.yaml`. Labels now load from YAML as intended;
+  the hardcoded fallback dict is no longer exercised in normal use.
+
+- **Export version metadata (`app.py`):** The session export JSON was embedding a
+  hardcoded `engine_version: "0.5.3"` field that had not been updated since v0.5.
+  Replaced with `app_version` pulling from `app.config['VERSION']` — one source of
+  truth, always current.
+
+- **README Known Limitations (`README.md`):** Removed the stale "composite finding
+  suppression is not yet enabled" bullet. RA-003 has been active since v0.7.5.0.
+  Replaced with an accurate description of current behaviour.
+
+- **Module 3 schema doc (`module_3_rule_schema_and_scoring_v0_1.md`):** The scoring
+  table listed `V.COST.amount` as 3 points. The resolved design decision (v0.7.2) set
+  it to 0 points (conditional escalator only). Table updated to reflect this.
+
+- **Test data Florida language (`Bit-By-Bit_Academy_module-2_export_UPDATED.json`):**
+  A raw answer for `DG_SYS_1_SYS.5.2` contained Florida-specific retention law
+  references, inconsistent with Bit-By-Bit Academy being a California fictional school.
+  Replaced with generic jurisdiction-neutral language.
+
+- **FUTURE_IDEAS.md:** Stale "deferred" sections for items that are now implemented
+  (RA-003, dual dates, notes passthrough, score contribution table, VR-S4 YAML move)
+  replaced with a clean resolved-decisions log. Tier 1 and Tier 2 status updated.
+
+**Files changed:** `report_generator.py`, `app.py`, `README.md`,
+`module_3_rule_schema_and_scoring_v0_1.md`,
+`Bit-By-Bit_Academy_module-2_export_UPDATED.json`, `FUTURE_IDEAS.md`
+
+---
 
 **v0.7.5.0** completes RA-003 — the Key Risks section is now fully deterministic.
 
@@ -855,4 +890,4 @@ dynamic section engine, and a per-system report card. See the
 - Logo/crest file upload is not yet implemented.
 - Module 1 Sections 1 and 10 generate no findings (context only by design).
 - Archived (deprecated) sessions are accessible via the Archived tab on the home page. They can be restored, exported, or permanently deleted from there.
-- Composite finding suppression is not yet enabled — all findings are listed individually. Full RA-003 implementation is tracked in the roadmap.
+- Composite findings absorb their component findings — absorbed findings are listed in Appendix A of the Module 1 report for traceability.

@@ -93,7 +93,7 @@ effect on the score.
 
 | Question ID | YAML pts | Purpose / what it asks |
 |-------------|---------|----------------------|
-| V.COST.amount | 3 | Actual annual dollar amount |
+| V.COST.amount | 0 | Actual annual dollar amount — context/escalator only, not scored |
 | V.RENEW.notice | 2 | Cancellation notice period required |
 | V.SUPPORT.escalation | 2 | Escalation path beyond normal support contact |
 

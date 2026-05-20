@@ -23,6 +23,28 @@ dynamic_sections:
   generated_section_id_prefix: "VR_V_"   # e.g. VR_V_1, VR_V_2 …
   max_systems: 60
 
+# ─────────────────────────────────────────────────────────────────
+# CORE VENDOR CATEGORIES  (used by VR-S4 finding rule)
+# Vendors whose category field matches any entry in this list
+# (case-insensitive substring match) are treated as core/critical
+# systems. A missing escalation path for these vendors fires a
+# Medium finding. To add a new core category, add it here — no
+# Python changes needed.
+# ─────────────────────────────────────────────────────────────────
+core_vendor_categories:
+  - SIS
+  - Student Information System
+  - LMS
+  - Learning Management System
+  - Identity Provider
+  - SSO
+  - Network Infrastructure
+  - Firewall
+  - Communications
+  - VoIP
+  - Phone System
+  - Core Infrastructure
+
 sections:
 
 # ─────────────────────────────────────────────────────────────────

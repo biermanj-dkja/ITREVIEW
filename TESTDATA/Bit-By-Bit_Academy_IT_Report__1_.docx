@@ -1,0 +1,857 @@
+Bit-By-Bit Academy  ·  IT State of the System Report
+
+**Bit-By-Bit Academy**
+
+*At Bit-By-Bit Academy, our mission is to program the leaders of tomorrow for a lifetime of success. We are dedicated to syncing academic rigor with personal growth, ensuring every student has the bandwidth to reach their full potential. We strive to:*
+
+*- Link curiosity with discovery in every classroom.*
+*- Download a passion for lifelong learning into every heart.*
+*- Monitor student progress to ensure no one feels like they are in sleep mode.*
+*- Process challenges with resilience and logic.*
+
+*By fostering a secure environment with no firewalls between students and their dreams, we help our community upgrade their skills and interface with the world with confidence and kindness.*
+
+*Slogan: Bit-By-Bit Academy: Coding the future, one byte at a time.*
+
+**IT State of the System Report**
+
+Prepared for
+
+**Rhoda Report**
+
+Director of Technology
+
+2026-05-17
+
+# **Contents**
+
+[Right-click here and choose 'Update Field' to generate the table of contents]
+
+# **Executive Summary**
+
+| The assessment found 5 urgent findings that require immediate action — the school's IT environment has significant gaps that create real risk today. |
+| --- |
+
+| **Assessment Scope**  -  all 8 IT domains were reviewed in this assessment. **  + Governance, Budget, Staffing, and Ownership**:  how IT is staffed, funded, planned, and managed — including budget, vendor contracts, and written policies. **  + Sites, Buildings, Network, and Internet**:  the physical network infrastructure: wiring, wireless access, firewalls, and internet service across all buildings and sites. **  + Identity, Accounts, and Access**:  user accounts, passwords, directory services, multi-factor authentication, and who has access to what. **  + Endpoints, Printing, and Classroom Technology**:  staff and student computers, laptops, tablets, printers, projectors, and classroom A/V equipment. **  + Core Systems, Servers, Vendors, and Contracts**:  core business systems (SIS, LMS, email, finance), on-premise servers, and key vendor relationships. **  + Data Protection, Backup, and Recovery**:  how school data is backed up, how quickly it can be restored, and whether recovery has ever been tested. **  + Security Operations, Filtering, and Safeguards**:  security monitoring, web filtering, anti-malware, phishing defenses, and student safeguarding controls. **  + Documentation and Operational Readiness**:  IT runbooks, asset inventories, onboarding/offboarding procedures, and operational continuity documentation. *All IT domains were assessed - no gaps in coverage.* |
+| --- |
+
+| **⚠  Data confidence note:  ***Most answers are based on recall rather than documented verification. Verify findings before taking action.* |
+| --- |
+
+## **IT Staffing Overview**
+
+| IT support is currently structured as: Single IT director (one person responsible for everything).  Rhoda Report, Director of Technology serves as the named IT lead.  Day-to-day support responsibilities are clearly assigned.  Partial coverage exists if the primary lead were unavailable; some tasks would go unmanaged. **⚠  ***Known budget or staffing constraints are noted for this year.* |
+| --- |
+
+## **Assessment Overview**
+
+This assessment identified **5 urgent**, **19 concern**, and **34 watch** level findings. 0 findings absorbed into composites (see appendix).
+
+| **Overall Score:  ****69%  ****(Watch)** This score is a weighted average of the eight scored sections (Sections 2–9). Section 1 is school identity context only and Section 10 is a calibration input — neither contributes to the score. Section weights reflect domain importance: Governance and Backup/Recovery are weighted highest at 15% each, reflecting the foundational impact of ownership gaps and the irreversibility of data loss. |
+| --- |
+
+## **Section Scores**
+
+| **Section** | **Score** | **Status** | **Answered** | **What's Working** |
+| --- | --- | --- | --- | --- |
+| 1. School Identity, Profile, and Context | Context only | **—** | 17 answered | — |
+| 2. Governance, Budget, Staffing, and Ownership | 16 / 32 (52%) | **CONCERN** | 13 answered | Needs work |
+| 3. Sites, Buildings, Network, and Internet | 50 / 56 (89%) | **HEALTHY** | 27 answered | **✓ Healthy** |
+| 4. Identity, Accounts, and Access | 20 / 34 (59%) | **CONCERN** | 12 answered | Needs work |
+| 5. Endpoints, Printing, and Classroom Technology | 21 / 29 (74%) | **WATCH** | 19 answered | Mostly good |
+| 6. Core Systems, Servers, Vendors, and Contracts | 31 / 39 (81%) | **WATCH** | 19 answered | Mostly good |
+| 7. Data Protection, Backup, and Recovery | 41 / 52 (79%) | **WATCH** | 15 answered | Mostly good |
+| 8. Security Operations, Filtering, and Safeguards | 23 / 33 (70%) | **WATCH** | 14 answered | Mostly good |
+| 9. Documentation and Operational Readiness | 11 / 24 (48%) | **CONCERN** | 6 answered | Needs work |
+| 10. Near-Term Priorities and Planning Inputs | Context only | **—** | 8 answered | — |
+
+## **Current Conditions vs. Recommended Changes**
+
+The table below captures the most significant gaps identified in this assessment and the primary recommended change for each.
+
+| **Area** | **Current Condition** | **Recommended Change** |
+| --- | --- | --- |
+| **Emergency access methods and credentials not documented or controlled** **URGENT** | There is no documented or controlled record of emergency access methods or shared credentials. Undocumented shared credentials are frequently identified as a ro… | Identify all shared credentials and emergency access methods currently in use. |
+| **Server backup coverage incomplete** **URGENT** | Some servers are backed up but others are not. Any unprotected server represents complete data loss risk. | Extend backup coverage to all servers. |
+| **Backup restore not tested or not tested recently** **URGENT** | A backup that has never been tested — or not tested within a timeframe proportional to the backup's useful recovery window — cannot be relied upon. | Schedule and perform a documented restore test for at least one critical system. |
+| **Emergency access to critical credentials not confirmed** **URGENT** | Critical admin credentials and recovery materials are not confirmed to be accessible in an emergency. If the primary IT person is unavailable during an incident… | Identify all critical admin credentials and recovery materials. |
+| **Backups running but recovery confidence is low** **URGENT** | Backups appear to be in place but are not monitored reliably and have not been tested recently. The school may believe it is protected when it is not. | Perform an immediate backup review — confirm jobs are running, review success logs, and schedule a restore test. |
+
+## **Priority Findings**
+
+The following findings require immediate attention or leadership awareness.
+
+| **[URGENT]  ****Emergency access methods and credentials not documented or controlled**   ● Staff time only There is no documented or controlled record of emergency access methods or shared credentials. Undocumented shared credentials are frequently identified as a root cause in costly IT failures. |
+| --- |
+
+| **[URGENT]  ****Server backup coverage incomplete**   ● Moderate budget Some servers are backed up but others are not. Any unprotected server represents complete data loss risk. |
+| --- |
+
+| **[URGENT]  ****Backup restore not tested or not tested recently**   ● Staff time only A backup that has never been tested — or not tested within a timeframe proportional to the backup's useful recovery window — cannot be relied upon. |
+| --- |
+
+| **[URGENT]  ****Emergency access to critical credentials not confirmed**   ● Staff time only Critical admin credentials and recovery materials are not confirmed to be accessible in an emergency. If the primary IT person is unavailable during an incident, recovery may be impossible. |
+| --- |
+
+| **[URGENT]  ****Backups running but recovery confidence is low**   ● Staff time only Backups appear to be in place but are not monitored reliably and have not been tested recently. The school may believe it is protected when it is not. |
+| --- |
+
+| **[CONCERN]  ****Known unresolved security concerns identified**   ● Significant investment The IT person has identified active, unresolved security concerns. These should be treated as immediate priorities. ***IT person noted: ****A staff laptop was reported missing last month — it is unclear if it was lost or stolen. The device was not encrypted and did not have remote wipe configured. This has not yet been formally reported or documented.* |
+| --- |
+
+# **Key Risks**
+
+Named risk groups aggregate related findings. Each group has a primary finding labelled 'Start here' — addressing it has the broadest impact on that risk area.
+
+| **[URGENT]  ****Single-person dependency creates recovery and continuity risk** **F2-007  ****Emergency access methods and credentials not documented or controlled****  ← Start here** **F2-008  **Primary IT lead cannot be reliably covered if unavailable **F6-007  **Single-vendor or single-person dependencies identified **F6-010  **Server admin access partially documented **F7-012  **Emergency access to critical credentials not confirmed **F9-005  **IT environment only partially understandable from existing documentation **F9-006  **Critical IT knowledge concentrated in a single person |
+| --- |
+
+| **[URGENT]  ****Privileged access and baseline security posture** **F4-005  ****MFA not enabled on all privileged accounts****  ← Start here** |
+| --- |
+
+| **[CONCERN]  ****No accountable IT ownership structure** **F2-003  ****System ownership not documented****  ← Start here** |
+| --- |
+
+| **[CONCERN]  ****Vendor relationships and renewal visibility** **F2-004  **Vendor contacts and escalation paths not documented **F6-005  **Contract renewal tracking incomplete **F6-007  ****Single-vendor or single-person dependencies identified****  ← Start here** |
+| --- |
+
+| **[CONCERN]  ****Device lifecycle and refresh planning gap** **F5-005  **Device refresh cycle defined but not followed **F5-006  ****Devices beyond supported OS or manufacturer support in active use****  ← Start here** |
+| --- |
+
+| **[WATCH]  ****Student data governance and software approval** **F6-004  ****Student data system compliance review status not known****  ← Start here** |
+| --- |
+
+# **Section-by-Section Findings**
+
+Findings ordered by severity within each section. Finding IDs (e.g. F3-004) are used for cross-referencing in the action plan. Sections with no findings are shown with a healthy marker.
+
+## **Section 2: Governance, Budget, Staffing, and Ownership**
+
+**[URGENT]  ****Emergency access methods and credentials not documented or controlled**  F2-007   ● Staff time only
+
+There is no documented or controlled record of emergency access methods or shared credentials. Undocumented shared credentials are frequently identified as a root cause in costly IT failures.
+
+| **Recommended actions:** **→  **Identify all shared credentials and emergency access methods currently in use.*  [Immediate]* **→  **Document, secure, and control access to these credentials — using a password manager, sealed physical record, or equivalent.*  [Within 30 days]* **→  **Verify that at least one other authorized person can access these credentials without involving the primary IT person.*  [Within 30 days]* |
+| --- |
+
+**[CONCERN]  ****System ownership not documented**  F2-003   ● Moderate budget
+
+There is no documented record of who owns or is accountable for major platforms and services.
+
+| **Recommended actions:** **→  **Create a system ownership register listing each major platform, its owner, and the backup contact.*  [Within 90 days]* |
+| --- |
+
+**[CONCERN]  ****Vendor contacts and escalation paths not documented**  F2-004   ● Moderate budget
+
+There is no documented record of who to contact at key vendors when something goes wrong.
+
+| **Recommended actions:** **→  **Create a vendor contact sheet listing each major vendor, support contact, contract or account number, and escalation path.*  [Within 30 days]* |
+| --- |
+
+**[CONCERN]  ****Primary IT lead cannot be reliably covered if unavailable**  F2-008   ● Moderate budget
+
+Basic IT operations could partially continue if the primary IT person were unavailable, but coverage is incomplete.
+
+| **Recommended actions:** **→  **Identify at least one person who could cover basic IT operations in an emergency.*  [Within 90 days]* **→  **Document the minimum knowledge and access that person would need and begin cross-training.*  [Within 90 days]* **→  **Consider establishing a relationship with an MSP or IT consultant as a coverage backstop.*  [Within 12 months]* |
+| --- |
+
+**[WATCH]  ****Known budget or staffing constraints affecting IT this year**  F2-006
+
+The IT person has identified active constraints that will limit what can be accomplished this year. Recommendations that require significant spend or staff are flagged with a constraint marker.
+
+| ***IT person noted: ****Budget is flat year-over-year; no new FTE approved for IT. Device refresh for grades 3-5 is funded but all other discretionary spend is under review.* |
+| --- |
+
+**[WATCH]  ****Recurring IT tasks only partially tracked**  F2-009   ● Staff time only
+
+Some recurring IT tasks are tracked but the system is incomplete.
+
+| **Recommended actions:** **→  **Complete the recurring IT task calendar or checklist.*  [Within 90 days]* |
+| --- |
+
+## **Section 3: Sites, Buildings, Network, and Internet**
+
+**[CONCERN]  ****No internet failover or redundancy in place**  F3-011   ● Significant investment
+
+The school has a single internet connection with no failover. If that connection fails, all internet-dependent operations stop.
+
+| **Recommended actions:** **⚠  **Evaluate the cost and feasibility of a secondary internet connection or LTE failover device.*  [Within 12 months  ⚠ Budget constraint]* |
+| --- |
+
+**[CONCERN]  ****Switch and wireless configurations partially backed up**  F3-012   ● Staff time only
+
+Some device configurations are backed up but others are not.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Extend configuration backup to all managed devices.*  [Within 30 days]* |
+| --- |
+
+**[CONCERN]  ****Known connectivity issues currently affecting school operations**  F3-017   ● Moderate budget
+
+The IT person has identified active connectivity problems affecting school operations. These are confirmed issues with current operational impact.
+
+| ***IT person noted: ****The gymnasium wing of the Main Campus building B has consistent dead spots; staff in the front administrative office report intermittent drops during high-occupancy periods.* |
+| --- |
+
+| **Recommended actions:** **→  **Document each connectivity pain point and assess root cause.*  [Immediate]* **→  **Develop a remediation plan for each confirmed pain point.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Site and closet/rack maps incomplete**  F3-002   ● Moderate budget
+
+Some site or closet maps exist but coverage is incomplete.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Complete site and closet/rack maps for all buildings.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Wireless access point locations partially documented**  F3-003   ● Staff time only
+
+Some AP locations are known but documentation is incomplete.
+
+| **Recommended actions:** **→  **Document all remaining access point locations.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Firewall details partially documented**  F3-005   ● Staff time only
+
+Some firewall details are documented but gaps remain.
+
+| **Recommended actions:** **→  **Complete firewall documentation.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Wireless AP inventory incomplete**  F3-006   ● Staff time only
+
+AP inventory exists but is missing information for some devices.
+
+| **Recommended actions:** **→  **Complete the wireless AP inventory.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Switch inventory incomplete**  F3-007   ● Staff time only
+
+Switch inventory exists but is incomplete.
+
+| **Recommended actions:** **→  **Complete the switch inventory.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Switch topology map incomplete**  F3-008   ● Staff time only
+
+Some switch connections are undocumented.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Complete the switch topology documentation.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Core network device inventory incomplete**  F3-009   ● Staff time only
+
+Some device information is documented but key fields are missing.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Complete the core network device inventory.*  [Within 90 days]* |
+| --- |
+
+## **Section 4: Identity, Accounts, and Access**
+
+**[CONCERN]  ****Staff account offboarding process informal**  F4-003   ● Significant investment
+
+Staff offboarding happens informally. Informal processes are prone to missed steps — a forgotten account means a former employee retains access.
+
+| **Recommended actions:** **⚠  **Formalize the staff offboarding process as a documented checklist.*  [Within 30 days  ⚠ Budget constraint]* |
+| --- |
+
+**[CONCERN]  ****MFA not enabled on all privileged accounts**  F4-005   ● Staff time only
+
+MFA is enabled on some privileged accounts but not all. Any privileged account without MFA represents a full compromise risk.
+
+| **Recommended actions:** **→  **Enable MFA on all remaining privileged accounts.*  [Within 30 days]* **→  **Audit all privileged accounts and confirm MFA status.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Staff account onboarding process informal**  F4-002   ● Significant investment
+
+Staff onboarding happens informally. This works until a step is missed or the person who knows the process is unavailable.
+
+| **Recommended actions:** **⚠  **Formalize the staff onboarding process as a documented checklist.*  [Within 90 days  ⚠ Budget constraint]* |
+| --- |
+
+**[WATCH]  ****Student account lifecycle handled informally**  F4-004   ● Staff time only
+
+Student account lifecycle is handled informally. This creates risk around departing students retaining access.
+
+| **Recommended actions:** **→  **Document the student account lifecycle process.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Shared accounts exist but are not formally reviewed**  F4-007   ● Staff time only
+
+Some shared accounts exist. The exposure is unclear because these accounts have not been formally reviewed.
+
+| **Recommended actions:** **→  **Inventory all shared accounts and document their purpose.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Password reset procedures partially documented**  F4-008   ● Staff time only
+
+Password reset procedures exist for some platforms but not all.
+
+| **Recommended actions:** **→  **Complete password reset documentation for all major platforms.*  [Within 90 days]* |
+| --- |
+
+## **Section 5: Endpoints, Printing, and Classroom Technology**
+
+**[CONCERN]  ****Devices beyond supported OS or manufacturer support in active use**  F5-006   ● Moderate budget
+
+Some devices are running unsupported OS versions.
+
+| **Recommended actions:** **→  **Identify all devices running unsupported OS versions or past manufacturer support.*  [Within 30 days]* **→  **Develop a prioritized replacement plan.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Device inventory exists but is incomplete**  F5-001   ● Moderate budget
+
+A device inventory exists but is incomplete. Missing devices or fields reduce its usefulness.
+
+| **Recommended actions:** **→  **Complete the device inventory — add missing devices and fill in missing key fields.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Device inventory missing key lifecycle fields**  F5-002   ● Significant investment
+
+The device inventory does not include all fields needed for lifecycle planning and support.
+
+| **Recommended actions:** **⚠  **Enrich the existing inventory to include purchase date or age, serial number, and assigned user or location.*  [Within 90 days  ⚠ Budget constraint]* |
+| --- |
+
+**[WATCH]  ****Device management through MDM incomplete**  F5-003   ● Significant investment
+
+Some devices are managed through MDM but coverage is incomplete.
+
+| **Recommended actions:** **→  **Extend MDM enrollment to all school-owned devices.*  [Within 12 months]* |
+| --- |
+
+**[WATCH]  ****Staff device provisioning partially standardized**  F5-004   ● Significant investment
+
+Staff device provisioning is partially standardized but not fully documented.
+
+| **Recommended actions:** **⚠  **Document a complete staff device provisioning standard.*  [Within 90 days  ⚠ Budget constraint]* |
+| --- |
+
+**[WATCH]  ****Device refresh cycle defined but not followed**  F5-005   ● Significant investment
+
+A refresh cycle is defined but not consistently followed.
+
+| **Recommended actions:** **⚠  **Formalize and document the refresh cycle and incorporate it into budget planning.*  [Within 12 months  ⚠ Budget constraint]* |
+| --- |
+
+## **Section 6: Core Systems, Servers, Vendors, and Contracts**
+
+**[CONCERN]  ****Single-vendor or single-person dependencies identified**  F6-007   ● Moderate budget
+
+The IT person has identified specific vendor or person dependencies that create operational risk.
+
+| ***IT person noted: ****Veracross admin access is only known to the Director of Technology. Phone system configuration is managed solely by the original installation vendor with no documented escalation path for the school.* |
+| --- |
+
+| **Recommended actions:** **→  **For each identified dependency, develop a mitigation plan — obtain credentials, establish a backup vendor relationship, or document a workaround.*  [Within 90 days]* |
+| --- |
+
+**[CONCERN]  ****Server inventory incomplete**  F6-009   ● Staff time only
+
+A partial server inventory exists but key fields are missing.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Complete the server inventory.*  [Within 30 days]* |
+| --- |
+
+**[CONCERN]  ****Server admin access partially documented**  F6-010   ● Moderate budget
+
+Some servers can be accessed without the primary IT person but gaps remain.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Complete server admin access documentation.*  [Immediate]* |
+| --- |
+
+**[WATCH]  ****Core systems list exists but is incomplete**  F6-002   ● Staff time only
+
+A systems list exists but is not complete. Missing systems create blind spots in renewal planning.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Complete the core systems register.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Core systems list missing key operational fields**  F6-003   ● Moderate budget
+
+The systems list does not include all fields needed for operational use. Missing renewal dates, owners, or admin access methods reduce its value.
+
+| **Recommended actions:** **→  **Enrich the systems list to include purpose, owner, vendor, renewal date, and admin access method for each system.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Student data system compliance review status not known**  F6-004   ● Moderate budget
+
+For major systems handling student data, FERPA or COPPA review status is not known for most or all platforms.
+
+| **Recommended actions:** **→  **Conduct a FERPA/COPPA compliance review for all systems that handle student data.*  [Within 12 months]* |
+| --- |
+
+**[WATCH]  ****Contract renewal tracking incomplete**  F6-005   ● Moderate budget
+
+Some renewal dates are tracked but others are not.
+
+| **Recommended actions:** **→  **Complete the renewal tracker — add all missing contracts and subscriptions.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Vendor escalation paths documented for some vendors only**  F6-006   ● Moderate budget
+
+Escalation paths are documented for some vendors but not all critical ones.
+
+| **Recommended actions:** **→  **Complete vendor escalation documentation for all critical vendors.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Server patching informal**  F6-011   ● Staff time only
+
+Server patching happens informally — typically when the IT person remembers or notices an issue.
+
+| **Recommended actions:** **→  **Formalize the server patching cycle.*  [Within 30 days]* |
+| --- |
+
+## **Section 7: Data Protection, Backup, and Recovery**
+
+**[URGENT]  ****Server backup coverage incomplete**  F7-004   ● Moderate budget
+
+Some servers are backed up but others are not. Any unprotected server represents complete data loss risk.
+
+| **Recommended actions:** **→  **Extend backup coverage to all servers.*  [Immediate]* |
+| --- |
+
+**[URGENT]  ****Backup restore not tested or not tested recently**  F7-008   ● Staff time only
+
+A backup that has never been tested — or not tested within a timeframe proportional to the backup's useful recovery window — cannot be relied upon.
+
+| **Recommended actions:** **→  **Schedule and perform a documented restore test for at least one critical system.*  [Within 30 days]* **→  **Establish a recurring restore test schedule aligned with the backup retention window.*  [Within 90 days]* |
+| --- |
+
+**[URGENT]  ****Emergency access to critical credentials not confirmed**  F7-012   ● Staff time only
+
+Critical admin credentials and recovery materials are not confirmed to be accessible in an emergency. If the primary IT person is unavailable during an incident, recovery may be impossible.
+
+| **Recommended actions:** **→  **Identify all critical admin credentials and recovery materials.*  [Immediate]* **→  **Store credentials securely in a documented, accessible location.*  [Within 30 days]* **→  **Verify that at least one other authorized person knows how to access these materials.*  [Within 30 days]* |
+| --- |
+
+**[URGENT]  ****Backups running but recovery confidence is low**  F7-C02   ● Staff time only
+
+Backups appear to be in place but are not monitored reliably and have not been tested recently. The school may believe it is protected when it is not.
+
+| **Recommended actions:** **→  **Perform an immediate backup review — confirm jobs are running, review success logs, and schedule a restore test.*  [Within 30 days]* |
+| --- |
+
+**[CONCERN]  ****Backup success not regularly monitored**  F7-007   ● Staff time only
+
+Backups may be running but are not reviewed for success. Silent backup failures are a common cause of data loss discovered only at the moment recovery is needed.
+
+| **Recommended actions:** **→  **Establish a weekly backup review cadence.*  [Within 30 days]* **→  **Configure alerting so backup failures notify the IT person automatically.*  [Within 30 days]* |
+| --- |
+
+**[CONCERN]  ****No defined recovery priority for critical systems**  F7-010   ● Staff time only
+
+When multiple systems are affected in an incident, the order of recovery matters. Without a defined priority, decisions are made under pressure without a plan.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Define and document a recovery priority order for critical systems.*  [Within 90 days]* |
+| --- |
+
+**[CONCERN]  ****No written incident or disaster response reference**  F7-011   ● Staff time only
+
+There is no documented reference for how to respond to a significant IT incident or outage. In a crisis, whoever is covering needs a written starting point. A one-page reference is sufficient.
+
+| **ℹ  Note: **This finding is harder to resolve because the environment currently lacks a central documentation system — addressing Section 9 findings first will make this and other documentation gaps easier to close systematically. |
+| --- |
+
+| **Recommended actions:** **→  **Create a basic IT incident response reference covering: who to call, what systems to check first, how to access backup and recovery tools, and how to communicate during an outage.*  [Within 90 days]* |
+| --- |
+
+**[CONCERN]  ****Restore test frequency not aligned with backup retention window**  F7-014   ● Staff time only
+
+The school knows how far back a restore is useful but is not testing frequently enough to detect failures within that window.
+
+| **Recommended actions:** **→  **Establish a restore test schedule aligned with the useful recovery window — at least one test per window period.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Backup scope partially documented**  F7-002   ● Staff time only
+
+Undocumented systems may not be protected.
+
+| **Recommended actions:** **→  **Complete the backup scope documentation.*  [Within 30 days]* |
+| --- |
+
+## **Section 8: Security Operations, Filtering, and Safeguards**
+
+**[CONCERN]  ****Known unresolved security concerns identified**  F8-008   ● Significant investment
+
+The IT person has identified active, unresolved security concerns. These should be treated as immediate priorities.
+
+| ***IT person noted: ****A staff laptop was reported missing last month — it is unclear if it was lost or stolen. The device was not encrypted and did not have remote wipe configured. This has not yet been formally reported or documented.* |
+| --- |
+
+| **ℹ  Note: **Identifying a known problem scores better than not knowing — you cannot fix what you are not aware of. |
+| --- |
+
+| **Recommended actions:** **→  **Document each identified security concern with a description, estimated risk level, and a specific action and owner.*  [Immediate]* **→  **Address each confirmed concern according to its severity.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Endpoint protection alerts reviewed irregularly**  F8-001b   ● Staff time only
+
+Alerts are reviewed occasionally. Threats may persist between reviews.
+
+| **Recommended actions:** **→  **Establish a regular weekly alert review cadence.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Endpoint and server patching informal**  F8-002   ● Staff time only
+
+Patching happens when the IT person is aware of a specific issue rather than on a schedule.
+
+| **Recommended actions:** **→  **Define and document a patching schedule.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Network and security device firmware reviewed irregularly**  F8-003   ● Staff time only
+
+Firmware is reviewed irregularly. Gaps between reviews represent periods where known vulnerabilities may be present.
+
+| **Recommended actions:** **→  **Establish a twice-yearly firmware review cadence.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Student safety and filtering controls not documented**  F8-005   ● Staff time only
+
+Controls are in place but not documented well enough to understand coverage and gaps.
+
+| **Recommended actions:** **→  **Document the current filtering and student safety control configuration — what is filtered, who is covered, and what the exception process is.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Incident response process partially documented**  F8-006   ● Moderate budget
+
+Key scenarios or steps may be missing.
+
+| **Recommended actions:** **→  **Complete the incident response reference.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****System logs and alerts not regularly reviewed**  F8-007   ● Staff time only
+
+Logs from key systems are not reviewed regularly. Security events go unnoticed until they become significant incidents.
+
+| **Recommended actions:** **→  **Establish a monthly review of authentication logs, failed logins, and security alerts.*  [Within 90 days]* |
+| --- |
+
+## **Section 9: Documentation and Operational Readiness**
+
+**[CONCERN]  ****IT environment only partially understandable from existing documentation**  F9-005   ● Moderate budget
+
+The environment is only partially understandable. A third party could handle some situations but would be unable to support key areas without investigation.
+
+| **Recommended actions:** **→  **Identify and document the areas where documentation is weakest.*  [Within 90 days]* |
+| --- |
+
+**[CONCERN]  ****Critical IT knowledge concentrated in a single person**  F9-006   ● Moderate budget
+
+Major IT knowledge areas exist only in one person's head. If that person leaves, becomes ill, or is unavailable, the school loses access to that knowledge entirely.
+
+| ***IT person noted: ****Firewall configuration — only the Director of Technology knows the full rule set and admin credentials. Phone system (8x8) — configuration history and admin portal access are not documented. Veeam backup jobs — only one person has ever logged into the management console.* |
+| --- |
+
+| **ℹ  Note: **Identifying and naming knowledge concentration areas earns partial credit — naming the gap is the first step to closing it. |
+| --- |
+
+| **Recommended actions:** **→  **Identify each area of knowledge concentration and develop a documentation or cross-training plan for each.*  [Within 90 days]* **→  **Prioritize documentation of the highest-risk knowledge areas.*  [Within 30 days]* |
+| --- |
+
+**[WATCH]  ****Some IT documentation outdated**  F9-002   ● Moderate budget
+
+Most documentation is reasonably current but some areas lag.
+
+| **Recommended actions:** **→  **Identify and update outdated documentation sections.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****SOPs documented for some but not all recurring tasks**  F9-003   ● Staff time only
+
+Missing procedures represent tasks that cannot be delegated reliably.
+
+| **Recommended actions:** **→  **Identify and document SOPs for the highest-risk undocumented recurring tasks.*  [Within 90 days]* |
+| --- |
+
+**[WATCH]  ****Change documentation process informal**  F9-004   ● Staff time only
+
+Changes are sometimes documented informally.
+
+| **Recommended actions:** **→  **Formalize the change documentation process.*  [Within 30 days]* |
+| --- |
+
+# **Action Plan — Phased Timeline**
+
+All recommended actions grouped by phase, ordered by severity then effort. Effort ratings: S=½ day · S+=1 day · M=3 days · M+=5 days · L=10 days. ⚠ marks budget or staffing constraints.
+
+| **Phase 1 — Immediate Actions**  ·  17 May 2026 → 03 Jun 2026 |
+| --- |
+
+| **Action** | **Finding** | **Section** | **Effort** | **Severity** |
+| --- | --- | --- | --- | --- |
+| Extend backup coverage to all servers. | F7-004 | §7 | Medium (3 days) | **URGENT** |
+| Identify all shared credentials and emergency access methods currently in use. | F2-007 | §2 | Quick (½ day) | **URGENT** |
+| Identify all critical admin credentials and recovery materials. | F7-012 | §7 | Quick (½ day) | **URGENT** |
+| Document each connectivity pain point and assess root cause. | F3-017 | §3 | Substantial (5 days) | **CONCERN** |
+| Document each identified security concern with a description, estimated risk level, and a specific action and owner. | F8-008 | §8 | Substantial (5 days) | **CONCERN** |
+| Complete server admin access documentation. | F6-010 | §6 | Medium (3 days) | **CONCERN** |
+
+| **⚡  **⚡ Re-assessment recommended: with 6 immediate actions addressed, a follow-up review after Phase 1 completion will confirm risk reduction and may adjust priorities for subsequent phases. |
+| --- |
+
+| **Phase 2 — Within 30 Days**  ·  03 Jun 2026 → 12 Jul 2026 |
+| --- |
+
+| **Action** | **Finding** | **Section** | **Effort** | **Severity** |
+| --- | --- | --- | --- | --- |
+| Document, secure, and control access to these credentials — using a password manager, sealed physical record, or equivalent. | F2-007 | §2 | Short (1 day) | **URGENT** |
+| Schedule and perform a documented restore test for at least one critical system. | F7-008 | §7 | Short (1 day) | **URGENT** |
+| Store credentials securely in a documented, accessible location. | F7-012 | §7 | Short (1 day) | **URGENT** |
+| Perform an immediate backup review — confirm jobs are running, review success logs, and schedule a restore test. | F7-C02 | §7 | Short (1 day) | **URGENT** |
+| Verify that at least one other authorized person knows how to access these materials. | F7-012 | §7 | Quick (½ day) | **URGENT** |
+| Verify that at least one other authorized person can access these credentials without involving the primary IT person. | F2-007 | §2 | None | **URGENT** |
+| Address each confirmed concern according to its severity. | F8-008 | §8 | Large (10 days) | **CONCERN** |
+| Identify all devices running unsupported OS versions or past manufacturer support. | F5-006 | §5 | Substantial (5 days) | **CONCERN** |
+| Develop a remediation plan for each confirmed pain point. | F3-017 | §3 | Medium (3 days) | **CONCERN** |
+| Extend configuration backup to all managed devices. | F3-012 | §3 | Short (1 day) | **CONCERN** |
+| Enable MFA on all remaining privileged accounts. | F4-005 | §4 | Short (1 day) | **CONCERN** |
+| Audit all privileged accounts and confirm MFA status. | F4-005 | §4 | Short (1 day) | **CONCERN** |
+| Create a vendor contact sheet listing each major vendor, support contact, contract or account number, and escalation path. | F2-004 | §2 | Quick (½ day) | **CONCERN** |
+| ⚠ Formalize the staff offboarding process as a documented checklist. | F4-003 | §4 | Quick (½ day) | **CONCERN** |
+| Complete the server inventory. | F6-009 | §6 | Quick (½ day) | **CONCERN** |
+| Establish a weekly backup review cadence. | F7-007 | §7 | Quick (½ day) | **CONCERN** |
+| Configure alerting so backup failures notify the IT person automatically. | F7-007 | §7 | Quick (½ day) | **CONCERN** |
+| Prioritize documentation of the highest-risk knowledge areas. | F9-006 | §9 | Quick (½ day) | **CONCERN** |
+| Complete the core systems register. | F6-002 | §6 | Quick (½ day) | **WATCH** |
+| Complete the renewal tracker — add all missing contracts and subscriptions. | F6-005 | §6 | Quick (½ day) | **WATCH** |
+| Complete vendor escalation documentation for all critical vendors. | F6-006 | §6 | Quick (½ day) | **WATCH** |
+| Formalize the server patching cycle. | F6-011 | §6 | Quick (½ day) | **WATCH** |
+| Complete the backup scope documentation. | F7-002 | §7 | Quick (½ day) | **WATCH** |
+| Establish a regular weekly alert review cadence. | F8-001b | §8 | Quick (½ day) | **WATCH** |
+| Define and document a patching schedule. | F8-002 | §8 | Quick (½ day) | **WATCH** |
+| Establish a twice-yearly firmware review cadence. | F8-003 | §8 | Quick (½ day) | **WATCH** |
+| Formalize the change documentation process. | F9-004 | §9 | Quick (½ day) | **WATCH** |
+| Complete firewall documentation. | F3-005 | §3 | None | **WATCH** |
+
+| **Phase 3 — Within 90 Days**  ·  12 Jul 2026 → 26 Aug 2026 |
+| --- |
+
+| **Action** | **Finding** | **Section** | **Effort** | **Severity** |
+| --- | --- | --- | --- | --- |
+| Establish a recurring restore test schedule aligned with the backup retention window. | F7-008 | §7 | Quick (½ day) | **URGENT** |
+| Create a system ownership register listing each major platform, its owner, and the backup contact. | F2-003 | §2 | Medium (3 days) | **CONCERN** |
+| Document the minimum knowledge and access that person would need and begin cross-training. | F2-008 | §2 | Medium (3 days) | **CONCERN** |
+| Develop a prioritized replacement plan. | F5-006 | §5 | Medium (3 days) | **CONCERN** |
+| For each identified dependency, develop a mitigation plan — obtain credentials, establish a backup vendor relationship, or document a workaround. | F6-007 | §6 | Medium (3 days) | **CONCERN** |
+| Identify and document the areas where documentation is weakest. | F9-005 | §9 | Medium (3 days) | **CONCERN** |
+| Identify each area of knowledge concentration and develop a documentation or cross-training plan for each. | F9-006 | §9 | Medium (3 days) | **CONCERN** |
+| Create a basic IT incident response reference covering: who to call, what systems to check first, how to access backup and recovery tools, and how to communicate during an outage. | F7-011 | §7 | Short (1 day) | **CONCERN** |
+| Identify at least one person who could cover basic IT operations in an emergency. | F2-008 | §2 | Quick (½ day) | **CONCERN** |
+| Define and document a recovery priority order for critical systems. | F7-010 | §7 | Quick (½ day) | **CONCERN** |
+| Establish a restore test schedule aligned with the useful recovery window — at least one test per window period. | F7-014 | §7 | Quick (½ day) | **CONCERN** |
+| Complete the device inventory — add missing devices and fill in missing key fields. | F5-001 | §5 | Substantial (5 days) | **WATCH** |
+| Complete site and closet/rack maps for all buildings. | F3-002 | §3 | Medium (3 days) | **WATCH** |
+| Complete the incident response reference. | F8-006 | §8 | Medium (3 days) | **WATCH** |
+| Identify and update outdated documentation sections. | F9-002 | §9 | Medium (3 days) | **WATCH** |
+| Document all remaining access point locations. | F3-003 | §3 | Short (1 day) | **WATCH** |
+| Inventory all shared accounts and document their purpose. | F4-007 | §4 | Short (1 day) | **WATCH** |
+| Identify and document SOPs for the highest-risk undocumented recurring tasks. | F9-003 | §9 | Short (1 day) | **WATCH** |
+| Complete the recurring IT task calendar or checklist. | F2-009 | §2 | Quick (½ day) | **WATCH** |
+| Complete the wireless AP inventory. | F3-006 | §3 | Quick (½ day) | **WATCH** |
+| Complete the switch inventory. | F3-007 | §3 | Quick (½ day) | **WATCH** |
+| Complete the switch topology documentation. | F3-008 | §3 | Quick (½ day) | **WATCH** |
+| Complete the core network device inventory. | F3-009 | §3 | Quick (½ day) | **WATCH** |
+| ⚠ Formalize the staff onboarding process as a documented checklist. | F4-002 | §4 | Quick (½ day) | **WATCH** |
+| Document the student account lifecycle process. | F4-004 | §4 | Quick (½ day) | **WATCH** |
+| Complete password reset documentation for all major platforms. | F4-008 | §4 | Quick (½ day) | **WATCH** |
+| ⚠ Enrich the existing inventory to include purchase date or age, serial number, and assigned user or location. | F5-002 | §5 | Quick (½ day) | **WATCH** |
+| ⚠ Document a complete staff device provisioning standard. | F5-004 | §5 | Quick (½ day) | **WATCH** |
+| Enrich the systems list to include purpose, owner, vendor, renewal date, and admin access method for each system. | F6-003 | §6 | Quick (½ day) | **WATCH** |
+| Document the current filtering and student safety control configuration — what is filtered, who is covered, and what the exception process is. | F8-005 | §8 | Quick (½ day) | **WATCH** |
+| Establish a monthly review of authentication logs, failed logins, and security alerts. | F8-007 | §8 | Quick (½ day) | **WATCH** |
+
+| **Phase 4 — Within 12 Months**  ·  26 Aug 2026 → 19 Sep 2026 |
+| --- |
+
+| **Action** | **Finding** | **Section** | **Effort** | **Severity** |
+| --- | --- | --- | --- | --- |
+| ⚠ Evaluate the cost and feasibility of a secondary internet connection or LTE failover device. | F3-011 | §3 | Medium (3 days) | **CONCERN** |
+| Consider establishing a relationship with an MSP or IT consultant as a coverage backstop. | F2-008 | §2 | None | **CONCERN** |
+| Extend MDM enrollment to all school-owned devices. | F5-003 | §5 | Large (10 days) | **WATCH** |
+| ⚠ Formalize and document the refresh cycle and incorporate it into budget planning. | F5-005 | §5 | Substantial (5 days) | **WATCH** |
+| Conduct a FERPA/COPPA compliance review for all systems that handle student data. | F6-004 | §6 | Medium (3 days) | **WATCH** |
+
+# **Appendix**
+
+## **C. Full Response Log**
+
+Complete record of all answers submitted during this assessment, with question prompts for context.
+
+| **Q ID** | **Question** | **Status** | **Answer** |
+| --- | --- | --- | --- |
+| 1.1 | School name | answered | Bit-By-Bit Academy |
+| 1.10 | Buildings per site | answered | ['Main Campus — 4 buildings', 'Athletics Annex — 1 building'] |
+| 1.11 | Grades served | answered | K-8 |
+| 1.12 | Approximate student enrollment | answered | 340 |
+| 1.13 | Approximate faculty and staff count | answered | 52 |
+| 1.14 | Approximate total managed devices | answered | 420 |
+| 1.15 | Device categories in scope | answered | ['Staff laptops or desktops', 'Student laptops or tablets', 'Printers and copiers', 'Network infrastructure (switches, APs, firewall)', 'Classroom AV |
+| 1.16 | Upcoming calendar events affecting IT planning | answered | ['Summer device refresh — Chromebook fleet for grades 3-5 (June-July)', 'New student onboarding and device deployment (August)', 'WASC accreditation p |
+| 1.2 | School address | answered | 4200 Logic Lane, Silicon Heights, CA 94102 |
+| 1.3 | Phone number | answered | (415) 555-0199 |
+| 1.4 | Domain / website | answered | bitbybitacademy.org |
+| 1.5 | School mission / tagline | answered | At Bit-By-Bit Academy, our mission is to program the leaders of tomorrow for a lifetime of success. We are dedicated to syncing academic rigor with pe |
+| 1.6 | Accredited? | answered | yes |
+| 1.7a | Respondent name | answered | Rhoda Report |
+| 1.7b | Respondent role | answered | Director of Technology |
+| 1.8 | Number of campuses / sites | answered | 2 |
+| 1.9 | Number of buildings (total across all sites) | answered | 5 |
+| 10.1 | Top IT priorities for next 12 months | answered | ['MFA enforcement for all staff accounts — currently optional only', 'Wi-Fi dead spot remediation in Building B gymnasium wing', 'Emergency credential |
+| 10.2 | Upcoming projects or initiatives | answered | ['Chromebook fleet refresh for grades 3-5 (funded, June-July)', 'Veracross SIS contract renewal (August — no changes planned)', 'Google Workspace lice |
+| 10.3 | Known risks or concerns | answered | ['WASC accreditation prep visit — October 2025 (IT systems and documentation may be reviewed)', 'E-rate filing window — opens October, closes February |
+| 10.4 | Budget or planning notes | answered | New K cohort (approximately 38 students) arriving in August will require iPad provisioning and Google Workspace account creation. One staff member is |
+| 10.5 | Planning to make any major changes? | answered | yes |
+| 10.6 | Major change details | answered | IT is a single-person department with no backup personnel. Any project requiring extended onsite time will compete directly with day-to-day support. B |
+| 10.7 | Confidence in assessment answers | answered | Moderate — most answers are based on recall or staff reports |
+| 10.8 | Anything else to add | answered | ['Section 7 (Backup and Recovery) — backup job status was not verified during this assessment', 'Section 3 (Network) — switch inventory details recall |
+| 2.1 | IT staffing model | answered | Single IT director (one person responsible for everything) |
+| 2.10 | Recurring IT tasks tracked? | answered | Partially — some tasks tracked, others rely on memory |
+| 2.11 | Technology committee or advisory group? | answered | Yes — but limited or inconsistent use |
+| 2.12 | Ed tech / academic technology role? | answered | IT director or technology coordinator |
+| 2.2 | Dedicated IT budget? | answered | yes |
+| 2.2b |  | answered | Rhoda Report, Director of Technology |
+| 2.3 | IT budget reviewed annually? | answered | yes |
+| 2.4 | IT spending tracked? | answered | no |
+| 2.5 | Technology plan or roadmap? | answered | no |
+| 2.6 | Vendor management process? | answered | Yes — but informal or ad hoc |
+| 2.7 | Contracts and renewals tracked? | answered | yes |
+| 2.8 | IT policies documented? | answered | no |
+| 2.9 | IT coverage if primary person unavailable? | answered | Partially — some things would be managed, others would not |
+| 3.1 | Network diagram — current? | answered | Partial — some buildings or areas covered |
+| 3.10 | Firewall inventory current? | answered | Partial — some connections documented |
+| 3.11 | Firewall under support contract? | answered | Partial — some information documented |
+| 3.12 | Admin access to all network infrastructure? | answered | Yes — full admin access to all infrastructure |
+| 3.13 | Number of ISP circuits | answered | 1 |
+| 3.14 | ISP providers | answered | ['Comcast Business'] |
+| 3.15 | ISP failover / redundancy? | answered | No — single connection with no backup |
+| 3.16 | Guest network separated? | answered | No |
+| 3.17 |  | answered | Partial — some information known |
+| 3.18 | Network device configs backed up? | answered | Partial — some devices backed up, others not |
+| 3.19 | Wireless coverage adequate? | answered | Mixed — some areas have coverage problems |
+| 3.2 | Wiring diagrams — current? | answered | Yes — but outdated |
+| 3.20 | Network documentation completeness? | answered | Partial — some segments documented |
+| 3.21 | IoT / classroom devices segmented? | answered | Partial — some equipment protected, some not |
+| 3.22 |  | answered | Estimated only — not formally tested |
+| 3.23 | Network monitoring in place? | answered | No |
+| 3.24 | Vulnerability scanning in place? | answered | Occasionally — ad hoc or infrequent |
+| 3.25 |  | answered | Ad hoc — no regular schedule |
+| 3.26 | Known unresolved security concerns? | answered | yes |
+| 3.3 | ISP circuits documented? | answered | Partial — some locations documented |
+| 3.4 | Wireless AP locations documented? | answered | Partial — most are known, some are not |
+| 3.5 | Wireless coverage survey done? | answered | Ubiquiti UniFi |
+| 3.6 | Switch inventory current? | answered | Partial — some information documented |
+| 3.7 | VLANs / network segmentation? | answered | yes |
+| 3.7b |  | answered | Sophos XGS |
+| 3.8 | Known connectivity issues? | answered | Ubiquiti UniFi switches |
+| 3.9 | Router inventory current? | answered | Partial — some information documented |
+| 4.1 | Identity platform (Google, Microsoft, hybrid)? | answered | Google Workspace |
+| 4.10 |  | answered | Partial — some devices or some folders only |
+| 4.1b | SSO in use? | answered | yes |
+| 4.2 | Directory service? | answered | Yes — cloud-based (Azure AD, Google Directory, etc.) |
+| 4.3 | Onboarding process documented? | answered | Informal — process exists but is either not documented or not always followed or both |
+| 4.4 | Offboarding process documented? | answered | Informal — process exists but is either not documented or not always followed or both |
+| 4.5 | Privilege review process? | answered | Informal — process exists but is either not documented or not always followed or both |
+| 4.6 | MFA on privileged accounts? | answered | Partial — some privileged accounts have MFA |
+| 4.6b | MFA required for all staff? | answered | Partial — encouraged but not enforced for all staff |
+| 4.7 | Access audit completed within 12 months? | answered | Yes — but outdated (not reviewed in over 12 months) |
+| 4.8 | Shared accounts documented? | answered | Partially — some shared accounts exist without formal justification |
+| 4.9 | Admin credential documentation? | answered | Partial — documented for some platforms |
+| 5.1 | Device inventory current? | answered | Partial — exists but incomplete or outdated |
+| 5.10 | End-of-life devices in use? | answered | Some — a small number of unsupported devices in use |
+| 5.11 | Warranty tracking? | answered | Partial — tracked for some devices |
+| 5.12 | Loaner / spare device process? | answered | Partial — some spares available but no formal process |
+| 5.13 | Device check-in/check-out process? | answered | Partial — informal process |
+| 5.14 | Average device age (years) | answered | 4-5 years for staff laptops; 3-4 years for student Chromebooks |
+| 5.15 | Student devices managed centrally? | answered | Yes |
+| 5.16 |  | answered | Lower school (K-2) uses iPads for age-appropriate touch-first learning. Middle grades (3-5) use Chromebooks. Upper school (6-8) uses MacBooks for more |
+| 5.17 | Printer inventory tracked? | answered | Partial — some tracked |
+| 5.18 | Number of printers | answered | 4 |
+| 5.19 | Average printer age (years) | answered | 11 |
+| 5.2 |  | answered | Partial — some fields missing |
+| 5.3 | BYOD policy? | answered | Partial — some grades are 1:1 |
+| 5.4 |  | answered | Some — take-home for some grades or programs |
+| 5.5 | Device management (MDM) in use? | answered | Partial — some devices managed |
+| 5.6 | Hardware standard documented? | answered | Partial — informal preference but not documented |
+| 5.7 | Software standard documented? | answered | Partially — mostly standardized with some exceptions |
+| 5.8 | Remote support capability? | answered | Partially — possible but inconsistent |
+| 5.9 | Device refresh cycle documented? | answered | Informal — refresh cycle defined but not followed |
+| 6.1 | Core systems list | answered | Veracross |
+| 6.10 | Servers in use? | answered | yes |
+| 6.11 | Server OS patching cycle defined? | answered | yes |
+| 6.12 | Server details / notes | answered | 8x8 (VoIP) |
+| 6.13 | Number of on-premises servers | answered | 1 |
+| 6.14 |  | answered | Partial — some information documented |
+| 6.15 |  | answered | Yes — all servers have documented purposes |
+| 6.16 |  | answered | Partial — some access methods documented |
+| 6.17 |  | answered | Informal — patching happens but on no defined schedule |
+| 6.18 |  | answered | Yes — known for all servers |
+| 6.19 |  | answered | Informal — planned informally |
+| 6.2 | Systems list location / format | answered | Google Classroom |
+| 6.3 | Systems list current? | answered | Partial — incomplete or informal list |
+| 6.4 |  | answered | Partial — some fields missing |
+| 6.5 | Known system dependencies | answered | ['Google Workspace for Education Plus', 'Veracross SIS', 'Seesaw (lower school)', 'Panorama Education (SEL surveys)', 'Kami (PDF annotation)', 'Bark f |
+| 6.6 | Contract renewal tracking? | answered | Partial — some information tracked |
+| 6.7 | Privacy / DPA review for student-data systems? | answered | Partial — reviewed for some |
+| 6.8 | Vendor contact list current? | answered | Partial — some renewals tracked, others not |
+| 6.9 | Escalation paths documented for critical vendors? | answered | Partial — documented for some vendors |
+| 7.1 | Backup policy documented? | answered | Maybe or assumed — believed to be in place but not verified |
+| 7.10 | Recovery priority documented? | answered | Partial — informally understood but not documented |
+| 7.11 | RTO / RPO reference documented? | answered | No |
+| 7.12 | Emergency credential access? | answered | Partially — some credentials accessible, others not |
+| 7.13 | Estimated full recovery time | answered | 2 to 4 weeks |
+| 7.14 |  | answered | No |
+| 7.2 | Backup systems / tools in use | answered | Veeam (on-premises server) + Google Vault for Workspace data |
+| 7.3 | Backup scope documented? | answered | Partial — some systems documented, others not |
+| 7.4 | Server backup status | answered | Partial — some servers backed up |
+| 7.5 | Staff device backups? | answered | Not applicable — staff work entirely in cloud storage |
+| 7.6 | Critical cloud data backed up? | answered | Partial — some cloud data backed up |
+| 7.7 | Backup health reviewed regularly? | answered | Irregularly — checked occasionally but not on a schedule |
+| 7.7b | Backup storage location (onsite / offsite / both)? | answered | Both — onsite and offsite copies maintained |
+| 7.8 | Restore test completed within 12 months? | answered | More than 12 months ago |
+| 7.9 |  | answered | Less than annually |
+| 8.1 | Endpoint protection deployed? | answered | Yes — deployed on most managed devices |
+| 8.10 | Staff security awareness training? | answered | Yes |
+| 8.10b |  | answered | Yes |
+| 8.10c |  | answered | Partial — some of our steps match their requirements |
+| 8.11 | Known unresolved security concerns? | answered | yes |
+| 8.2 |  | answered | Sophos Intercept X |
+| 8.2b |  | answered | Sometimes — reviewed occasionally but not consistently |
+| 8.3 | Patch management schedule? | answered | Informal — patching happens but not on a defined schedule |
+| 8.4 | Security policy reviewed in last 12 months? | answered | Irregularly — reviewed occasionally |
+| 8.5 | Content filtering in use? | answered | Yes — for students only |
+| 8.6 | Email security / anti-phishing? | answered | yes |
+| 8.7 | Data loss prevention controls documented? | answered | Partial — some documentation exists |
+| 8.8 | Incident response process? | answered | Partial — informal notes or partial documentation |
+| 8.9 | Security logs reviewed regularly? | answered | Sometimes — reviewed occasionally |
+| 9.1 | Documentation system in use? | answered | Yes — but used inconsistently |
+| 9.2 | Documentation currency? | answered | Partly — some is current, some is outdated |
+| 9.3 | SOPs documented for recurring tasks? | answered | Partial — some tasks are documented |
+| 9.4 | Change documentation process? | answered | Informal — sometimes documented, sometimes not |
+| 9.5 | Environment understandable from documentation alone? | answered | Partially — they could understand some areas but not others |
+| 9.6 | Knowledge concentration / single-person dependency? | answered | yes |
+
+*⚠ Data confidence: Most answers are based on recall rather than documented verification. Verify findings before taking action.*
+
+2026-05-17    Page

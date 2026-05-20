@@ -29,6 +29,15 @@ Ideas captured during development. Not prioritised — reference for future road
   list, exported, or permanently deleted. Previously they were fully hidden with no UI access.
 - **Deprecate server-rendered UI** — longer term, replace Flask templates with a modern
   JS frontend (React or HTMX) for a snappier experience.
+- **Feature guide / how-to page** — a dedicated in-app page (linked from the home page and
+  possibly from a persistent "?" help link) that explains how to use the non-obvious features
+  of the app. Priority topics: (1) context notes — what they are, where to find them, and
+  why the "download first" gate exists; (2) the amendment log — how to see which answers were
+  changed and where the history appears in the DOCX; (3) session export/import — when and why
+  to use it; (4) the difference between per-section findings and full assessment findings;
+  (5) the phased timeline start date and what happens if you leave it blank. The page should
+  be purely static HTML (no database access) and should include short annotated screenshots
+  or simple diagrams where helpful. Consider a `/help` route rendering a `help.html` template.
 
 ## Scoring & Assessment
 

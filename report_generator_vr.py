@@ -304,7 +304,12 @@ def _exec_summary(doc, vr_report, school_name, is_draft=False):
     grade_color = GRADE_COLOR.get(s.overall_grade, C.text)
     _para(doc, f"Overall Grade: {s.overall_grade}  ·  {s.total_vendors} vendor"
           f"{'s' if s.total_vendors != 1 else ''} assessed",
-          size=14, bold=True, color=grade_color, sb=8, sa=4)
+          size=14, bold=True, color=grade_color, sb=8, sa=2)
+    _para(doc,
+          "The overall grade is a criticality-weighted average. Core systems and vendors "
+          "holding student data carry more weight than supplemental tools. "
+          "Each vendor's weight is shown on its scorecard below.",
+          size=9, color=C.faint, sb=2, sa=8)
 
     # Quick stats
     stats_tbl = doc.add_table(rows=2, cols=4)
@@ -494,6 +499,14 @@ def _per_vendor_findings(doc, vr_report, finding_contexts=None):
         _run(sp, "   Status: ", size=10, color=C.faint)
         _run(sp, SEV_LABEL.get(result.severity, result.severity),
              bold=True, size=10, color=sev_col)
+        # Weight label — only show when above baseline so routine vendors aren't cluttered
+        wm = getattr(result, "weight_multiplier", 1)
+        if wm > 1:
+            weight_labels = {2: "Staff data — 2× weight",
+                             3: "Core or student data — 3× weight",
+                             4: "Core + student data — 4× weight"}
+            _run(sp, f"   ·  {weight_labels.get(wm, f'{wm}× weight')}",
+                 size=9, italic=True, color=C.concern)
 
         if result.holds_student_data or result.holds_staff_data:
             dp = doc.add_paragraph()

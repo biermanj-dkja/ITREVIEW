@@ -1,6 +1,6 @@
 """
 rules_engine_vr.py  —  Vendor Register findings engine for module_3
-v0.7.6.0
+v0.7.7.0
 
 Generates deterministic findings and a report card from the answers
 collected in the Software, Licensing, and Vendor Register (module_3).
@@ -121,6 +121,7 @@ class VendorResult:
     auto_renews: Optional[bool] = None
     annual_cost: Optional[str] = None
     strengths: List[str] = field(default_factory=list)
+    weight_multiplier: int = 1   # criticality weight used in overall grade (1x–4x)
 
 
 @dataclass
@@ -1166,6 +1167,17 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
         holds_student = _get(answers, sid, "V.DATA.student") == "Yes — holds or processes student data"
         holds_staff   = _get(answers, sid, "V.DATA.staff")   == "Yes — holds or processes confidential staff data"
 
+        # Compute criticality weight now so it can be stored and shown in the report
+        is_core = any(cat.lower() in category.lower() for cat in core_categories)
+        if is_core and holds_student:
+            weight = 4
+        elif is_core or holds_student:
+            weight = 3
+        elif holds_staff:
+            weight = 2
+        else:
+            weight = 1
+
         per_vendor_results.append(VendorResult(
             vendor_name=name, section_id=sid, earned=earned, max_pts=max_pts,
             score_pct=pct, grade_label=grade, severity=severity,
@@ -1173,6 +1185,7 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
             holds_student_data=holds_student, holds_staff_data=holds_staff,
             renewal_date=renewal_date, auto_renews=auto_renews,
             annual_cost=annual_cost, strengths=strengths,
+            weight_multiplier=weight,
         ))
 
     school_wide = findings_for_school_wide(answers)
@@ -1184,8 +1197,30 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
     watch   = sum(1 for r in per_vendor_results if r.severity == "watch")
     healthy = sum(1 for r in per_vendor_results if r.severity == "healthy")
 
-    all_pcts = [r.score_pct for r in per_vendor_results if r.max_pts > 0]
-    overall_pct = round(sum(all_pcts) / len(all_pcts)) if all_pcts else 0
+    # ── Criticality-weighted overall grade ───────────────────────────
+    # Vendors that are both operationally critical AND hold sensitive data
+    # carry the most weight. This prevents a healthy score on low-risk tools
+    # (classroom apps, communication tools) from masking failures in the
+    # school's most important systems.
+    #
+    # Multiplier logic:
+    #   4x  — core/critical category AND holds student data
+    #         (e.g. SIS, identity provider, LMS with student records)
+    #   3x  — core/critical category OR holds student data (but not both)
+    #         (e.g. firewall with no student data; gradebook app not in core list)
+    #   2x  — holds confidential staff data only
+    #         (e.g. HR system, payroll processor)
+    #   1x  — everything else
+    #         (e.g. classroom tools, communication apps, facilities software)
+
+    weighted_sum = 0.0
+    weight_total = 0.0
+    for r in per_vendor_results:
+        if r.max_pts > 0:
+            weighted_sum += r.score_pct * r.weight_multiplier
+            weight_total += r.weight_multiplier
+
+    overall_pct = round(weighted_sum / weight_total) if weight_total > 0 else 0
     overall_grade = _grade(overall_pct)
 
     # ── Critical floor check ────────────────────────────────────────

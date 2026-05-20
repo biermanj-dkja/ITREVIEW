@@ -308,6 +308,24 @@ dict retained as a fallback with a log warning. Path bug fixed in v0.7.5.1.
 
 ---
 
+### Critical Floor Rules — Modules 2 and 3 ✅ Done (v0.7.6.0)
+
+`FloorCap` dataclass and `critical_floor_check()` added to `rules_engine_dg.py` and
+`rules_engine_vr.py`. Six floor conditions total (three per module). Grade cap applied
+after weighted average; red callout box rendered in DOCX exec summary when triggered.
+`rules_engine_vr.py` formalised as a fully standalone file in this release.
+
+---
+
+### Module 3 Criticality-Weighted Scoring ✅ Done (v0.7.7.0)
+
+Four-tier multiplier (4×/3×/2×/1×) based on core-category flag and student/staff data
+flags. Weight stored on `VendorResult.weight_multiplier`. Shown in per-vendor scorecard
+when above baseline. Annual spend tier weighting deferred — requires free-text cost
+parsing not yet implemented.
+
+---
+
 ### Score Contribution Table in Module 1 DOCX ✅ Done (v0.7.3.1)
 
 "Score Breakdown by Section" table added to the Module 1 executive summary, showing
@@ -513,34 +531,22 @@ Hardcoded `QUESTION_PROMPTS` dict retained as a fallback with a log warning.
 
 Important for report trustworthiness, but not urgent for day-to-day use.
 
-#### 7. Critical floor rules for Modules 2 and 3 *(M — ~2 days)*
+#### 7. Critical floor rules for Modules 2 and 3 ✅ Done (v0.7.6.0)
 
-Certain single-system failures should cap the overall grade regardless of average score.
-Examples: no DPA on a student-data SIS; no admin access for a core infrastructure system;
-unknown vendor owner for a critical tool. Without floor rules, a strong score on a dozen
-low-risk tools can obscure a catastrophic gap in the one system that matters most.
-
-Module 2 already has sensitivity-weighted scoring (implemented v0.7.2). Module 3 does not
-yet. The floor rules are a complement to weighting — weighting lowers the average from
-strong peripheral scores; floor rules ensure certain failures are visible regardless of
-average.
-
-**Scope:** A `critical_floor_check()` function in each rules engine that returns a grade
-cap when specific conditions are met. Applied after the weighted average is calculated.
-The report should note when a floor rule affected the grade ("Overall grade capped at D
-due to critical gap in [system/vendor]").
+`critical_floor_check()` added to both `rules_engine_dg.py` and `rules_engine_vr.py`.
+Three floor conditions per module; any one caps the overall grade at D. Floor cap is
+applied after the weighted average and displayed as a red callout box in the DOCX
+executive summary. See README v0.7.6.0 entry for full condition list.
 
 ---
 
-#### 8. Module 3 sensitivity-weighted scoring *(S-M — ~1 day)*
+#### 8. Module 3 sensitivity-weighted scoring ✅ Done (v0.7.7.0)
 
-Module 3 uses a simple average across all vendors. Mirror the Module 2 approach: weight
-each vendor's score by criticality + data sensitivity. A critical vendor (SIS, firewall,
-identity provider) holding student data should have more weight than a supplemental tool
-holding only rosters.
-
-Weighting factors: annual spend tier, auto-renewal status, student data held, staff
-confidential data, contract/DPA status, known admin access.
+Four-tier criticality multiplier (1×/2×/3×/4×) replaces the simple average in
+`evaluate_vr()`. Weight is pre-computed per vendor and stored on `VendorResult.weight_multiplier`
+for reporting use. Per-vendor scorecard in DOCX shows the multiplier when above 1×.
+Annual spend tier and auto-renewal weighting factors deferred to a future pass (requires
+robust free-text cost parsing).
 
 ---
 
@@ -590,10 +596,10 @@ severity bands.
 
 | Version | Focus |
 |---------|-------|
-| v0.7.1.x | Bug fixes and doc-only patches (current) |
-| v0.8.0 | Tier 1 quick wins complete |
-| v0.8.5 | Tier 2 framework integrity complete |
-| v0.9.0 | Tier 3 scoring credibility complete |
+| v0.7.1.x | Bug fixes and doc-only patches ✅ |
+| v0.8.0 | Tier 1 quick wins complete ✅ |
+| v0.8.5 | Tier 2 framework integrity complete ✅ |
+| v0.9.0 | Tier 3 scoring credibility complete ✅ (reached v0.7.7.0) |
 | v0.9.5 | Tier 4 testing and traceability complete |
 | v1.0.0 | Final polish, docs aligned, demo-ready |
 

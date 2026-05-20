@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.5.1
+## v0.7.7.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -404,7 +404,81 @@ or any technical setup.
 
 ## What's in this version
 
-**v0.7.5.1** is a synchronisation and cleanup release — no new features.
+**v0.7.7.0** adds criticality-weighted scoring to the Module 3 (Vendor Register) overall grade.
+
+Previously, the Module 3 overall grade was a simple average across all vendors — a school
+with a well-governed SIS and a poorly-governed one had the same overall grade regardless of
+which was which. This mirrored an early design limitation that Module 2 had already resolved
+in v0.7.2.
+
+The overall grade is now a **criticality-weighted average** using four multiplier tiers:
+
+| Tier | Condition | Weight |
+|------|-----------|--------|
+| 4× | Core/critical category AND holds student data | Highest — e.g. SIS, identity provider with records |
+| 3× | Core/critical category OR holds student data (but not both) | High — e.g. firewall; gradebook app |
+| 2× | Holds confidential staff data only | Elevated — e.g. HR system, payroll processor |
+| 1× | Everything else | Baseline — e.g. classroom tools, communication apps |
+
+"Core/critical category" is determined by the `core_vendor_categories` list in `module_3.yaml`,
+the same list used by the VR-S4 escalation path finding since v0.7.3.0.
+
+The per-vendor scorecard in the DOCX now shows the weight multiplier next to each vendor's
+grade line when it is above 1×, so the reader can see which vendors are driving the grade.
+The executive summary adds a one-sentence explanation of the weighting method.
+
+The `weight_multiplier` field is stored on `VendorResult` so it is available for future
+reporting uses (e.g. a weighted breakdown table) without re-computation.
+
+**Files changed:** `rules_engine_vr.py`, `report_generator_vr.py`, `app.py`
+
+---
+
+**v0.7.6.0** adds critical floor rules to Modules 2 and 3, and creates `rules_engine_vr.py`
+as a fully standalone module.
+
+### Critical floor rules
+
+A critical floor caps the overall module grade at D regardless of the weighted average.
+This prevents a strong score on routine or low-risk items from obscuring a genuinely
+dangerous gap. Three floor conditions are defined for each module; any one is sufficient
+to trigger the cap.
+
+**Module 2 (Data Governance) floor conditions:**
+
+- **DG-FLOOR-1:** Any system holding sensitive data has confirmed active accounts belonging
+  to former staff — an active breach risk
+- **DG-FLOOR-2:** Any sensitive-data system has both MFA and backup controls absent
+  simultaneously — no authentication protection and no recovery path
+- **DG-FLOOR-3:** Any sensitive-data system has no DPA and no breach notification clause —
+  both contractual compliance controls absent at once
+
+**Module 3 (Vendor Register) floor conditions:**
+
+- **VR-FLOOR-1:** Any student-data vendor has both no signed DPA and no FERPA/COPPA
+  review — a direct FERPA compliance failure
+- **VR-FLOOR-2:** Three or more core or student-data vendors have undocumented admin
+  credentials — severe operational continuity risk across multiple critical systems
+- **VR-FLOOR-3:** Any core/critical-category vendor scores below 30% — near-complete
+  absence of governance for a system the school depends on daily
+
+When a floor fires, both the rules engine and the DOCX report make the cap explicit.
+A red callout box appears in the executive summary naming the affected systems/vendors
+and the finding to resolve to remove the cap.
+
+### `rules_engine_vr.py` — full standalone implementation
+
+This file previously existed only in local development. It is now fully documented and
+included in the repository. It contains all Module 3 finding logic, scoring, the renewal
+risk register builder, the school-wide governance findings (VR2 section), and the
+`evaluate_vr()` entry point.
+
+**Files changed:** `rules_engine_vr.py` (new), `rules_engine_dg.py`, `report_generator_dg.py`,
+`report_generator_vr.py`, `app.py`
+
+---
+
+**v0.7.5.1** was a synchronisation and cleanup release — no new features.
 
 - **YAML path fix (`report_generator.py`):** The schema-driven appendix label lookup
   was looking for `module_1.yaml` in the project root; the file lives in `modules/`.

@@ -562,7 +562,7 @@ def _toc(doc):
     """
     Insert a native Word TOC field. Word/LibreOffice will render it
     when the document is opened; right-click → Update Field to refresh.
-    Uses Heading 1 and Heading 2 (TOC \o "1-2").
+    Uses Heading 1 and Heading 2 (TOC \\o "1-2").
     """
     _page_break(doc)
     _h(doc, "Contents", 1)

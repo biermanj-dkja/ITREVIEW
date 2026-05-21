@@ -1077,7 +1077,7 @@ def critical_floor_check(per_vendor_results):
     # undocumented admin credentials
     try:
         _yaml_path = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                  "module_3.yaml")
+                                  "modules", "module_3.yaml")
         with open(_yaml_path, "r", encoding="utf-8") as _f:
             _m3 = yaml.safe_load(_f)
         _core_cats = [c.lower() for c in _m3.get("core_vendor_categories", [])]
@@ -1139,7 +1139,7 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
     # Load core vendor categories from module_3.yaml so VR-S4 matching
     # is driven by data, not hardcoded Python.
     try:
-        _yaml_path = os.path.join(os.path.dirname(__file__), "module_3.yaml")
+        _yaml_path = os.path.join(os.path.dirname(__file__), "modules", "module_3.yaml")
         with open(_yaml_path, "r", encoding="utf-8") as _f:
             _m3 = yaml.safe_load(_f)
         core_categories = _m3.get("core_vendor_categories", [])

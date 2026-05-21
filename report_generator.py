@@ -224,7 +224,7 @@ QUESTION_PROMPTS = {
 
 def _build_yaml_prompts():
     """Load question prompts from module_1.yaml. Returns {} on failure."""
-    yaml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "module_1.yaml")
+    yaml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modules", "module_1.yaml")
     try:
         with open(yaml_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
@@ -562,7 +562,7 @@ def _toc(doc):
     """
     Insert a native Word TOC field. Word/LibreOffice will render it
     when the document is opened; right-click → Update Field to refresh.
-    Uses Heading 1 and Heading 2 (TOC \o "1-2").
+    Uses Heading 1 and Heading 2 (TOC \\o "1-2").
     """
     _page_break(doc)
     _h(doc, "Contents", 1)

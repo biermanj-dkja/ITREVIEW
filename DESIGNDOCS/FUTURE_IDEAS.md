@@ -585,13 +585,22 @@ FLASK_DEBUG_TRACE=1 python app.py
 
 ---
 
-#### 10. Golden test fixtures *(M — ~2 days)*
+#### 10. Golden test fixtures ✅ Done (v0.8.0)
 
-Three fixture schools per module: Strong (minimal findings, high score), Typical (Bit-By-Bit
-Academy — already exists), High-Risk (catastrophic gaps, zero documentation). Assert against
-trace JSON output, not DOCX content. A single test command should run all three fixtures
-through all three modules and report any deviation from expected finding IDs, scores, and
-severity bands.
+Three fixture schools per module implemented in `test_scoring.py` (Part B):
+
+- **Strong** — Exemplar Academy / single well-governed system/vendor. Confirms no false
+  positives on healthy answers. All three modules produce A grades with no findings and
+  no floor caps.
+- **Typical** — Bit-By-Bit Academy (existing test data exports). Pins 58 specific Module 1
+  finding IDs, Module 2's F grade with floor cap and 6 school-wide findings, and Module 3's
+  D grade with 4 urgent vendors and 8 school-wide findings.
+- **High-Risk** — Risk Academy / one catastrophically failing system/vendor with all
+  school-wide gaps answered worst-case. Confirms floor cap rules fire, critical findings
+  appear, and suppression chains work correctly.
+
+The suite runs in under 5 seconds: `python test_scoring.py` (84 tests, all modules).
+Assertions are against rules engine output directly — no DOCX inspection required.
 
 ---
 
@@ -617,7 +626,7 @@ severity bands.
 | v0.8.5 | Tier 2 framework integrity complete ✅ |
 | v0.9.0 | Tier 3 scoring credibility complete ✅ (reached v0.7.7.0) |
 | v0.7.8.0 | Tier 4 #9 — rule evaluation trace ✅ |
-| v0.9.5 | Tier 4 testing and traceability complete (golden fixtures remaining) |
+| v0.8.0 | Tier 4 complete — testing and traceability ✅ |
 | v1.0.0 | Final polish, docs aligned, demo-ready |
 
 ---

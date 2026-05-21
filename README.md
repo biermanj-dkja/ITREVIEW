@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.7.8.0
+## v0.8.1
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -404,8 +404,59 @@ or any technical setup.
 
 ## What's in this version
 
-**v0.7.8.0** adds rule evaluation tracing — a developer debugging tool that writes a
-structured JSON record alongside every DOCX report download.
+**v0.8.1** is a housekeeping release — no feature changes.
+
+- **SyntaxWarning fix (`report_generator.py`):** A docstring inside `_toc()` contained a
+  bare `\o` escape sequence. Python 3.12+ raises a `SyntaxWarning` for this; a future
+  version will promote it to a `SyntaxError`. Fixed by escaping to `\\o`.
+
+---
+
+**v0.8.0** adds golden fixture tests — automated regression testing for all three scoring engines.
+
+### Golden fixture tests (`test_scoring.py`)
+
+The existing section-level scoring tests (Part A) have been expanded with a full golden
+fixture suite (Part B) covering all three modules. Run with:
+
+```bash
+python test_scoring.py                # full suite (84 tests)
+python test_scoring.py --fixtures-only # Part B only
+python test_scoring.py --scoring-only  # Part A only
+```
+
+**Three fixture schools per module:**
+
+| Fixture | School | What it tests |
+|---------|--------|---------------|
+| Strong | Exemplar Academy | A well-run school. Confirms no false positives on healthy answers. |
+| Typical | Bit-By-Bit Academy | The existing test data export. Pins the real-world baseline — any rule change that shifts this school's output will be caught immediately. |
+| High-Risk | Risk Academy / Risky SIS | Catastrophic gaps across the board. Confirms every major rule fires correctly under worst-case conditions, including floor cap rules. |
+
+**What each fixture asserts:**
+
+- Module 1: exact finding ID sets at each severity tier, total count, suppressed count,
+  data confidence level, and key risk group membership
+- Module 2: overall grade, floor cap fired/not, per-system grade, finding counts,
+  school-wide finding count, and that critical findings appear at the right severity
+- Module 3: overall grade, floor cap fired/not, per-vendor grade and score percentage,
+  weight multiplier (4× for core + student data), school-wide finding presence
+
+The Bit-By-Bit Academy fixture for Module 1 pins **58 specific finding IDs** — the exact
+set of urgent and concern findings. Any rule change that adds, removes, or reclassifies a
+finding will produce a named failure rather than silent drift.
+
+Exit code 0 = all tests passed. Exit code 1 = failures listed by name.
+The suite is designed to run in under 5 seconds on any machine with the app dependencies
+installed.
+
+**Files changed:** `test_scoring.py`
+
+---
+
+**v0.7.8.0** adds rule evaluation tracing — see that entry below for details.
+
+---
 
 ### Rule evaluation trace (`trace.py`)
 

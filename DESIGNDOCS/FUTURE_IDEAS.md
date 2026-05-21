@@ -563,28 +563,44 @@ robust free-text cost parsing).
 
 Good to have. Do these after the Tier 1–3 items are stable, and before adding a new module.
 
-#### 9. Rule evaluation trace / debug output *(M — ~3 days)*
+#### 9. Rule evaluation trace / debug output ✅ Done (v0.7.7.1)
 
-An optional `--debug` flag (or `FLASK_DEBUG_TRACE=1` env var) that writes a sidecar JSON
-file alongside report generation, mapping:
+An optional `FLASK_DEBUG_TRACE=1` env var that writes a sidecar JSON file to
+`data/traces/` alongside each DOCX report generation. Implemented in `trace.py`
+with three entry points: `write_trace_m1()`, `write_trace_dg()`, `write_trace_vr()`.
+Called from all three download routes in `app.py` — safe to call unconditionally,
+trace write failures never abort report generation.
 
+The trace captures: normalized answers (raw → normalized token → DB status) for
+every question; all fired findings with finding ID/key, severity, source section/
+system/vendor; suppressed findings (Module 1) with suppression reason; score
+calculation detail (per-section/system/vendor earned/max, weighted overall);
+floor cap detail when triggered; key risk groups (Module 1); and the renewal risk
+register (Module 3). Each file is named `{session_id[:8]}_{module}_{timestamp}.json`.
+
+To enable: set the env var before starting the app:
 ```
-[Answer value] → Rule ID → Finding ID → Severity → Report section(s)
+FLASK_DEBUG_TRACE=1 python app.py
 ```
-
-The trace file should also include: normalized answers, fired findings, suppressed findings,
-score calculation, and key risk groups. This replaces manual DOCX inspection as the primary
-debugging tool. It also makes regression testing possible without diffing Word documents.
 
 ---
 
-#### 10. Golden test fixtures *(M — ~2 days)*
+#### 10. Golden test fixtures ✅ Done (v0.8.0)
 
-Three fixture schools per module: Strong (minimal findings, high score), Typical (Bit-By-Bit
-Academy — already exists), High-Risk (catastrophic gaps, zero documentation). Assert against
-trace JSON output, not DOCX content. A single test command should run all three fixtures
-through all three modules and report any deviation from expected finding IDs, scores, and
-severity bands.
+Three fixture schools per module implemented in `test_scoring.py` (Part B):
+
+- **Strong** — Exemplar Academy / single well-governed system/vendor. Confirms no false
+  positives on healthy answers. All three modules produce A grades with no findings and
+  no floor caps.
+- **Typical** — Bit-By-Bit Academy (existing test data exports). Pins 58 specific Module 1
+  finding IDs, Module 2's F grade with floor cap and 6 school-wide findings, and Module 3's
+  D grade with 4 urgent vendors and 8 school-wide findings.
+- **High-Risk** — Risk Academy / one catastrophically failing system/vendor with all
+  school-wide gaps answered worst-case. Confirms floor cap rules fire, critical findings
+  appear, and suppression chains work correctly.
+
+The suite runs in under 5 seconds: `python test_scoring.py` (84 tests, all modules).
+Assertions are against rules engine output directly — no DOCX inspection required.
 
 ---
 
@@ -609,7 +625,8 @@ severity bands.
 | v0.8.0 | Tier 1 quick wins complete ✅ |
 | v0.8.5 | Tier 2 framework integrity complete ✅ |
 | v0.9.0 | Tier 3 scoring credibility complete ✅ (reached v0.7.7.0) |
-| v0.9.5 | Tier 4 testing and traceability complete |
+| v0.7.8.0 | Tier 4 #9 — rule evaluation trace ✅ |
+| v0.8.0 | Tier 4 complete — testing and traceability ✅ |
 | v1.0.0 | Final polish, docs aligned, demo-ready |
 
 ---

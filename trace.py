@@ -1,6 +1,6 @@
 """
 trace.py  —  Rule evaluation trace writer
-v0.7.7.1
+v0.7.8.0
 
 Writes a sidecar JSON file alongside report generation when the env var
 FLASK_DEBUG_TRACE=1 is set. One trace file per report download, written to

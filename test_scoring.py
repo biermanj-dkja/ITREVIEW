@@ -57,6 +57,10 @@ from rules_engine_vr import evaluate_vr
 from dynamic_engine import expand_dynamic_sections
 import yaml
 
+BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
+TESTDATA_DIR = os.path.join(BASE_DIR, "TESTDATA")
+MODULES_DIR  = os.path.join(BASE_DIR, "modules")
+
 init_db()
 m1 = load_module("module_1")
 
@@ -487,7 +491,7 @@ if RUN_FIXTURES:
 
     # ── M1 Typical (Bit-By-Bit Academy) ───────────────────────────
     print("\nModule 1 — Typical fixture (Bit-By-Bit Academy)")
-    bba_m1_export = json.load(open("BitByBit_Academy_module-1_export.json"))
+    bba_m1_export = json.load(open(os.path.join(TESTDATA_DIR, "BitByBit_Academy_module-1_export.json")))
     bba_m1_answers_raw = bba_m1_export["answers"]
     report_bba = evaluate_all(bba_m1_answers_raw, session_id="bba-m1-fixture-probe")
     d_bba = findings_to_dict(report_bba)
@@ -602,7 +606,7 @@ if RUN_FIXTURES:
     # MODULE 2 FIXTURES
     # ─────────────────────────────────────────────────────────────
 
-    with open("module_2.yaml") as f:
+    with open(os.path.join(MODULES_DIR, "module_2.yaml")) as f:
         m2_def = yaml.safe_load(f)
 
     def run_m2_fixture(raw_dict):
@@ -695,7 +699,7 @@ if RUN_FIXTURES:
 
     # ── M2 Typical (Bit-By-Bit Academy) ───────────────────────────
     print("\nModule 2 — Typical fixture (Bit-By-Bit Academy)")
-    bba_m2_export = json.load(open("Bit-By-Bit_Academy_module-2_export_UPDATED.json"))
+    bba_m2_export = json.load(open(os.path.join(TESTDATA_DIR, "Bit-By-Bit_Academy_module-2_export_UPDATED.json")))
     bba_m2_answers = bba_m2_export["answers"]
     me2, gi2 = expand_dynamic_sections(m2_def, bba_m2_answers)
     sn2 = me2.get("_system_names", [])
@@ -742,7 +746,7 @@ if RUN_FIXTURES:
     # MODULE 3 FIXTURES
     # ─────────────────────────────────────────────────────────────
 
-    with open("module_3.yaml") as f:
+    with open(os.path.join(MODULES_DIR, "module_3.yaml")) as f:
         m3_def = yaml.safe_load(f)
 
     def run_m3_fixture(raw_dict):
@@ -846,7 +850,7 @@ if RUN_FIXTURES:
 
     # ── M3 Typical (Bit-By-Bit Academy) ───────────────────────────
     print("\nModule 3 — Typical fixture (Bit-By-Bit Academy)")
-    bba_m3_export = json.load(open("Bit-By-Bit_Academy_module-3_export_UPDATED.json"))
+    bba_m3_export = json.load(open(os.path.join(TESTDATA_DIR, "Bit-By-Bit_Academy_module-3_export_UPDATED.json")))
     bba_m3_answers = bba_m3_export["answers"]
     me3, gi3 = expand_dynamic_sections(m3_def, bba_m3_answers)
     vn3 = me3.get("_system_names", [])

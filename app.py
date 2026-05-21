@@ -626,10 +626,14 @@ def download_report(session_id):
                                      finding_contexts=finding_contexts,
                                      amendment_log=amendment_log,
                                      assessment_date=sess.get("last_modified", "")[:10])
-        write_trace_m1(session_id, answers, report)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("summary", session_id=session_id))
+
+    try:
+        write_trace_m1(session_id, answers, report)
+    except Exception as exc:
+        print(f"[TRACE] Trace generation failed (M1): {exc}")
 
     school = (profile.get("school_name") if profile else "School").replace(" ", "_")
     filename = f"{school}_IT_Report.docx"
@@ -828,10 +832,14 @@ def download_dg_report(session_id):
                                         finding_contexts=finding_contexts,
                                         amendment_log=amendment_log,
                                         assessment_date=sess.get("last_modified", "")[:10])
-        write_trace_dg(session_id, answers, dg, system_names, gen_ids)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("dg_report", session_id=session_id))
+
+    try:
+        write_trace_dg(session_id, answers, dg, system_names, gen_ids)
+    except Exception as exc:
+        print(f"[TRACE] Trace generation failed (DG): {exc}")
 
     school = (profile.get("school_name") if profile else "School").replace(" ", "_")
     filename = f"{school}_Data_Governance_Report.docx"
@@ -921,10 +929,14 @@ def download_vr_report(session_id):
                                         finding_contexts=finding_contexts,
                                         amendment_log=amendment_log,
                                         assessment_date=sess.get("last_modified", "")[:10])
-        write_trace_vr(session_id, answers, vr, vendor_names, gen_ids)
     except Exception as e:
         flash(f"Report generation failed: {e}", "error")
         return redirect(url_for("vr_report", session_id=session_id))
+
+    try:
+        write_trace_vr(session_id, answers, vr, vendor_names, gen_ids)
+    except Exception as exc:
+        print(f"[TRACE] Trace generation failed (VR): {exc}")
 
     school = (profile.get("school_name") if profile else "School").replace(" ", "_")
     filename = f"{school}_Vendor_Register.docx"
@@ -1078,7 +1090,7 @@ def import_session():
 if __name__ == "__main__":
     init_db()
     print("\n" + "=" * 60)
-    print("  School IT Documentation Engine v0.5.3.2")
+    print(f"  School IT Documentation Engine v{app.config['VERSION']}")
     print("  Running at: http://localhost:5000")
     print("  This tool runs entirely on your computer.")
     print("  No data is sent to the internet.")

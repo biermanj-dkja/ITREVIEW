@@ -1,7 +1,7 @@
 """
 report_generator_vr.py  —  DOCX report generator for Module 3
 Software, Licensing, and Vendor Register
-v0.7.0
+v0.8.2
 
 Report sections:
   1. Cover page
@@ -350,25 +350,170 @@ def _exec_summary(doc, vr_report, school_name, is_draft=False):
             cell.add_paragraph().paragraph_format.space_after = Pt(4)
         _box(doc, _risk_stats, border_hex="1A5276", bg_hex="EAF4FB")
 
-    # Top priorities
+    # ── What's Working Well ───────────────────────────────────────
+    # Collect distinct strength bullets from healthy/watch vendors
+    working_well = []
+    seen_strengths = set()
+    for vr in vr_report.per_vendor_results:
+        if vr.severity in ("healthy", "watch") and vr.strengths:
+            for s_txt in vr.strengths:
+                if s_txt not in seen_strengths:
+                    seen_strengths.add(s_txt)
+                    working_well.append((vr.vendor_name, s_txt))
+    # Also surface healthy vendors by name as a group summary
+    healthy_vendors = [vr.vendor_name for vr in vr_report.per_vendor_results
+                       if vr.severity == "healthy"]
+
+    if working_well or healthy_vendors:
+        def _well_builder(cell):
+            p = _cp(cell, sb=6, sa=2)
+            _run(p, "✓  What's Working Well", bold=True, size=10,
+                 color=RGBColor(0x1A, 0x6B, 0x3A))
+            if healthy_vendors:
+                hp = cell.add_paragraph()
+                hp.paragraph_format.space_before = Pt(3)
+                hp.paragraph_format.space_after = Pt(2)
+                hp.paragraph_format.left_indent = Pt(8)
+                names = ", ".join(healthy_vendors[:8])
+                suffix = f" and {len(healthy_vendors) - 8} more" if len(healthy_vendors) > 8 else ""
+                _run(hp, f"Vendors scoring Healthy: {names}{suffix}.",
+                     size=9, color=C.text)
+            shown = 0
+            for vendor_name, s_txt in working_well:
+                if shown >= 6:
+                    break
+                bp = cell.add_paragraph()
+                bp.paragraph_format.space_before = Pt(2)
+                bp.paragraph_format.space_after = Pt(1)
+                bp.paragraph_format.left_indent = Pt(8)
+                _run(bp, f"• {s_txt}", size=9, color=C.text)
+                _run(bp, f"  ({vendor_name})", size=8, italic=True,
+                     color=RGBColor(0x7F, 0x8C, 0x8D))
+                shown += 1
+            cell.add_paragraph().paragraph_format.space_after = Pt(4)
+        _box(doc, _well_builder, border_hex="1A6B3A", bg_hex="E8F5EC")
+
+    # ── Quick Wins ────────────────────────────────────────────────
+    # Surface low-effort findings (S or S+) from any severity level
+    quick_wins = [
+        f for f in s.top_priorities
+        if f.effort in ("S", "S+")
+    ]
+    # Fall back to near_term/planned with S effort if top_priorities is short
+    if len(quick_wins) < 2:
+        all_findings = [f for vr in vr_report.per_vendor_results for f in vr.findings]
+        all_findings += vr_report.school_wide_results
+        for f in all_findings:
+            if f.effort in ("S", "S+") and f not in quick_wins:
+                quick_wins.append(f)
+                if len(quick_wins) >= 5:
+                    break
+
+    if quick_wins:
+        def _qw_builder(cell):
+            p = _cp(cell, sb=6, sa=2)
+            _run(p, "→  Quick Wins Available  (Low Effort)",
+                 bold=True, size=10, color=RGBColor(0xB7, 0x77, 0x0D))
+            _run(cell.add_paragraph(), "", size=2)  # small gap
+            for f in quick_wins[:5]:
+                qp = cell.add_paragraph()
+                qp.paragraph_format.space_before = Pt(3)
+                qp.paragraph_format.space_after = Pt(1)
+                qp.paragraph_format.left_indent = Pt(8)
+                _run(qp, f"• ", bold=True, size=9,
+                     color=RGBColor(0xB7, 0x77, 0x0D))
+                _run(qp, f.title, bold=True, size=9, color=C.text)
+                if f.vendor_name:
+                    _run(qp, f"  ({f.vendor_name})", size=8, italic=True, color=C.faint)
+                ap = cell.add_paragraph()
+                ap.paragraph_format.space_before = Pt(1)
+                ap.paragraph_format.space_after = Pt(3)
+                ap.paragraph_format.left_indent = Pt(16)
+                _run(ap, f.action, size=8, italic=True, color=C.faint)
+            cell.add_paragraph().paragraph_format.space_after = Pt(4)
+        _box(doc, _qw_builder, border_hex="B7770D", bg_hex="FEF9EF")
+
+    # ── Investigate Before Next Renewal ──────────────────────────
+    # Critical/urgent vendors that need attention — compact action table
+    urgent_vendors = [
+        vr for vr in vr_report.per_vendor_results
+        if vr.severity in ("urgent",) and vr.findings
+    ]
+    concern_vendors = [
+        vr for vr in vr_report.per_vendor_results
+        if vr.severity == "concern" and vr.findings
+    ]
+    investigate = (urgent_vendors + concern_vendors)[:8]
+
+    if investigate:
+        _h(doc, "Investigate Before Next Renewal", 2)
+        _para(doc,
+              "The vendors below have one or more critical or high findings. "
+              "Review and act before their next renewal date.",
+              size=9, color=C.faint, sb=2, sa=6)
+
+        inv_tbl = doc.add_table(rows=1, cols=4)
+        inv_tbl.style = "Table Grid"
+        inv_headers = ["Vendor", "Top Issue", "Action", "Priority"]
+        inv_widths = [1.3, 2.0, 2.5, 0.9]
+        for i, (hdr, w) in enumerate(zip(inv_headers, inv_widths)):
+            cell = inv_tbl.cell(0, i)
+            _cell_bg(cell, "2C3E50")
+            _cell_border(cell, "2C3E50")
+            cell.width = Inches(w)
+            p = _cp(cell, sb=5, sa=5)
+            _run(p, hdr, bold=True, size=9, color=C.white)
+
+        for vr in investigate:
+            # Pick the most severe finding
+            top_f = sorted(
+                vr.findings,
+                key=lambda f: {"critical": 0, "high": 1, "medium": 2, "low": 3}.get(f.severity, 9)
+            )[0]
+            sev_col = FSEV_COLOR.get(top_f.severity, C.text)
+            row = inv_tbl.add_row()
+            vals = [vr.vendor_name, top_f.title, top_f.action, top_f.severity.upper()]
+            for i, val in enumerate(vals):
+                cell = row.cells[i]
+                _cell_border(cell, "CCCCCC", "2")
+                p = _cp(cell, sb=4, sa=4)
+                if i == 3:
+                    _run(p, val, bold=True, size=9, color=sev_col)
+                elif i == 0:
+                    _run(p, val, bold=True, size=9, color=C.text)
+                else:
+                    _run(p, val, size=9, color=C.text)
+
+        doc.add_paragraph().paragraph_format.space_after = Pt(8)
+
+    # ── Top priorities (numbered action list) ─────────────────────
     if s.top_priorities:
         _h(doc, "Top Priorities", 2)
-        for f in s.top_priorities[:6]:
+        for idx, f in enumerate(s.top_priorities[:6], start=1):
             sev_col = FSEV_COLOR.get(f.severity, C.text)
             p = doc.add_paragraph()
             p.paragraph_format.space_before = Pt(4)
             p.paragraph_format.space_after = Pt(2)
             p.paragraph_format.left_indent = Pt(6)
             _left_border(p, _hex(sev_col), sz=16)
-            _run(p, f"[{f.severity.upper()}] ", bold=True, size=10, color=sev_col)
+            _run(p, f"{idx}.  ", bold=True, size=11,
+                 color=RGBColor(0xBD, 0xC3, 0xC7))
+            _run(p, f"[{f.severity.upper()}]  ", bold=True, size=10, color=sev_col)
             _run(p, f.title, bold=True, size=10, color=C.text)
             if f.vendor_name:
                 _run(p, f"  —  {f.vendor_name}", size=9, italic=True, color=C.faint)
             np = doc.add_paragraph()
-            np.paragraph_format.left_indent = Pt(14)
+            np.paragraph_format.left_indent = Pt(22)
             np.paragraph_format.space_before = Pt(1)
-            np.paragraph_format.space_after = Pt(6)
+            np.paragraph_format.space_after = Pt(2)
             _run(np, f.action, size=9, color=C.faint, italic=True)
+            meta_p = doc.add_paragraph()
+            meta_p.paragraph_format.left_indent = Pt(22)
+            meta_p.paragraph_format.space_before = Pt(1)
+            meta_p.paragraph_format.space_after = Pt(6)
+            _run(meta_p,
+                 f"Owner: {f.owner}  ·  Timing: {TIMING_LABEL.get(f.timing, f.timing)}  ·  Effort: {EFFORT_LABEL.get(f.effort, f.effort)}",
+                 size=8, color=C.faint)
 
     _page_break(doc)
 

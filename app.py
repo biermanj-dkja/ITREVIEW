@@ -31,7 +31,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.3'
+app.config['VERSION'] = '0.8.4'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -57,6 +57,17 @@ def inject_globals():
     )
 
 MODULE_ID = "module_1"
+
+
+def _module_label(mid):
+    """Return a human-readable label for a module_id. Used in breadcrumbs and flash messages."""
+    if mid == "module_1":
+        return "IT Assessment"
+    if mid == "module_2":
+        return "Data Governance Audit"
+    if mid == "module_3":
+        return "Vendor Register"
+    return "Assessment"
 
 
 def init_db_path():
@@ -381,9 +392,7 @@ def section(session_id, section_id):
     # (used to show the server-round-trip hint for worksheet generation)
     has_hidden_conditionals = any(q.get("triggers_save") for q in all_questions)
 
-    module_label = ("IT Assessment" if mid == "module_1"
-                    else "Vendor Register" if mid == "module_3"
-                    else "Data Governance")
+    module_label = _module_label(mid)
     section_label_bc = f"Section {sec.get('display_id', section_id)}: {sec['title']}"
     breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=section_label_bc)
 
@@ -431,7 +440,7 @@ def section_complete(session_id, section_id):
     pct = round((earned / max_pts * 100) if max_pts > 0 else 0)
 
     mid_bc = _get_module_id_for_session(session_id)
-    module_label_bc = "IT Assessment" if mid_bc == "module_1" else "Data Governance"
+    module_label_bc = _module_label(mid_bc)
     breadcrumb = dict(session_id=session_id, module_label=module_label_bc, section_label=None)
 
     return render_template(
@@ -460,7 +469,7 @@ def manage_session(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
     mid = sess.get("module_id", MODULE_ID)
-    module_label = "IT Assessment" if mid == "module_1" else "Data Governance Audit"
+    module_label = _module_label(mid)
     breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=None)
     return render_template("manage_session.html",
         sess=sess,
@@ -576,9 +585,6 @@ def report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
-    if sess.get("module_id", MODULE_ID) != "module_1":
-        flash("This page is only available for IT Assessment sessions.", "error")
-        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         if not start_date:
@@ -731,13 +737,7 @@ def summary(session_id):
             })
             total_unknowns += len(unknowns)
 
-    if mid == "module_1":
-        module_label = "IT Assessment"
-    elif mid == "module_2":
-        module_label = "Data Governance"
-    else:
-        module_label = "Vendor Register"
-    breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=None)
+    breadcrumb = dict(session_id=session_id, module_label=_module_label(mid), section_label=None)
 
     # is_complete: used by summary to conditionally show DRAFT note
     is_complete = sess.get("is_complete", False)
@@ -781,10 +781,6 @@ def dg_report(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
-    if sess.get("module_id") != "module_2":
-        flash("This page is only available for Data Governance Audit sessions.", "error")
-        return redirect(url_for("summary", session_id=session_id))
-
     answers  = get_answers(session_id)
     module, gen_ids = _load_expanded_module("module_2", session_id)
     system_names = module.get("_system_names", [])
@@ -809,9 +805,6 @@ def dg_report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
-    if sess.get("module_id") != "module_2":
-        flash("This page is only available for Data Governance Audit sessions.", "error")
-        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         # start_date is optional — blank means no timeline section
@@ -889,10 +882,6 @@ def vr_report(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
-    if sess.get("module_id") != "module_3":
-        flash("This page is only available for Vendor Register sessions.", "error")
-        return redirect(url_for("summary", session_id=session_id))
-
     answers = get_answers(session_id)
     module, gen_ids = _load_expanded_module("module_3", session_id)
     vendor_names = module.get("_system_names", [])
@@ -917,9 +906,6 @@ def vr_report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
-    if sess.get("module_id") != "module_3":
-        flash("This page is only available for Vendor Register sessions.", "error")
-        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         return redirect(url_for("download_vr_report", session_id=session_id,
@@ -1000,14 +986,18 @@ def export_session(session_id):
 
     answers = get_answers(session_id)
     profile = get_school_profile()
+    finding_contexts = get_finding_contexts(session_id)
+    answer_history   = get_answer_history(session_id)
 
     export_data = {
-        "export_format":  "school_it_engine_session_v1",
-        "exported_on":    _dt.utcnow().isoformat() + "Z",
-        "app_version":    app.config['VERSION'],
-        "school_profile": profile,
-        "session":        dict(sess),
-        "answers":        answers,
+        "export_format":    "school_it_engine_session_v1",
+        "exported_on":      _dt.utcnow().isoformat() + "Z",
+        "app_version":      app.config['VERSION'],
+        "school_profile":   profile,
+        "session":          dict(sess),
+        "answers":          answers,
+        "finding_contexts": finding_contexts,
+        "answer_history":   answer_history,
     }
 
     school = (profile.get("school_name") if profile else "School").replace(" ", "_")
@@ -1050,8 +1040,10 @@ def import_session():
         return redirect(error_redirect)
 
     sess_data = data.get("session", {})
-    answers   = data.get("answers", {})
-    profile   = data.get("school_profile")
+    answers          = data.get("answers", {})
+    profile          = data.get("school_profile")
+    finding_contexts = data.get("finding_contexts", {})
+    answer_history   = data.get("answer_history", [])
 
     # Restore or update school profile (only if not already set)
     existing_profile = get_school_profile()
@@ -1116,8 +1108,47 @@ def import_session():
             status=rec.get("answer_status", "answered"),
         )
 
+    # Restore finding context notes (may be absent in exports from older versions)
+    contexts_restored = 0
+    for finding_id, ctx in finding_contexts.items():
+        note = ctx.get("note", "").strip() if isinstance(ctx, dict) else ""
+        if note:
+            save_finding_context(session_id, finding_id, note)
+            contexts_restored += 1
+
+    # Restore answer amendment history (may be absent in exports from older versions)
+    history_restored = 0
+    if answer_history:
+        db_obj2 = __import__("database")
+        db2 = db_obj2.get_db()
+        for rec in answer_history:
+            import json as _json2
+            db2.execute("""
+                INSERT OR IGNORE INTO answer_history
+                    (session_id, question_id, old_raw_answer, old_answer_status,
+                     new_raw_answer, new_answer_status, changed_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                session_id,
+                rec.get("question_id"),
+                _json2.dumps(rec.get("old_raw_answer"), default=str),
+                rec.get("old_answer_status"),
+                _json2.dumps(rec.get("new_raw_answer"), default=str),
+                rec.get("new_answer_status"),
+                rec.get("changed_at", ""),
+            ))
+            history_restored += 1
+        db2.commit()
+        db2.close()
+
+    detail_parts = [f"{len(answers)} answers restored"]
+    if contexts_restored:
+        detail_parts.append(f"{contexts_restored} finding note{'s' if contexts_restored != 1 else ''} restored")
+    if history_restored:
+        detail_parts.append(f"{history_restored} amendment record{'s' if history_restored != 1 else ''} restored")
+
     flash(
-        f"Session imported successfully — {len(answers)} answers restored. "
+        f"Session imported successfully — {', '.join(detail_parts)}. "
         "Review and continue from the assessment below.",
         "success"
     )

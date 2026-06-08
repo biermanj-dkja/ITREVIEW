@@ -7,6 +7,33 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.8.4** is a UX correctness release fixing four issues identified in a third external code review.
+
+### Module-specific summary page copy (`templates/summary.html`)
+
+The Findings panel below the section table contained Module 1-specific copy ("You can also generate findings for a single section… use the Section Findings link…") that was shown to all modules. Module 2 and 3 sessions have no section findings links — this text was misleading. The panel now shows module-appropriate text: Module 1 gets the original findings engine description; Module 2 and 3 get a short sentence directing users to their respective report cards.
+
+### "Begin assessment" link fixed for Modules 2 and 3 (`templates/summary.html`)
+
+The empty-state card shown when no sections are complete had a hardcoded link to `/section/1`. Module 2 starts at `DG1` and Module 3 starts at `VR1`, so this link produced a 404 for those modules. The link now uses `module.sections[0].section_id` and always goes to the correct first section.
+
+### Breadcrumb labels corrected throughout (`app.py`)
+
+Two routes — `section_complete()` and `manage_session()` — used a two-branch if/else that defaulted Module 3 to "Data Governance" in the breadcrumb. A `_module_label(mid)` helper has been added and used everywhere breadcrumb labels are set, so all three modules now show their correct name ("IT Assessment", "Data Governance Audit", "Vendor Register") in every breadcrumb context.
+
+### Export/import now preserves finding context notes and answer history (`app.py`)
+
+Session JSON exports now include two additional keys:
+
+- `finding_context` — all reviewer context notes attached to findings (e.g. "Resolved June 2025 — MFA enforced")
+- `answer_history` — the full amendment log (previous values, new values, timestamps for all revised answers)
+
+These were previously silently dropped on export, meaning a re-imported session would lose all reviewer annotations and change history. The import route now restores both. The flash message on successful import now lists what was restored (e.g. "164 answers, 3 finding notes, 12 amendment records restored"). Both fields are optional in the JSON — older export files without them import cleanly with no change to existing behaviour.
+
+**Files changed:** `app.py`, `templates/summary.html`, `CHANGELOG.md`, `README.md`
+
+---
+
 **v0.8.3** is a polish and documentation release addressing issues identified in a second external code review.
 
 ### Report-card and setup route guards (`app.py`)

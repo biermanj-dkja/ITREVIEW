@@ -114,7 +114,7 @@
     <div style="font-size: 32px; margin-bottom: 12px;">📝</div>
     <h3>No sections completed yet</h3>
     <p class="mt-8">Start working through the sections to see your scores here.</p>
-    <a href="/session/{{ session_id }}/section/1" class="btn btn-primary mt-16">Begin assessment →</a>
+    <a href="/session/{{ session_id }}/section/{{ module.sections[0].section_id }}" class="btn btn-primary mt-16">Begin assessment →</a>
   </div>
   {% endif %}
 
@@ -122,6 +122,7 @@
   {% if section_results %}
   <div class="card mt-24" style="border-color: var(--accent); background: var(--accent-dim);">
     <h2 style="margin-bottom: 8px;">Findings and Action Plan</h2>
+    {% if sess.module_id == 'module_1' %}
     <p class="text-sm text-dim" style="line-height: 1.6; margin-bottom: 8px;">
       The findings engine evaluates all your answers against a set of deterministic rules
       and produces a prioritised list of gaps and recommended actions. It runs on demand
@@ -132,6 +133,17 @@
       without running the full assessment. Use the <strong>Section Findings</strong> link
       next to any completed section in the table above.
     </p>
+    {% elif sess.module_id == 'module_2' %}
+    <p class="text-sm text-dim" style="line-height: 1.6; margin-bottom: 20px;">
+      Use the Data Governance Report Card to review per-system grades and school-wide
+      findings, then download the full DOCX report when your assessment is complete.
+    </p>
+    {% else %}
+    <p class="text-sm text-dim" style="line-height: 1.6; margin-bottom: 20px;">
+      Use the Vendor Register Report Card to review per-vendor grades and school-wide
+      governance findings, then download the full DOCX report when your assessment is complete.
+    </p>
+    {% endif %}
     <div style="display: flex; gap: 12px; margin-top: 4px;">
       {% if sess.module_id == 'module_2' %}
       <a href="/session/{{ session_id }}/dg_report" class="btn btn-primary"
@@ -232,8 +244,9 @@
       <div>
         <h3 style="margin-bottom: 4px;">Export / Backup</h3>
         <p class="text-sm text-dim" style="margin: 0; line-height: 1.6;">
-          Download a JSON snapshot of this entire assessment — all answers, section status, and
-          session metadata. Use it to back up your work or transfer to another machine.
+          Download a JSON snapshot of this entire assessment — all answers, section status,
+          session metadata, finding context notes, and answer amendment history.
+          Use it to back up your work or transfer to another machine.
         </p>
       </div>
       <a href="{{ url_for('export_session', session_id=session_id) }}"

@@ -7,8 +7,8 @@ Completed assessment exports for use in import/export testing. These files can b
 | File | Module | Answers | Status |
 |---|---|---|---|
 | `BitByBit_Academy_module-1_export.json` | Module 1 — Small Private School IT Overview and Action Plan | 150 | Complete |
-| `Bit-By-Bit_Academy_module-2_export_UPDATED.json` | Module 2 — Data Governance and Data Flow Audit | 160 | Complete |
-| `Bit-By-Bit_Academy_module-3_export_UPDATED.json` | Module 3 — Software, Licensing, and Vendor Register | 312 | Complete |
+| `Bit-By-Bit_Academy_module-2_export_UPDATED.json` | Module 2 — Data Governance and Data Flow Audit | 164 | Complete |
+| `Bit-By-Bit_Academy_module-3_export_UPDATED.json` | Module 3 — Software, Licensing, and Vendor Register | 314 | Complete |
 
 ## School Details
 

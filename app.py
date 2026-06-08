@@ -31,7 +31,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.2'
+app.config['VERSION'] = '0.8.3'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -576,6 +576,9 @@ def report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
+    if sess.get("module_id", MODULE_ID) != "module_1":
+        flash("This page is only available for IT Assessment sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         if not start_date:
@@ -778,6 +781,10 @@ def dg_report(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
+    if sess.get("module_id") != "module_2":
+        flash("This page is only available for Data Governance Audit sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
+
     answers  = get_answers(session_id)
     module, gen_ids = _load_expanded_module("module_2", session_id)
     system_names = module.get("_system_names", [])
@@ -802,6 +809,9 @@ def dg_report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
+    if sess.get("module_id") != "module_2":
+        flash("This page is only available for Data Governance Audit sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         # start_date is optional — blank means no timeline section
@@ -879,6 +889,10 @@ def vr_report(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
+    if sess.get("module_id") != "module_3":
+        flash("This page is only available for Vendor Register sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
+
     answers = get_answers(session_id)
     module, gen_ids = _load_expanded_module("module_3", session_id)
     vendor_names = module.get("_system_names", [])
@@ -903,6 +917,9 @@ def vr_report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
+    if sess.get("module_id") != "module_3":
+        flash("This page is only available for Vendor Register sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         return redirect(url_for("download_vr_report", session_id=session_id,

@@ -1,5 +1,5 @@
 """
-dynamic_engine.py  —  Dynamic section generator for School IT Engine v0.5.0
+dynamic_engine.py  —  Dynamic section generator for School IT Engine v0.8.2
 
 When a module declares  dynamic_sections.enabled: true,  this engine:
 
@@ -14,7 +14,8 @@ When a module declares  dynamic_sections.enabled: true,  this engine:
     This keeps the normal answer-storage and scoring paths unchanged.
 4.  Returns an augmented module dict with:
     -   The template section removed
-    -   Generated per-system sections inserted between DG1 and DG2
+    -   Generated per-system sections inserted at the template's original
+        position in the section list (works for both Module 2 and Module 3)
     -   A top-level  generated_system_sections  list for the UI to use
         when building the sidebar
 
@@ -152,39 +153,40 @@ def expand_dynamic_sections(module, answers):
 
     system_names = system_names[:max_systems]
 
-    # Find and remove the template section; collect all others
+    # Walk the section list once, replacing the template with its clones
+    # at its original position. This works for any module (Module 2 uses
+    # DG_SYS_TEMPLATE between DG1/DG2; Module 3 uses VR_V_TEMPLATE between
+    # VR1/VR2) without any module-specific hardcoding.
     template_section = None
-    other_sections = []
     for sec in module.get("sections", []):
         if sec["section_id"] == template_id:
             template_section = sec
-        else:
-            other_sections.append(copy.deepcopy(sec))
+            break
 
     if template_section is None:
         # No template found — return as-is
         mod = copy.deepcopy(module)
         return mod, []
 
-    # Split other_sections into before/after the template insertion point.
-    # By convention DG_SYS_* sections go between DG1 and DG2.
-    before = [s for s in other_sections if s["section_id"] == "DG1"]
-    after  = [s for s in other_sections if s["section_id"] != "DG1"]
-
     # Generate clones
     system_total = len(system_names)
     generated_ids = []
-    clones = []
-    for i, name in enumerate(system_names, start=1):
-        clone = clone_section_for_system(
-            template_section, name, i, system_total, prefix
-        )
-        clones.append(clone)
-        generated_ids.append(clone["section_id"])
+    expanded_sections = []
+    for sec in module.get("sections", []):
+        if sec["section_id"] == template_id:
+            # Replace the template slot with all clones
+            for i, name in enumerate(system_names, start=1):
+                clone = clone_section_for_system(
+                    template_section, name, i, system_total, prefix
+                )
+                expanded_sections.append(clone)
+                generated_ids.append(clone["section_id"])
+        else:
+            expanded_sections.append(copy.deepcopy(sec))
 
     # Assemble augmented module
     mod = copy.deepcopy(module)
-    mod["sections"] = before + clones + after
+    mod["sections"] = expanded_sections
     mod["_generated_system_sections"] = generated_ids
     mod["_system_names"] = system_names
 

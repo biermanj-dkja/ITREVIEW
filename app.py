@@ -31,7 +31,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.1'
+app.config['VERSION'] = '0.8.2'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -57,6 +57,12 @@ def inject_globals():
     )
 
 MODULE_ID = "module_1"
+
+
+def init_db_path():
+    """Called by launcher.py to ensure the data directory exists before Flask starts."""
+    from database import DB_PATH
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
 def _load_expanded_module(module_id, session_id):
@@ -127,15 +133,17 @@ def home():
         if mid == "module_2":
             dg1_done = "DG1" in complete
             dg2_done = "DG2" in complete
-            sys_done = any(s.startswith("DG_SYS_") for s in complete)
-            sess["is_complete"] = dg1_done and dg2_done and sys_done
-            sess["total_sections"] = None  # dynamic; show count only
+            _, gen_ids = _load_expanded_module(mid, sess["session_id"])
+            all_sys_done = bool(gen_ids) and all(sid in complete for sid in gen_ids)
+            sess["is_complete"] = dg1_done and dg2_done and all_sys_done
+            sess["total_sections"] = 2 + len(gen_ids) if gen_ids else None
         elif mid == "module_3":
             vr1_done = "VR1" in complete
             vr2_done = "VR2" in complete
-            vendor_done = any(s.startswith("VR_V_") for s in complete)
-            sess["is_complete"] = vr1_done and vr2_done and vendor_done
-            sess["total_sections"] = None  # dynamic; show count only
+            _, gen_ids = _load_expanded_module(mid, sess["session_id"])
+            all_vendor_done = bool(gen_ids) and all(sid in complete for sid in gen_ids)
+            sess["is_complete"] = vr1_done and vr2_done and all_vendor_done
+            sess["total_sections"] = 2 + len(gen_ids) if gen_ids else None
         else:
             sess["is_complete"] = len(complete) >= 10
             sess["total_sections"] = 10
@@ -587,6 +595,10 @@ def download_report(session_id):
     if not sess:
         return redirect(url_for("home"))
 
+    if sess.get("module_id", MODULE_ID) != "module_1":
+        flash("This report type is only available for IT Assessment sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
+
     start_date = request.args.get("start_date", "").strip() or None
 
     answers = get_answers(session_id)
@@ -729,13 +741,13 @@ def summary(session_id):
     if mid == "module_2":
         dg1_done = "DG1" in complete
         dg2_done = "DG2" in complete
-        sys_done = any(s.startswith("DG_SYS_") for s in complete)
-        is_complete = dg1_done and dg2_done and sys_done
+        all_sys_done = bool(gen_ids) and all(sid in complete for sid in gen_ids)
+        is_complete = dg1_done and dg2_done and all_sys_done
     elif mid == "module_3":
         vr1_done = "VR1" in complete
         vr2_done = "VR2" in complete
-        vendor_done = any(s.startswith("VR_V_") for s in complete)
-        is_complete = vr1_done and vr2_done and vendor_done
+        all_vendor_done = bool(gen_ids) and all(sid in complete for sid in gen_ids)
+        is_complete = vr1_done and vr2_done and all_vendor_done
     else:
         is_complete = len(complete) >= 10
 
@@ -811,6 +823,10 @@ def download_dg_report(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
+    if sess.get("module_id") != "module_2":
+        flash("This report type is only available for Data Governance Audit sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
+
     start_date = request.args.get("start_date", "").strip() or None
 
     answers  = get_answers(session_id)
@@ -823,8 +839,8 @@ def download_dg_report(session_id):
         complete = json.loads(sess.get("sections_complete", "[]"))
         dg1_done = "DG1" in complete
         dg2_done = "DG2" in complete
-        sys_done = any(s.startswith("DG_SYS_") for s in complete)
-        is_complete = dg1_done and dg2_done and sys_done
+        all_sys_done = bool(gen_ids) and all(sid in complete for sid in gen_ids)
+        is_complete = dg1_done and dg2_done and all_sys_done
         finding_contexts = get_finding_contexts(session_id)
         amendment_log = get_answer_history(session_id)
         docx_bytes = generate_dg_report(dg, answers, profile, system_names, gen_ids,
@@ -908,6 +924,10 @@ def download_vr_report(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
+    if sess.get("module_id") != "module_3":
+        flash("This report type is only available for Vendor Register sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
+
     start_date = request.args.get("start_date", "").strip() or None
 
     answers = get_answers(session_id)
@@ -920,8 +940,8 @@ def download_vr_report(session_id):
         complete = json.loads(sess.get("sections_complete", "[]"))
         vr1_done = "VR1" in complete
         vr2_done = "VR2" in complete
-        vendor_done = any(s.startswith("VR_V_") for s in complete)
-        is_complete = vr1_done and vr2_done and vendor_done
+        all_vendor_done = bool(gen_ids) and all(sid in complete for sid in gen_ids)
+        is_complete = vr1_done and vr2_done and all_vendor_done
         finding_contexts = get_finding_contexts(session_id)
         amendment_log = get_answer_history(session_id)
         docx_bytes = generate_vr_report(vr, answers, profile, vendor_names, gen_ids,

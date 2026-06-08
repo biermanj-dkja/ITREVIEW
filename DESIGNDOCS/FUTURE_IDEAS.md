@@ -188,22 +188,25 @@ and the business office jointly.
 one per line") generates the dynamic worksheets — same engine pattern as DG1.3 in Module 2.
 No file parsing required; a business manager can paste directly from a spreadsheet column.
 
-### Pre-release requirements for Module 3
+### Pre-release requirements for Module 3 — reclassified as post-v1.0
 
-Before Module 3 reaches full (non-draft) status, two cross-module features must be
-implemented:
+Two items were originally listed as pre-release requirements before Module 3 could reach
+full (non-draft) status. Both are deferred to post-v1.0 based on the following rationale:
+Module 3 is already generating correct, complete reports and is useful standalone. The
+two cross-module features below add convenience but do not affect report accuracy or
+completeness. Holding v1.0 for them would delay a working tool for marginal gain.
 
-1. **Module 2 → Module 3 prefill import** — on first entry into a Module 3 session, the
-   user is offered the option to seed the vendor list from a completed Module 2 session. The
-   engine reads the system inventory collected in DG1.3 (and any vendor fields captured in
-   per-system worksheets) and pre-populates the Module 3 vendor list as a starting point.
-   The user can then add, remove, and edit before the dynamic worksheets are generated.
-   This is an opt-in step, not automatic — the user must explicitly choose which Module 2
-   session to draw from.
+1. **Module 2 → Module 3 prefill import** *(deferred post-v1.0)* — on first entry into a
+   Module 3 session, the user is offered the option to seed the vendor list from a completed
+   Module 2 session. The engine reads the system inventory collected in DG1.3 (and any vendor
+   fields captured in per-system worksheets) and pre-populates the Module 3 vendor list as a
+   starting point. The user can then add, remove, and edit before the dynamic worksheets are
+   generated. This is an opt-in step, not automatic — the user must explicitly choose which
+   Module 2 session to draw from.
 
-2. **Cross-module coverage gap flag** — when a service or system appears in Module 2 (the
-   system inventory in DG1.3) but has no corresponding entry in Module 3, or vice versa, the
-   engine surfaces a coverage gap notice. This appears:
+2. **Cross-module coverage gap flag** *(deferred post-v1.0)* — when a service or system
+   appears in Module 2 (the system inventory in DG1.3) but has no corresponding entry in
+   Module 3, or vice versa, the engine surfaces a coverage gap notice. This appears:
    - On the Module 3 summary page, as a named list of systems in Module 2 with no vendor
      register entry
    - On the Module 2 summary page (retroactively, if Module 3 exists), as a named list of
@@ -265,7 +268,7 @@ at least one completed Module 1 session to be useful.
 
 ---
 
-*Last updated: v0.7.1.3 — double-underscore fallback removed from rules_engine_dg.py; canonical key format confirmed clean throughout the app. v0.8 roadmap section added.*
+*Last updated: v0.8.2 — Module 3 pre-release requirements reclassified as post-v1.0 deferred items (see above). v0.8 roadmap section added.*
 
 ---
 

@@ -71,7 +71,7 @@
             <div style="display: flex; gap: 6px;">
               <a href="/session/{{ session_id }}/section/{{ r.section.section_id }}"
                  class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px;">Review</a>
-              {% if sess.module_id != 'module_2' %}
+              {% if sess.module_id == 'module_1' %}
               <a href="/session/{{ session_id }}/findings/{{ r.section.section_id }}"
                  class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px; color: var(--accent);">Findings</a>
               {% endif %}

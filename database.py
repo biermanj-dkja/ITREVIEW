@@ -1,10 +1,19 @@
 import sqlite3
 import json
+import os as _os
 from datetime import datetime
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH  = BASE_DIR / "data" / "assessments.db"
+
+# When running as a PyInstaller bundle, the launcher sets SCHOOL_IT_DATA_DIR
+# to a folder next to the executable so the database persists across restarts.
+# In normal development use, fall back to the project-local data/ folder.
+_data_dir = _os.environ.get('SCHOOL_IT_DATA_DIR')
+if _data_dir:
+    DB_PATH = Path(_data_dir) / "assessments.db"
+else:
+    DB_PATH = BASE_DIR / "data" / "assessments.db"
 
 
 def get_db():

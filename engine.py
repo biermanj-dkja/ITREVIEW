@@ -173,10 +173,17 @@ def get_gated_hidden_questions(section, answers):
     """
     Return question_ids of questions hidden because a gate fired negatively.
     These questions stay in the denominator at 0 points.
+
+    Mirrors the same gate_hides_unconditional logic used by get_visible_questions()
+    so the two functions agree on which questions are hidden — preventing double-
+    counting visible questions in the denominator (A2 fix).
     """
     gate_qid, gate_fired = get_gate_status(section, answers)
     if not gate_fired:
         return set()
+
+    gate_q = next((q for q in section["questions"] if q.get("is_gate")), None)
+    hides_unconditional = gate_q.get("gate_hides_unconditional", False) if gate_q else False
 
     hidden = set()
     for q in section["questions"]:
@@ -184,9 +191,25 @@ def get_gated_hidden_questions(section, answers):
             continue
         cond = q.get("condition")
         if cond is None:
-            hidden.add(q["question_id"])
+            if hides_unconditional:
+                hidden.add(q["question_id"])
+            # else: unconditional questions remain visible — do NOT add to hidden
         elif cond.get("question_id") == gate_qid:
             hidden.add(q["question_id"])
+
+    # Cascade: also hide questions whose condition references any already-hidden question
+    changed = True
+    while changed:
+        changed = False
+        for q in section["questions"]:
+            qid = q["question_id"]
+            if qid in hidden or q.get("is_gate"):
+                continue
+            cond = q.get("condition")
+            if cond and cond.get("question_id") in hidden:
+                hidden.add(qid)
+                changed = True
+
     return hidden
 
 
@@ -536,13 +559,301 @@ def _score_single_select(question_id, raw, points, notes):
         },
     }
 
+    # ── Additional explicit maps (A1 fix) ──────────────────────────────────
+    # Every scored single_select question must have an entry here.
+    # The fallback below scores 0 for any unmapped question so gaps are
+    # conservative rather than permissive.
+    additional = {
+        # Section 2
+        "2.1": {
+            # Context question — 1 pt, any non-empty answer is informative
+            "Internal IT staff (one or more dedicated IT employees)":   1.0,
+            "Single IT director (one person responsible for everything)": 1.0,
+            "Outsourced MSP (managed service provider handles IT)":     1.0,
+            "Hybrid — internal staff plus MSP":                         1.0,
+            "Volunteer or ad hoc support (no dedicated IT role)":       1.0,
+            "Other":                                                     1.0,
+        },
+        # Section 3
+        "3.1": {
+            "Yes — current and reasonably accurate": 1.0,
+            "Partial — some buildings or areas covered": 0.5,
+            "No": 0.0,
+        },
+        "3.3": {
+            "Yes — current for all locations": 1.0,
+            "Partial — some locations documented": 0.5,
+            "No": 0.0,
+        },
+        "3.4": {
+            "Yes — all locations are known and documented": 1.0,
+            "Partial — most are known, some are not": 0.5,
+            "No": 0.0,
+        },
+        "3.6": {
+            "Yes — current inventory with model and firmware": 1.0,
+            "Partial — some information documented": 0.5,
+            "No": 0.0,
+        },
+        "3.9": {
+            "Yes — current inventory with model and firmware": 1.0,
+            "Partial — some information documented": 0.5,
+            "No": 0.0,
+        },
+        "3.10": {
+            "Yes — current and accurate": 1.0,
+            "Partial — some connections documented": 0.5,
+            "No": 0.0,
+        },
+        "3.11": {
+            "Yes — fully documented with support status": 1.0,
+            "Partial — some information documented": 0.5,
+            "No": 0.0,
+        },
+        "3.12": {
+            "Yes — full admin access to all infrastructure": 1.0,
+            "Partial — admin access to some but not all devices": 0.5,
+            "No — access is controlled by a vendor or MSP": 0.0,
+        },
+        "3.17": {
+            "Yes — fully known and documented": 1.0,
+            "Partial — some information known": 0.5,
+            "No": 0.0,
+        },
+        "3.18": {
+            "Yes — configurations are backed up regularly": 1.0,
+            "Partial — some devices backed up, others not": 0.5,
+            "No": 0.0,
+        },
+        "3.19": {
+            "Yes — coverage is adequate throughout": 1.0,
+            "Mixed — some areas have coverage problems": 0.5,
+            "No — coverage is a known problem": 0.0,
+        },
+        "3.20": {
+            "Yes — all segments documented": 1.0,
+            "Partial — some segments documented": 0.5,
+            "No": 0.0,
+            "Unknown — not sure if VLANs are in use": 0.0,
+        },
+        "3.21": {
+            "Yes — fully protected": 1.0,
+            "Partial — some equipment protected, some not": 0.5,
+            "No": 0.0,
+        },
+        "3.22": {
+            "Yes — documented and tested": 1.0,
+            "Estimated only — not formally tested": 0.5,
+            "No": 0.0,
+        },
+        "3.23": {
+            "Yes — monitored with alerting": 1.0,
+            "Partial — some monitored": 0.5,
+            "No": 0.0,
+        },
+        "3.24": {
+            "Yes — regularly scanned": 1.0,
+            "Occasionally — ad hoc or infrequent": 0.5,
+            "No": 0.0,
+        },
+        # Section 4
+        "4.1": {
+            # Context question — 1 pt, platform identification only
+            "Google Workspace":                                          1.0,
+            "Microsoft 365":                                             1.0,
+            "Hybrid — Google and Microsoft both in active use":          1.0,
+            "Local or on-premises systems only":                         1.0,
+            "Other":                                                     1.0,
+        },
+        "4.2": {
+            "Yes — cloud-based (Azure AD, Google Directory, etc.)": 1.0,
+            "Yes — on-premises (Windows Active Directory)":         1.0,
+            "Yes — hybrid (both cloud and on-premises)":            1.0,
+            "No": 0.0,
+        },
+        "4.9": {
+            "Yes — documented for all major platforms": 1.0,
+            "Partial — documented for some platforms":  0.5,
+            "No": 0.0,
+        },
+        "4.10": {
+            "Yes — all staff devices sync consistently": 1.0,
+            "Partial — some devices or some folders only": 0.5,
+            "No": 0.0,
+        },
+        # Section 5
+        "5.2": {
+            "Yes — all key fields present": 1.0,
+            "Partial — some fields missing": 0.5,
+            "No": 0.0,
+        },
+        "5.6": {
+            "Yes — documented hardware standard in use": 1.0,
+            "Partial — informal preference but not documented": 0.5,
+            "No": 0.0,
+        },
+        "5.7": {
+            "Yes — standardized": 1.0,
+            "Partially — mostly standardized with some exceptions": 0.5,
+            "No": 0.0,
+        },
+        "5.8": {
+            "Yes — defined process or imaging/MDM enrollment in place": 1.0,
+            "Partially — possible but inconsistent":                    0.5,
+            "No — each setup is manual and varies":                     0.0,
+        },
+        "5.11": {
+            "Yes — tracked for all devices":    1.0,
+            "Partial — tracked for some devices": 0.5,
+            "No": 0.0,
+        },
+        "5.12": {
+            "Yes — spare pool and process defined":              1.0,
+            "Partial — some spares available but no formal process": 0.5,
+            "No": 0.0,
+        },
+        "5.13": {
+            "Yes — documented process in use": 1.0,
+            "Partial — informal process":      0.5,
+            "No": 0.0,
+        },
+        "5.17": {
+            "Yes — all tracked":       1.0,
+            "Partial — some tracked":  0.5,
+            "No": 0.0,
+        },
+        # Section 6
+        "6.4": {
+            "Yes — all key fields present": 1.0,
+            "Partial — some fields missing": 0.5,
+            "No": 0.0,
+        },
+        "6.6": {
+            "Yes — fully tracked":             1.0,
+            "Partial — some information tracked": 0.5,
+            "No": 0.0,
+        },
+        "6.7": {
+            "Yes — reviewed for most student-data systems": 1.0,
+            "Partial — reviewed for some": 0.5,
+            "No": 0.0,
+        },
+        "6.14": {
+            "Yes — fully documented":          1.0,
+            "Partial — some information documented": 0.5,
+            "No": 0.0,
+        },
+        "6.15": {
+            "Yes — all servers have documented purposes": 1.0,
+            "Partial — some documented": 0.5,
+            "No": 0.0,
+        },
+        "6.16": {
+            "Yes — fully documented and accessible":       1.0,
+            "Partial — some access methods documented":    0.5,
+            "No": 0.0,
+        },
+        "6.17": {
+            "Yes — documented patching schedule":                  1.0,
+            "Informal — patching happens but on no defined schedule": 0.5,
+            "No": 0.0,
+        },
+        "6.18": {
+            "Yes — known for all servers":    1.0,
+            "Partial — known for some servers": 0.5,
+            "No": 0.0,
+        },
+        "6.19": {
+            "Yes — documented lifecycle plan": 1.0,
+            "Informal — planned informally":   0.5,
+            "No": 0.0,
+        },
+        # Section 7
+        "7.3": {
+            "Yes — documented scope":                            1.0,
+            "Partial — some systems documented, others not":     0.5,
+            "No": 0.0,
+        },
+        "7.4": {
+            "Yes — all servers backed up":      1.0,
+            "Partial — some servers backed up": 0.5,
+            "No": 0.0,
+            "Not applicable": 1.0,
+        },
+        "7.5": {
+            "Yes — staff devices are backed up":     1.0,
+            "Partial — some staff devices backed up": 0.5,
+            "No": 0.0,
+            "Not applicable — staff work entirely in cloud storage": 1.0,
+        },
+        "7.6": {
+            "Yes — critical cloud data is backed up": 1.0,
+            "Partial — some cloud data backed up":    0.5,
+            "No": 0.0,
+            "Not applicable": 1.0,
+        },
+        "7.9": {
+            # Recovery testing frequency — more frequent = better
+            "Quarterly":          1.0,
+            "Twice per year":     1.0,
+            "Annually":           0.75,
+            "Less than annually": 0.25,
+            "Never":              0.0,
+        },
+        "7.10": {
+            "Yes — recovery priority is documented":                    1.0,
+            "Partial — informally understood but not documented":       0.5,
+            "No": 0.0,
+        },
+        "7.11": {
+            "Yes — written reference exists":                    1.0,
+            "Partial — informal notes or partial documentation": 0.5,
+            "No": 0.0,
+        },
+        "7.13": {
+            # RTO — shorter is better
+            "Less than 1 week":    1.0,
+            "1 to 2 weeks":        0.75,
+            "2 to 4 weeks":        0.5,
+            "1 to 3 months":       0.25,
+            "More than 3 months":  0.0,
+        },
+        "7.14": {
+            "Yes": 1.0,
+            "No":  0.0,
+        },
+        # Section 8
+        "8.7": {
+            "Yes — controls are documented":           1.0,
+            "Partial — some documentation exists":     0.5,
+            "No": 0.0,
+        },
+        "8.9": {
+            "Yes — reviewed regularly":              1.0,
+            "Sometimes — reviewed occasionally":     0.5,
+            "No": 0.0,
+        },
+        "8.10": {
+            "Yes": 1.0,
+            "No":  0.0,
+        },
+    }
+
+    # Check primary graduated map, then additional map.
+    # If found in either, use that multiplier.
     if question_id in graduated:
         multiplier = graduated[question_id].get(raw, 0.0)
         return points * multiplier
 
-    if raw and str(raw) not in ("Unknown", "False", "false", ""):
-        return points
-    return 0
+    if question_id in additional:
+        multiplier = additional[question_id].get(raw, 0.0)
+        return points * multiplier
+
+    # Fail-closed: any scored single_select question not in either map scores 0.
+    # This prevents bad answers from earning full credit for unmapped questions.
+    # If a new question is added to the YAML without a scoring map, it will score
+    # conservatively (0) rather than permissively (full points).
+    return 0.0
 
 
 def score_count_question(question_id, raw, points):

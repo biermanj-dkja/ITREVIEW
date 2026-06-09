@@ -7,25 +7,37 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
-**v0.8.7** is a polish and UX correctness release.
+**v0.8.7** is a scoring correctness release fixing two critical bugs identified in an external
+code review. Assessment totals were unreliable before this version.
 
-### Dead `is_answered` variable removed (`templates/section.html`)
+### A1 — Single-select scoring fallback removed (`engine.py`)
 
-`is_answered` was defined on line 26 of the `render_question` macro but never referenced anywhere else in the template. The card class was already set by a separate inline ternary on the next line. The variable contained a redundant boolean expression with a misplaced `or` that made it hard to reason about. Since it had no effect on anything, it has been removed entirely along with the misleading comment above it.
+`_score_single_select()` previously awarded full points for any non-empty answer that wasn't
+literally `"Unknown"` or `"False"` when no explicit scoring map existed for the question. This
+caused negative answers such as `"No"` or `"No — access is controlled by a vendor or MSP"` to
+receive full credit on approximately 50 scored questions across Sections 2–9.
 
-### Home page Archived tab no longer overrides active sessions (`templates/home.html`)
+Fix: explicit scoring maps added for all 50 previously-unmapped scored `single_select`
+questions. The permissive fallback has been replaced with a fail-closed default of `0.0` —
+any answer to an unmapped question scores zero rather than full points. Questions `2.1` and
+`4.1` are context-only identifiers where any non-empty answer earns the single point as
+intended. Questions with `Not applicable` options (7.4, 7.5, 7.6) award full points for that
+selection. Questions 7.9 (test frequency) and 7.13 (RTO target) use graduated scales
+reflecting the relative maturity of each answer.
 
-The tab default logic had a special case that honoured a stored `'archived'` preference unconditionally — even when the user had active in-progress sessions. A user who last visited the Archived tab would always land there on their next visit, hiding their active work. The logic now only restores the Archived tab when there are no active sessions. If active sessions exist, the user always lands on Saved regardless of their stored preference. The `has_archived` boolean is now passed from Jinja2 to JavaScript the same way `has_sessions` is.
+### A2 — Gate denominator double-count fixed (`engine.py`)
 
-### Manage page now shows session navigation (`app.py`, `templates/manage_session.html`)
+`get_gated_hidden_questions()` previously ignored the `gate_hides_unconditional` flag on gate
+questions. For sections where `gate_hides_unconditional: false` (Section 8 — endpoint
+protection), all unconditional questions were added to the gated-hidden set even though they
+remained visible. `calculate_section_score()` then counted those questions once in the visible
+loop and again in the gated-hidden loop, inflating `max_points` and double-penalising the
+user. Section 8 with `8.1 = No` previously produced a denominator of ~53; it now correctly
+produces ~30.
 
-The Manage Assessment page (Archive / Export / Delete) had no way to navigate back to the session itself — only a "← Back to Home" link. Users who arrived here from the `⋯ Manage` button had to use the browser back button or the nav bar to return to their work. A session card has been added at the top of the page showing the school name, module, and completion status. For incomplete sessions it shows a "Continue →" button (links to `/resume/`) and a secondary "Summary" ghost button. For complete sessions it shows "View Summary →". The `manage_session` route now computes `is_complete` using the same logic as the summary and home routes, and passes it to the template.
-
-### Stale-report banner on full findings page (`templates/findings.html`)
-
-When a user runs findings after previously downloading a report, and their answers have changed in between, the findings on screen are current (they recompute live) but the downloaded DOCX is now outdated. A banner has been added that appears only when: (1) the full findings view is shown (not per-section), (2) `last_exported` exists, and (3) `sess.last_modified` is newer than `last_exported`. The banner shows both dates, explains that the findings on screen are current, and provides a direct "⬇ Re-download" button linking to the report setup page. No schema changes or new timestamps were needed — both values were already available in the template.
-
-**Files changed:** `app.py`, `templates/section.html`, `templates/home.html`, `templates/manage_session.html`, `templates/findings.html`, `README.md`, `CHANGELOG.md`
+Fix: `get_gated_hidden_questions()` now mirrors the same `gate_hides_unconditional` logic
+used by `get_visible_questions()`, including the cascade pass. The two functions are now
+guaranteed to agree on which questions are hidden.
 
 ---
 

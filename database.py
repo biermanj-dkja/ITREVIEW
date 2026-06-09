@@ -311,9 +311,11 @@ def get_school_profile():
 
 
 def delete_session(session_id):
-    """Permanently delete a session and all its answers."""
+    """Permanently delete a session and all associated rows."""
     db  = get_db()
-    db.execute("DELETE FROM answer_record WHERE session_id=?", (session_id,))
+    db.execute("DELETE FROM answer_record   WHERE session_id=?", (session_id,))
+    db.execute("DELETE FROM answer_history  WHERE session_id=?", (session_id,))
+    db.execute("DELETE FROM finding_context WHERE session_id=?", (session_id,))
     db.execute("DELETE FROM assessment_session WHERE session_id=?", (session_id,))
     db.commit()
     db.close()
@@ -329,6 +331,63 @@ def deprecate_session(session_id):
     )
     db.commit()
     db.close()
+
+
+def unarchive_session(session_id):
+    """Restore a deprecated session to in_progress status."""
+    db  = get_db()
+    now = datetime.utcnow().isoformat()
+    db.execute(
+        "UPDATE assessment_session SET status='in_progress', last_modified=? WHERE session_id=?",
+        (now, session_id)
+    )
+    db.commit()
+    db.close()
+
+
+def restore_session_state(session_id, sections_complete, sections_flagged, status, last_modified):
+    """
+    Overwrite session state fields during an import restore.
+    Preserves the original last_modified from the export so report cover dates
+    reflect when the data was actually collected, not when it was imported.
+    """
+    db  = get_db()
+    db.execute("""
+        UPDATE assessment_session
+        SET sections_complete=?, sections_flagged=?, status=?, last_modified=?
+        WHERE session_id=?
+    """, (sections_complete, sections_flagged, status, last_modified, session_id))
+    db.commit()
+    db.close()
+
+
+def restore_answer_history(session_id, history_records):
+    """
+    Bulk-insert answer history records during an import restore.
+    Uses INSERT OR IGNORE so re-importing the same export is safe.
+    Returns the count of rows written.
+    """
+    db  = get_db()
+    count = 0
+    for rec in history_records:
+        db.execute("""
+            INSERT OR IGNORE INTO answer_history
+                (session_id, question_id, old_raw_answer, old_answer_status,
+                 new_raw_answer, new_answer_status, changed_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            session_id,
+            rec.get("question_id"),
+            json.dumps(rec.get("old_raw_answer"), default=str),
+            rec.get("old_answer_status"),
+            json.dumps(rec.get("new_raw_answer"), default=str),
+            rec.get("new_answer_status"),
+            rec.get("changed_at", ""),
+        ))
+        count += 1
+    db.commit()
+    db.close()
+    return count
 
 
 def set_last_exported(session_id):

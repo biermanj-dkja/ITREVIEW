@@ -7,6 +7,37 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.8.5** is a bug-fix release addressing five issues identified in a fourth internal code review.
+
+### `delete_session` now removes all associated rows (`database.py`)
+
+`delete_session()` previously only deleted rows from `answer_record` and `assessment_session`. Rows in `answer_history` (the amendment log) and `finding_context` (reviewer context notes) were orphaned in the database after a permanent delete. These tables had no cascade constraint because SQLite foreign keys are off by default. The function now deletes from all four tables before committing. No user-visible data was lost by this bug — the orphan rows were invisible — but the database grew unboundedly with deleted session debris.
+
+### `findings_full` now evaluates only completed sections (`app.py`)
+
+The full findings route was calling `evaluate_all(…, completed_sections=None)`, which evaluates rules for every section regardless of whether it was completed. An assessment with only sections 2–4 complete would fire rules for sections 5–9 against unanswered questions, generating spurious findings (e.g. "No endpoint protection" when Section 8 was never answered). The route now reads `sections_complete` from the session and passes the list to `evaluate_all`, so only rules for completed sections are evaluated. This matches the behaviour already in place for `download_report`.
+
+### `unarchive_session` route moved to `database.py` (`app.py`, `database.py`)
+
+The `unarchive_session_route` was using `__import__("database").get_db()` and writing SQL directly in `app.py`, bypassing the database layer. A new `unarchive_session(session_id)` function has been added to `database.py` and the route now calls it. This follows the same pattern as `deprecate_session`.
+
+### `import_session` route DB bypasses replaced with `database.py` functions (`app.py`, `database.py`)
+
+Two `__import__("database")` blocks in the `import_session` route were writing SQL directly. Two new functions have been added to `database.py`:
+
+- `restore_session_state(session_id, sections_complete, sections_flagged, status, last_modified)` — restores session header fields while preserving the original `last_modified` from the export.
+- `restore_answer_history(session_id, history_records)` — bulk-inserts amendment history records using `INSERT OR IGNORE` for safe re-import. Returns the count of rows written.
+
+The route now calls these functions, removing the last direct-SQL bypasses from `app.py`.
+
+### Missing CSS utility classes added (`templates/base.html`)
+
+The templates used `.mb-12`, `.mb-16`, `.mb-24`, and `.mt-0` in several places, but `base.html` only defined `.mb-4` and `.mb-8`. These classes were silently no-ops — spacing was not applied where expected. The four missing classes have been added to the shared CSS in `base.html`.
+
+**Files changed:** `app.py`, `database.py`, `templates/base.html`, `README.md`, `CHANGELOG.md`
+
+---
+
 **v0.8.4** is a UX correctness release fixing four issues identified in a third external code review.
 
 ### Module-specific summary page copy (`templates/summary.html`)

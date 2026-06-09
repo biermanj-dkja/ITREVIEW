@@ -12,7 +12,8 @@ from database import (
     set_last_exported, get_last_exported,
     get_answer_history, get_amended_question_ids,
     save_finding_context, delete_finding_context, get_finding_contexts,
-    deprecate_session
+    deprecate_session, unarchive_session,
+    restore_session_state, restore_answer_history
 )
 from rules_engine import evaluate_all, evaluate_section, findings_to_dict
 from trace import write_trace_m1, write_trace_dg, write_trace_vr
@@ -31,7 +32,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.4'
+app.config['VERSION'] = '0.8.5'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -491,15 +492,7 @@ def deprecate_session_route(session_id):
 @app.route("/session/<session_id>/unarchive", methods=["POST"])
 def unarchive_session_route(session_id):
     """Restore a deprecated session to in_progress status."""
-    db = __import__("database").get_db()
-    from datetime import datetime as _dt
-    now = _dt.utcnow().isoformat()
-    db.execute(
-        "UPDATE assessment_session SET status='in_progress', last_modified=? WHERE session_id=?",
-        (now, session_id)
-    )
-    db.commit()
-    db.close()
+    unarchive_session(session_id)
     flash("Assessment restored to your active list.", "success")
     return redirect(url_for("home"))
 
@@ -521,7 +514,7 @@ def findings_full(session_id):
         return redirect(url_for("home"))
     answers = get_answers(session_id)
     completed = json.loads(sess.get("sections_complete", "[]"))
-    report = evaluate_all(answers, session_id=session_id, completed_sections=None)
+    report = evaluate_all(answers, session_id=session_id, completed_sections=completed)
     data = findings_to_dict(report)
     last_exported = get_last_exported(session_id)
     finding_contexts = get_finding_contexts(session_id)
@@ -1076,27 +1069,19 @@ def import_session():
     )
 
     # Restore sections_complete, sections_flagged, status, and original last_modified.
-    # Preserve the original last_modified from the export so the dual-date logic on
-    # report covers reflects when the data was actually collected, not when it was
-    # imported.  Fall back to now only if the field is absent (legacy exports).
-    db_obj = __import__("database")
-    db = db_obj.get_db()
+    # Preserves the original last_modified from the export so report cover dates
+    # reflect when the data was actually collected, not when it was imported.
+    # Falls back to now only if the field is absent (legacy exports).
     from datetime import datetime as _dt
     now = _dt.utcnow().isoformat()
     original_last_modified = sess_data.get("last_modified") or now
-    db.execute("""
-        UPDATE assessment_session
-        SET sections_complete=?, sections_flagged=?, status=?, last_modified=?
-        WHERE session_id=?
-    """, (
+    restore_session_state(
+        session_id,
         sess_data.get("sections_complete", "[]"),
         sess_data.get("sections_flagged", "[]"),
         sess_data.get("status", "in_progress"),
         original_last_modified,
-        session_id,
-    ))
-    db.commit()
-    db.close()
+    )
 
     # Restore answers
     for qid, rec in answers.items():
@@ -1119,27 +1104,7 @@ def import_session():
     # Restore answer amendment history (may be absent in exports from older versions)
     history_restored = 0
     if answer_history:
-        db_obj2 = __import__("database")
-        db2 = db_obj2.get_db()
-        for rec in answer_history:
-            import json as _json2
-            db2.execute("""
-                INSERT OR IGNORE INTO answer_history
-                    (session_id, question_id, old_raw_answer, old_answer_status,
-                     new_raw_answer, new_answer_status, changed_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (
-                session_id,
-                rec.get("question_id"),
-                _json2.dumps(rec.get("old_raw_answer"), default=str),
-                rec.get("old_answer_status"),
-                _json2.dumps(rec.get("new_raw_answer"), default=str),
-                rec.get("new_answer_status"),
-                rec.get("changed_at", ""),
-            ))
-            history_restored += 1
-        db2.commit()
-        db2.close()
+        history_restored = restore_answer_history(session_id, answer_history)
 
     detail_parts = [f"{len(answers)} answers restored"]
     if contexts_restored:

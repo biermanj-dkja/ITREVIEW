@@ -32,7 +32,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.7.2'
+app.config['VERSION'] = '0.8.7.3'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -58,6 +58,7 @@ def inject_globals():
     )
 
 MODULE_ID = "module_1"
+VALID_MODULE_IDS = {"module_1", "module_2", "module_3"}
 
 
 def _module_label(mid):
@@ -118,9 +119,6 @@ _CROSS_MODULE_PREFILL = {
 }
 
 
-@app.before_request
-def setup():
-    init_db()
 
 
 # ── HOME / SESSION MANAGEMENT ──────────────────────────────────────
@@ -189,6 +187,9 @@ def new_session():
         flash("Please set up your school profile first.", "error")
         return redirect(url_for("setup_profile"))
     module_id = request.args.get("module_id", MODULE_ID)
+    if module_id not in VALID_MODULE_IDS:
+        flash("Unknown module type.", "error")
+        return redirect(url_for("home"))
     session_id = str(uuid.uuid4())
     create_session(session_id, module_id, profile["school_name"])
     module = load_module(module_id)
@@ -315,7 +316,12 @@ def section(session_id, section_id):
                 raw    = request.form.getlist(field_key)
                 status = "answered" if raw else "unanswered"
             elif atype == "yes_no_unknown":
-                raw    = request.form.get(field_key)
+                raw = request.form.get(field_key)
+                if raw == "unknown":
+                    # Treat the inline "I don't know" radio exactly like the unknown checkbox
+                    save_answer(session_id, qid, "unknown", status="unknown",
+                                record_history=already_complete)
+                    continue
                 status = "answered" if raw else "unanswered"
             else:
                 raw    = request.form.get(field_key, "").strip()
@@ -573,6 +579,25 @@ def save_finding_context_route(session_id):
     elif finding_id and not note:
         delete_finding_context(session_id, finding_id)
         flash("Context note removed.", "success")
+
+    # Redirect back to the correct report page for this session's module.
+    # The return_to hidden field in each template specifies the target;
+    # we validate it against known endpoints before using it.
+    return_to = request.form.get("return_to", "").strip()
+    _VALID_RETURN_ROUTES = {
+        "findings_full": lambda: url_for("findings_full", session_id=session_id),
+        "dg_report":     lambda: url_for("dg_report",     session_id=session_id),
+        "vr_report":     lambda: url_for("vr_report",     session_id=session_id),
+    }
+    if return_to in _VALID_RETURN_ROUTES:
+        return redirect(_VALID_RETURN_ROUTES[return_to]())
+
+    # Fallback: infer from module_id so existing sessions without return_to still work
+    mid = sess.get("module_id", "module_1")
+    if mid == "module_2":
+        return redirect(url_for("dg_report", session_id=session_id))
+    if mid == "module_3":
+        return redirect(url_for("vr_report", session_id=session_id))
     return redirect(url_for("findings_full", session_id=session_id))
 
 
@@ -779,6 +804,10 @@ def dg_report(session_id):
         flash("Session not found.", "error")
         return redirect(url_for("home"))
 
+    if sess.get("module_id") != "module_2":
+        flash("This report is only available for Data Governance Audit sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
+
     answers  = get_answers(session_id)
     module, gen_ids = _load_expanded_module("module_2", session_id)
     system_names = module.get("_system_names", [])
@@ -881,6 +910,10 @@ def vr_report(session_id):
     if not sess:
         flash("Session not found.", "error")
         return redirect(url_for("home"))
+
+    if sess.get("module_id") != "module_3":
+        flash("This report is only available for Vendor Register sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
 
     answers = get_answers(session_id)
     module, gen_ids = _load_expanded_module("module_3", session_id)
@@ -1072,9 +1105,13 @@ def import_session():
         return redirect(error_redirect)
 
     # Create the session record
+    import_module_id = sess_data.get("module_id", "module_1")
+    if import_module_id not in VALID_MODULE_IDS:
+        flash(f"Unrecognised module ID '{import_module_id}' in export file.", "error")
+        return redirect(error_redirect)
     create_session(
         session_id,
-        sess_data.get("module_id", "module_1"),
+        import_module_id,
         sess_data.get("school_name", "Imported School"),
     )
 

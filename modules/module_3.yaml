@@ -528,7 +528,7 @@ sections:
         condition: null
         options:
           - Yes — holds or processes confidential staff data
-          - No
+          - "No"
           - Unknown
 
       # ── Usage and value assessment ────────────────────────────────

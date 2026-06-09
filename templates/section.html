@@ -22,6 +22,8 @@
   {% set cur_status = ans.get("answer_status", "unanswered") %}
   {% set is_skipped = cur_status == "skipped" %}
   {% set is_unknown = cur_status == "unknown" %}
+  {# A question is "answered" if it has any non-unanswered status — including context questions #}
+  {% set is_answered = cur_status in ("answered", "unknown", "skipped") and cur_status != "unanswered" and cur_val is not none or (cur_status == "answered" and cur_val is not none) %}
   {% set initially_hidden = q.condition is not none and qid not in visible_qids %}
   <div class="question-card {{ 'answered' if cur_status == 'answered' and cur_val is not none else ('skipped' if is_skipped else ('unknown-ans' if is_unknown else '')) }}"
        id="qcard_{{ fkey }}"
@@ -72,7 +74,7 @@
 
       {% elif q.answer_type == "yes_no_unknown" %}
         <div class="option-group">
-          {% for opt_val, opt_label in [("yes", "Yes"), ("no", "No")] %}
+          {% for opt_val, opt_label in [("yes", "Yes"), ("no", "No"), ("unknown", "I don't know")] %}
           <label class="option-item {{ 'selected' if cur_str == opt_val }}">
             <input type="radio" name="{{ fkey }}" value="{{ opt_val }}"
                    {{ 'checked' if cur_str == opt_val }}

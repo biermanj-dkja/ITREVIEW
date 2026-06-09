@@ -1238,13 +1238,6 @@ def _key_risks(doc, key_risks, findings):
 
 # ── Section-by-Section Findings ───────────────────────────────────
 
-def _section_findings(doc, sections_with_findings, all_scored_sections):
-    """
-    Render per-section findings. Healthy sections get a ✓ marker.
-    Sections not present in sections_with_findings but in all_scored_sections
-    are shown as healthy.
-    all_scored_sections: list of section_id strings that were scored.
-    """
 def _section_findings(doc, sections_with_findings, all_scored_sections,
                       finding_contexts=None):
     finding_contexts = finding_contexts or {}

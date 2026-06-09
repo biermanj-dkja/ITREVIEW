@@ -419,13 +419,27 @@ def get_last_exported(session_id):
 
 
 def save_session_meta(session_id, key, value):
-    """Save arbitrary key-value metadata for a session (future use)."""
-    pass  # Stub — extend with a metadata table if needed
+    """Save arbitrary key-value metadata for a session.
+
+    Not yet implemented — raises NotImplementedError so callers fail loudly
+    rather than silently discarding data.  Implement with a session_meta table
+    when this feature is needed.
+    """
+    raise NotImplementedError(
+        "save_session_meta() is not yet implemented. "
+        "Add a session_meta table before calling this."
+    )
 
 
 def get_session_meta(session_id, key):
-    """Retrieve metadata for a session."""
-    return None
+    """Retrieve metadata for a session.
+
+    Not yet implemented — raises NotImplementedError so callers fail loudly.
+    """
+    raise NotImplementedError(
+        "get_session_meta() is not yet implemented. "
+        "Add a session_meta table before calling this."
+    )
 
 
 # ── Answer history ────────────────────────────────────────────────

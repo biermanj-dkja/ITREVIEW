@@ -7,7 +7,78 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
-**v0.8.7.2** is a data integrity release fixing one bug from the external code review.
+**v0.8.7.3** is a correctness and hardening release addressing all remaining issues from the
+external code review. It covers UI fixes (B), YAML data integrity (C2), route security (D),
+and code cleanup (F).
+
+### B1 — `yes_no_unknown` questions now have a working Unknown option (`section.html`, `app.py`)
+
+The template previously rendered only Yes/No radio buttons for `yes_no_unknown` questions,
+making the Unknown option unreachable from the UI even though the scoring engine and rules
+engines fully supported it. A third "I don't know" radio option is now rendered inline with
+Yes and No. The POST handler in `app.py` detects when `raw == "unknown"` for this answer type
+and saves it with `status="unknown"`, matching the behaviour of the existing unknown checkbox
+path for other question types. The separate "I don't know" checkbox remains suppressed for
+`yes_no_unknown` (as before) since unknown is now a first-class radio option.
+
+### B2 — Context note saves now redirect to the correct module report (`app.py`)
+
+`save_finding_context_route()` previously always redirected to the Module 1 findings page.
+Context notes saved from the Data Governance or Vendor Register report cards sent the user to
+the wrong page. The route now reads a validated `return_to` hidden field from the form and
+redirects to the matching endpoint (`findings_full`, `dg_report`, or `vr_report`). Unknown or
+missing `return_to` values fall back to module-ID inference, so existing sessions without the
+field still redirect correctly.
+
+### B3 — Finding ID collisions in DG/VR report templates fixed (`dg_report.html`, `vr_report.html`)
+
+Finding context IDs were constructed from the first three characters of the area name
+(`f.area[:3] | upper`). Multiple findings in the same section sharing a common area prefix
+(e.g. "Access Control" and "Access Credentials") would produce the same ID, causing one
+context note to silently overwrite another. IDs now use the full area slug with spaces
+replaced by underscores, plus a loop index to guarantee uniqueness within a page render.
+All four context forms in `dg_report.html` and `vr_report.html` also received `return_to`
+hidden fields (B2 fix).
+
+### C2 — YAML boolean `No` values quoted (`module_2.yaml`, `module_3.yaml`)
+
+Five answer options in `module_2.yaml` (questions `DG2.1`, `DG2.4`, `DG2.6`, `DG2.9`) and
+one in `module_3.yaml` (`V.DATA.staff`) used bare `No` which YAML parses as boolean `False`.
+The `yaml_safe` Jinja filter masked this in the UI, but scoring and rules comparisons against
+the string `"No"` would silently fail. All five are now quoted as `"No"`.
+
+### D1 — Module ID whitelisting and missing route guards (`app.py`)
+
+`new_session()` previously accepted any `module_id` from the query string and passed it
+directly to `load_module()`, which would attempt to open `modules/{id}.yaml` with no path
+validation. The import route had the same gap. A `VALID_MODULE_IDS` constant
+`{"module_1", "module_2", "module_3"}` is now checked in both routes before any session is
+created or YAML is loaded. The `dg_report` and `vr_report` report-card routes (distinct from
+the download routes, which were already guarded) now also verify that the session belongs to
+the correct module before proceeding.
+
+### D2 — DB initialisation moved out of `before_request` (`app.py`)
+
+`init_db()` was called inside a `@before_request` hook, meaning schema checks and migration
+logic ran on every HTTP request. Removed the hook entirely. `init_db()` is already called
+once in the `__main__` startup block; the launcher path calls `init_db_path()` for directory
+creation. No behaviour change for normal use.
+
+### F1 — Duplicate `_section_findings` stub removed (`report_generator.py`)
+
+An empty stub definition of `_section_findings` immediately preceded the real definition,
+silently overwriting itself. The stub is removed; only the real implementation remains.
+
+### F2 — Silent metadata stubs replaced with `NotImplementedError` (`database.py`)
+
+`save_session_meta()` and `get_session_meta()` were silent no-ops (`pass` / `return None`).
+Any future code path that calls these would silently discard or fail to retrieve data with no
+error. Both now raise `NotImplementedError` with a descriptive message so the gap is
+immediately visible if they are ever called, rather than failing silently.
+
+---
+
+ fixing one bug from the external code review.
 
 ### C1 — Import no longer overwrites original `last_modified` timestamp (`database.py`, `app.py`)
 

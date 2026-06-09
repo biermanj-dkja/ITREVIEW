@@ -16,37 +16,6 @@
     <span class="mono" style="font-size: 11px; color: var(--text-faint);">{{ sess.human_label if sess.human_label else 'Started ' + sess.last_modified[:10] }}</span>
   </p>
 
-  {# ── BACK TO SESSION ─────────────────────────────────────────── #}
-  <div class="card card-sm" style="margin-bottom: 16px; border-color: var(--accent);">
-    <div class="flex-between">
-      <div>
-        <div style="font-weight: 500; margin-bottom: 4px;">{{ sess.school_name }}</div>
-        <div class="text-xs text-faint">
-          {{ module_label }}
-          {% if is_complete %}
-            &nbsp;·&nbsp; <span style="color: var(--healthy);">Complete</span>
-          {% else %}
-            &nbsp;·&nbsp; <span style="color: var(--accent);">In progress</span>
-          {% endif %}
-        </div>
-      </div>
-      <div class="flex gap-8">
-        {% if is_complete %}
-          <a href="/session/{{ session_id }}/summary" class="btn btn-primary">
-            View Summary →
-          </a>
-        {% else %}
-          <a href="/resume/{{ session_id }}" class="btn btn-primary">
-            Continue →
-          </a>
-          <a href="/session/{{ session_id }}/summary" class="btn btn-ghost">
-            Summary
-          </a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
   {# ── ARCHIVE ─────────────────────────────────────────────────── #}
   <div class="card" style="margin-bottom: 16px;">
     <div class="flex-between" style="align-items: flex-start; gap: 24px;">

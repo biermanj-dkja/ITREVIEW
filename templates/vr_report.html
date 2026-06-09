@@ -288,7 +288,7 @@
     <div class="vendor-body">
       {% if result.findings %}
         {% for f in result.findings | sort(attribute='severity') %}
-        {% set fid = result.section_id ~ ':' ~ (f.area[:3] | upper) %}
+        {% set fid = result.section_id ~ ':' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
         {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
         <div class="finding-row sev-{{ f.severity }}">
           <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
@@ -315,6 +315,7 @@
               </summary>
               <form method="POST" action="/session/{{ session_id }}/finding-context" style="margin-top: 10px;">
                 <input type="hidden" name="finding_id" value="{{ fid }}">
+                <input type="hidden" name="return_to" value="vr_report">
                 <textarea name="note" rows="3" placeholder="e.g. 'DPA signed June 2025 — filed with contracts'"
                           style="width: 100%; padding: 8px 10px; background: var(--surface2); border: 1px solid var(--border);
                                  border-radius: 5px; color: var(--text); font-family: var(--sans); font-size: 13px;
@@ -361,7 +362,7 @@
   {% if vr.school_wide_results %}
   <h2 style="font-size: 1.1rem; margin: 32px 0 16px;">School-Wide Vendor Governance Findings</h2>
   {% for f in vr.school_wide_results %}
-  {% set fid = 'VR2:' ~ (f.area[:3] | upper) %}
+  {% set fid = 'VR2:' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-row sev-{{ f.severity }}" style="margin-bottom: 12px;">
     <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
@@ -388,6 +389,7 @@
         </summary>
         <form method="POST" action="/session/{{ session_id }}/finding-context" style="margin-top: 10px;">
           <input type="hidden" name="finding_id" value="{{ fid }}">
+          <input type="hidden" name="return_to" value="vr_report">
           <textarea name="note" rows="3" placeholder="e.g. 'Password manager deployed June 2025 — all staff onboarded'"
                     style="width: 100%; padding: 8px 10px; background: var(--surface2); border: 1px solid var(--border);
                            border-radius: 5px; color: var(--text); font-family: var(--sans); font-size: 13px;

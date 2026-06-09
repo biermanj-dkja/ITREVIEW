@@ -303,7 +303,7 @@
 </div>
 <div class="findings-section">
   {% for f in dg.school_wide_results | sort(attribute='severity') %}
-  {% set fid = 'DG2:' ~ (f.area[:3] | upper) %}
+  {% set fid = 'DG2:' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-item sev-{{ f.severity }}">
     <div class="finding-top">
@@ -329,6 +329,7 @@
         </summary>
         <form method="POST" action="/session/{{ session_id }}/finding-context" style="margin-top: 10px;">
           <input type="hidden" name="finding_id" value="{{ fid }}">
+          <input type="hidden" name="return_to" value="dg_report">
           <textarea name="note" rows="3" placeholder="e.g. 'Resolved June 2025 — policy drafted and distributed'"
                     style="width: 100%; padding: 8px 10px; background: var(--surface2); border: 1px solid var(--border);
                            border-radius: 5px; color: var(--text); font-family: var(--sans); font-size: 13px;
@@ -373,7 +374,7 @@
 <div class="findings-section">
   {% for item in ns.all_findings | sort(attribute='f.severity') %}
   {% set f = item.f %}
-  {% set fid = item.section_id ~ ':' ~ (f.area[:3] | upper) %}
+  {% set fid = item.section_id ~ ':' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-item sev-{{ f.severity }}">
     <div class="finding-top">
@@ -402,6 +403,7 @@
         </summary>
         <form method="POST" action="/session/{{ session_id }}/finding-context" style="margin-top: 10px;">
           <input type="hidden" name="finding_id" value="{{ fid }}">
+          <input type="hidden" name="return_to" value="dg_report">
           <textarea name="note" rows="3" placeholder="e.g. 'Resolved June 2025 — MFA enforced via Google Admin'"
                     style="width: 100%; padding: 8px 10px; background: var(--surface2); border: 1px solid var(--border);
                            border-radius: 5px; color: var(--text); font-family: var(--sans); font-size: 13px;

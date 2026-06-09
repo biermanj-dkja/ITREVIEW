@@ -271,11 +271,10 @@
     var saved;
     try { saved = localStorage.getItem('home-tab'); } catch(e) {}
     var hasSessions = {{ 'true' if has_sessions else 'false' }};
-    var hasArchived = {{ 'true' if has_archived else 'false' }};
-    // Default tab: if active sessions exist always land on Saved (not Archived).
-    // Only honour a stored 'archived' preference when there are no active sessions.
-    var defaultTab = hasSessions ? (saved === 'archived' ? 'saved' : (saved || 'saved')) : 'new';
-    if (!hasSessions && hasArchived && saved === 'archived') { defaultTab = 'archived'; }
+    // Only honour the stored preference when sessions exist; otherwise always land on New.
+    var defaultTab = hasSessions ? (saved || 'saved') : 'new';
+    // If stored tab was 'archived' and there are archived sessions, honour it
+    if (saved === 'archived') { defaultTab = 'archived'; }
     switchTab(defaultTab);
   })();
 </script>

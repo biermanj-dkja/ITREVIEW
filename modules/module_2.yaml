@@ -763,7 +763,7 @@ sections:
           - Yes — current, reviewed within 12 months
           - Yes — exists but not reviewed recently
           - Draft only — not formally adopted
-          - No
+          - "No"
           - Unknown
 
       - question_id: "DG2.2"
@@ -809,7 +809,7 @@ sections:
           - Yes — documented, tested, and known to key staff
           - Yes — documented but not tested or practiced
           - Informal — general awareness but no written plan
-          - No
+          - "No"
           - Unknown
 
       - question_id: "DG2.5"
@@ -839,7 +839,7 @@ sections:
           - Yes — annual training for all staff
           - Partial — some staff trained, not all
           - Ad hoc — training occurs but not on a schedule
-          - No
+          - "No"
           - Unknown
 
       - question_id: "DG2.7"
@@ -885,7 +885,7 @@ sections:
         options:
           - Yes — written schedule aligned to applicable law
           - Partial — exists for some data types but not all
-          - No
+          - "No"
           - Unknown
 
       - question_id: "DG2.10"

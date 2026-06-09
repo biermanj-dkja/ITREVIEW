@@ -7,7 +7,27 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
-**v0.8.7** is a scoring correctness release fixing two critical bugs identified in an external
+**v0.8.7.2** is a data integrity release fixing one bug from the external code review.
+
+### C1 — Import no longer overwrites original `last_modified` timestamp (`database.py`, `app.py`)
+
+When importing a session export, the route called `restore_session_state()` to stamp the
+original `last_modified` from the export file, then immediately called `save_answer()` for
+every answer in the import. Each `save_answer()` call issued an `UPDATE assessment_session
+SET last_modified=now`, overwriting the preserved timestamp with the import time. The report
+cover date and session card would therefore show when the file was imported, not when the
+assessment was actually conducted.
+
+Fix: `save_answer()` now accepts a `touch_session=False` keyword argument. When `False`, the
+`UPDATE assessment_session` statement is skipped — the answer row is still written correctly
+but the session timestamp is left untouched. The import route passes `touch_session=False` for
+every answer in the restore loop, then calls `restore_session_state()` a second time after the
+loop to apply the definitive original timestamp. Normal assessment use (`touch_session=True`,
+the default) is unchanged.
+
+---
+
+ fixing two critical bugs identified in an external
 code review. Assessment totals were unreliable before this version.
 
 ### A1 — Single-select scoring fallback removed (`engine.py`)

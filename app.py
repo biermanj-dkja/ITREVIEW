@@ -32,7 +32,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.7'
+app.config['VERSION'] = '0.8.7.2'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -1093,7 +1093,8 @@ def import_session():
         original_last_modified,
     )
 
-    # Restore answers
+    # Restore answers — touch_session=False so the answer loop does not
+    # overwrite last_modified with import time on every row.
     for qid, rec in answers.items():
         save_answer(
             session_id,
@@ -1101,7 +1102,19 @@ def import_session():
             rec.get("raw_answer"),
             notes=rec.get("notes"),
             status=rec.get("answer_status", "answered"),
+            touch_session=False,
         )
+
+    # Re-stamp the original last_modified now that all answers are written.
+    # This is the final word on the timestamp — nothing after this point
+    # should update last_modified for an import restore.
+    restore_session_state(
+        session_id,
+        sess_data.get("sections_complete", "[]"),
+        sess_data.get("sections_flagged", "[]"),
+        sess_data.get("status", "in_progress"),
+        original_last_modified,
+    )
 
     # Restore finding context notes (may be absent in exports from older versions)
     contexts_restored = 0

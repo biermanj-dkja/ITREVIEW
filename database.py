@@ -132,11 +132,15 @@ def init_db():
 
 
 def save_answer(session_id, question_id, raw_answer, notes=None, status="answered",
-                record_history=False):
+                record_history=False, touch_session=True):
     """
     Persist an answer.  When record_history=True (set by the route when the
     section was already marked complete), the previous value is written to
     answer_history before the overwrite so amendments are auditable.
+
+    When touch_session=False the session's last_modified timestamp is NOT
+    updated.  Use this during imports so the original timestamp from the
+    export is preserved after restore_session_state() has already set it.
     """
     db  = get_db()
     now = datetime.utcnow().isoformat()
@@ -172,8 +176,9 @@ def save_answer(session_id, question_id, raw_answer, notes=None, status="answere
             answer_status=excluded.answer_status,
             last_modified=excluded.last_modified
     """, (session_id, question_id, json.dumps(raw_answer), notes, status, now, now))
-    db.execute("UPDATE assessment_session SET last_modified=? WHERE session_id=?",
-               (now, session_id))
+    if touch_session:
+        db.execute("UPDATE assessment_session SET last_modified=? WHERE session_id=?",
+                   (now, session_id))
     db.commit()
     db.close()
 

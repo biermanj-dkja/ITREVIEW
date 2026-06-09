@@ -8,9 +8,9 @@
       Download Vendor Register Report
     </h1>
     <p style="color:var(--text-dim); font-size:0.95rem; line-height:1.5;">
-      Optionally enter the date you plan to begin remediation work. If provided, the report
-      will include a <strong>Phased Action Timeline</strong> section with estimated
-      start and end dates for each phase. Leave blank to download without the timeline.
+      Enter the date you plan to begin remediation work. This will be used to generate
+      a <strong>Phased Action Timeline</strong> section in your report, with
+      estimated start and end dates for each phase.
     </p>
   </div>
 
@@ -30,20 +30,22 @@
 
       <label for="start_date" style="display:block; font-size:0.9rem; font-weight:500;
              color:var(--text); margin-bottom:0.6rem;">
-        Remediation start date <span style="color:var(--text-faint); font-weight:400;">(optional)</span>
+        Remediation start date
       </label>
       <input
         type="date"
         id="start_date"
         name="start_date"
-        value=""
+        value="{{ today }}"
+        min="{{ today }}"
+        required
         style="width:100%; padding:0.65rem 0.9rem; background:var(--surface2);
                border:1px solid var(--border); border-radius:6px; color:var(--text);
                font-size:1rem; font-family:var(--sans); outline:none;"
       >
       <p style="margin-top:0.6rem; font-size:0.82rem; color:var(--text-dim); line-height:1.45;">
-        Phase 1 (Immediate — within 30 days) begins on this date. Later phases are
-        scheduled automatically based on estimated effort. Leave blank to skip the timeline.
+        Phase 1 (Immediate) begins on this date. Later phases are scheduled automatically
+        based on estimated effort and minimum spacing between phases.
       </p>
     </div>
 

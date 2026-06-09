@@ -53,6 +53,22 @@ Ideas captured during development. Not prioritised — reference for future road
 
 ## Operations
 
+- **Home page session load optimisation** — `home()` calls `_load_expanded_module()` for
+  every Module 2 and Module 3 session on every page load in order to compute completion
+  status and total section counts. Each call reads the module YAML from disk and queries the
+  DB for answers. With a small number of active sessions this is imperceptible, but it will
+  grow linearly with session count. A future optimisation could cache the section count and
+  completion state in the `assessment_session` row (e.g. a `cached_total_sections` column
+  updated whenever the inventory answer changes) so the home page can render without touching
+  the YAML or the answers table. Low priority until session counts become a practical problem.
+
+- **`save_session_meta` / `get_session_meta` are stubs** — `database.py` contains two no-op
+  placeholder functions for arbitrary key-value session metadata. They were added speculatively
+  and nothing calls them yet. If a feature ever needs per-session metadata that doesn't
+  warrant a dedicated column (e.g. user-defined tags, display preferences), implement a
+  `session_meta` table here. Until then the stubs are harmless but should not be relied on —
+  any code that calls `save_session_meta` silently discards its data.
+
 - **Module 2 phased timeline** ✓ *Implemented in v0.6.0* — the Data Governance DOCX report
   now includes a phased remediation timeline when a start date is supplied on the download
   setup page. The start date field is optional — leaving it blank downloads the report without

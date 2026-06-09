@@ -32,7 +32,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.5'
+app.config['VERSION'] = '0.8.6'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -430,12 +430,17 @@ def section_complete(session_id, section_id):
     sess     = get_session(session_id)
     complete = json.loads(sess["sections_complete"])
 
-    # Find next section and its time estimate
+    # Find next section — skip any section flagged is_template (un-expanded
+    # dynamic modules have the raw template section still in the list, which
+    # is not a real destination for navigation).
     next_section = None
     sections     = module["sections"]
     for i, s in enumerate(sections):
-        if s["section_id"] == section_id and i + 1 < len(sections):
-            next_section = sections[i + 1]
+        if s["section_id"] == section_id:
+            for candidate in sections[i + 1:]:
+                if not candidate.get("is_template"):
+                    next_section = candidate
+                    break
             break
 
     pct = round((earned / max_pts * 100) if max_pts > 0 else 0)
@@ -794,13 +799,15 @@ def dg_report(session_id):
 
 @app.route("/session/<session_id>/dg-report-setup", methods=["GET", "POST"])
 def dg_report_setup(session_id):
-    """Start-date picker for the Data Governance DOCX — identical flow to report_setup."""
+    """Start-date picker for the Data Governance DOCX."""
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
-        # start_date is optional — blank means no timeline section
+        if not start_date:
+            flash("Please enter a remediation start date.", "error")
+            return redirect(url_for("dg_report_setup", session_id=session_id))
         return redirect(url_for("download_dg_report", session_id=session_id,
                                 start_date=start_date))
     from datetime import date
@@ -901,6 +908,9 @@ def vr_report_setup(session_id):
         return redirect(url_for("home"))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
+        if not start_date:
+            flash("Please enter a remediation start date.", "error")
+            return redirect(url_for("vr_report_setup", session_id=session_id))
         return redirect(url_for("download_vr_report", session_id=session_id,
                                 start_date=start_date))
     from datetime import date

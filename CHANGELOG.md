@@ -7,7 +7,43 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
-**v0.8.5** is a bug-fix release addressing five issues identified in a fourth internal code review.
+**v0.8.6** is a bug-fix and UX consistency release.
+
+### Next-section navigation skips template sections (`app.py`)
+
+In `section_complete`, the "Next →" button was found by a simple `sections[i + 1]` index
+walk. If dynamic sections expansion had not yet run (i.e. the user had not entered a
+system/vendor list yet), the template section — which has `is_template: True` and is not a
+real page — could appear as the next destination. The walk now scans forward and stops at
+the first section where `is_template` is absent or false, so it safely skips the raw
+template and lands on the next real section.
+
+### Modules 2 and 3 report setup pages now require a start date (`app.py`, `templates/dg_report_setup.html`, `templates/vr_report_setup.html`)
+
+The Data Governance and Vendor Register report setup pages previously treated the
+remediation start date as optional — submitting without one skipped the phased timeline
+section. Module 1 has always required a date. All three modules now behave consistently:
+
+- The date field defaults to today (pre-filled via `value="{{ today }}"`) so most users can
+  simply click Generate without touching the field.
+- The `min` attribute prevents selecting a date in the past.
+- The `required` attribute blocks HTML5 form submission if the field is cleared.
+- The route validates server-side and flashes an error if somehow the field arrives empty.
+- Labels and help text updated to match the Module 1 pattern (removed "(optional)" qualifier
+  and "Leave blank to skip the timeline" instructions).
+
+### Performance and stub notes added to FUTURE_IDEAS.md
+
+Two items from a recent internal review have been documented for future consideration:
+the home-page YAML-load performance issue (scales linearly with session count) and the
+`save_session_meta`/`get_session_meta` stub functions (currently no-ops; silent data loss
+if called expecting persistence).
+
+**Files changed:** `app.py`, `templates/dg_report_setup.html`, `templates/vr_report_setup.html`, `FUTURE_IDEAS.md`, `README.md`, `CHANGELOG.md`
+
+---
+
+ addressing five issues identified in a fourth internal code review.
 
 ### `delete_session` now removes all associated rows (`database.py`)
 

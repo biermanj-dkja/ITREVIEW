@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.8.5
+## v0.8.6
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.

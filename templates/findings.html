@@ -39,6 +39,29 @@
     {% endif %}
   </div>
 
+  {# ── STALE REPORT BANNER ─────────────────────────────────────── #}
+  {# Show only on full findings (not per-section), and only when a report was previously
+     downloaded but answers have changed since. Findings on screen are always current —
+     this banner tells the user their saved DOCX is now out of date. #}
+  {% if not section_label and last_exported and sess.last_modified > last_exported %}
+  <div class="card mb-16" style="border-color: var(--watch); background: var(--surface2);">
+    <div class="flex-between" style="gap: 16px; align-items: center;">
+      <div>
+        <strong style="color: var(--watch);">⚠ Your downloaded report may be out of date</strong>
+        <p class="text-sm mt-4" style="margin-bottom: 0; line-height: 1.6;">
+          Answers were changed after your last export
+          (last exported {{ last_exported[:10] }}, last modified {{ sess.last_modified[:10] }}).
+          The findings below are current — re-download the report to get a fresh copy.
+        </p>
+      </div>
+      <a href="{{ url_for('report_setup', session_id=session_id) }}"
+         class="btn btn-secondary" style="flex-shrink: 0; white-space: nowrap;">
+        ⬇ Re-download
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
   {# ── DATA CONFIDENCE NOTE ────────────────────────────────────── #}
   {% if not section_label and report.data_confidence in ('moderate','low','mixed') %}
   <div class="card mb-16" style="border-color: var(--watch); background: var(--surface2);">

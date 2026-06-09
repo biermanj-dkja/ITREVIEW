@@ -32,7 +32,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.6'
+app.config['VERSION'] = '0.8.7'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -477,10 +477,25 @@ def manage_session(session_id):
     mid = sess.get("module_id", MODULE_ID)
     module_label = _module_label(mid)
     breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=None)
+
+    # Compute is_complete so the template can show Continue vs View Summary
+    complete = json.loads(sess.get("sections_complete", "[]"))
+    if mid == "module_2":
+        _, gen_ids = _load_expanded_module(mid, session_id)
+        is_complete = ("DG1" in complete and "DG2" in complete
+                       and bool(gen_ids) and all(sid in complete for sid in gen_ids))
+    elif mid == "module_3":
+        _, gen_ids = _load_expanded_module(mid, session_id)
+        is_complete = ("VR1" in complete and "VR2" in complete
+                       and bool(gen_ids) and all(sid in complete for sid in gen_ids))
+    else:
+        is_complete = len(complete) >= 10
+
     return render_template("manage_session.html",
         sess=sess,
         session_id=session_id,
         module_label=module_label,
+        is_complete=is_complete,
         session_breadcrumb=breadcrumb,
     )
 

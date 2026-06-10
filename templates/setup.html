@@ -11,6 +11,7 @@
 
   <div class="card mt-24">
     <form method="POST">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <div class="form-group">
         <label class="field-label" for="school_name">School Name *</label>
         <input type="text" id="school_name" name="school_name"
@@ -44,6 +45,7 @@
       will be restored from the file automatically.
     </p>
     <form method="POST" action="{{ url_for('import_session') }}" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="from_setup" value="1">
       <div class="form-group">
         <label class="field-label">Session Export File (.json)</label>

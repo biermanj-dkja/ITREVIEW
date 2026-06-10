@@ -1,6 +1,5 @@
 """
 rules_engine_vr.py  —  Vendor Register findings engine for module_3
-v0.7.7.0
 
 Generates deterministic findings and a report card from the answers
 collected in the Software, Licensing, and Vendor Register (module_3).

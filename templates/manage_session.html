@@ -30,6 +30,7 @@
     </div>
     <div style="margin-top: 20px;">
       <form method="POST" action="/session/{{ session_id }}/deprecate">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-secondary">
           Archive Assessment
         </button>
@@ -86,6 +87,7 @@
       </div>
       <div class="flex gap-12">
         <form method="POST" action="/session/{{ session_id }}/delete">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="btn btn-danger">Yes, delete permanently</button>
         </form>
         <button type="button" class="btn btn-ghost"

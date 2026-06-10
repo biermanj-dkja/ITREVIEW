@@ -303,7 +303,7 @@
 </div>
 <div class="findings-section">
   {% for f in dg.school_wide_results | sort(attribute='severity') %}
-  {% set fid = 'DG2:' ~ f.rule_id %}
+  {% set fid = 'DG2:' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-item sev-{{ f.severity }}">
     <div class="finding-top">
@@ -328,6 +328,7 @@
           {% if ctx %}Edit context note{% else %}+ Add context note{% endif %}
         </summary>
         <form method="POST" action="/session/{{ session_id }}/finding-context" style="margin-top: 10px;">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="finding_id" value="{{ fid }}">
           <input type="hidden" name="return_to" value="dg_report">
           <textarea name="note" rows="3" placeholder="e.g. 'Resolved June 2025 — policy drafted and distributed'"
@@ -374,7 +375,7 @@
 <div class="findings-section">
   {% for item in ns.all_findings | sort(attribute='f.severity') %}
   {% set f = item.f %}
-  {% set fid = item.section_id ~ ':' ~ f.rule_id %}
+  {% set fid = item.section_id ~ ':' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-item sev-{{ f.severity }}">
     <div class="finding-top">
@@ -402,6 +403,7 @@
           {% if ctx %}Edit context note{% else %}+ Add context note{% endif %}
         </summary>
         <form method="POST" action="/session/{{ session_id }}/finding-context" style="margin-top: 10px;">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="finding_id" value="{{ fid }}">
           <input type="hidden" name="return_to" value="dg_report">
           <textarea name="note" rows="3" placeholder="e.g. 'Resolved June 2025 — MFA enforced via Google Admin'"

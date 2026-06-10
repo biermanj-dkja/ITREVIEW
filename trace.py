@@ -1,6 +1,5 @@
 """
 trace.py  —  Rule evaluation trace writer
-v0.7.7.1
 
 Writes a sidecar JSON file alongside report generation when the env var
 FLASK_DEBUG_TRACE=1 is set. One trace file per report download, written to
@@ -26,6 +25,7 @@ Each function checks the env var internally — safe to call unconditionally.
 import os
 import json
 import datetime
+from datetime import timezone as _tz
 from pathlib import Path
 
 # ── Env var gate ──────────────────────────────────────────────────
@@ -37,7 +37,7 @@ def _trace_enabled():
 # ── Output path ───────────────────────────────────────────────────
 
 def _trace_path(session_id: str, module: str) -> Path:
-    ts = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%S")
+    ts = datetime.datetime.now(_tz.utc).strftime("%Y%m%dT%H%M%S")
     base = Path(__file__).resolve().parent / "data" / "traces"
     base.mkdir(parents=True, exist_ok=True)
     return base / f"{session_id[:8]}_{module}_{ts}.json"
@@ -128,7 +128,7 @@ def write_trace_m1(session_id: str, answers: dict, report) -> None:
         "meta": {
             "session_id":    session_id,
             "module":        "module_1",
-            "generated_at":  datetime.datetime.utcnow().isoformat() + "Z",
+            "generated_at":  datetime.datetime.now(_tz.utc).isoformat() + "Z",
         },
         "normalized_answers":  _snapshot_answers(answers),
         "score_summary": {
@@ -232,7 +232,7 @@ def write_trace_dg(session_id: str, answers: dict, dg_report,
         "meta": {
             "session_id":   session_id,
             "module":       "module_2",
-            "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+            "generated_at": datetime.datetime.now(_tz.utc).isoformat() + "Z",
         },
         "normalized_answers": _snapshot_answers(answers),
         "score_summary": {
@@ -359,7 +359,7 @@ def write_trace_vr(session_id: str, answers: dict, vr_report,
         "meta": {
             "session_id":   session_id,
             "module":       "module_3",
-            "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+            "generated_at": datetime.datetime.now(_tz.utc).isoformat() + "Z",
         },
         "normalized_answers": _snapshot_answers(answers),
         "score_summary": {

@@ -7,6 +7,56 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.8.9.0** is a security and housekeeping release.
+
+### F1 — CSRF protection for all POST routes (`app.py`, all templates)
+
+Every state-changing POST form now carries a signed `_csrf_token` hidden field validated by
+a `before_request` hook. The token is generated with `hmac` + `sha256` keyed to the Flask
+session secret, stored server-side in the signed session cookie, and exposed to templates via
+a `csrf_token()` Jinja global — no third-party library required. A mismatch returns HTTP 400
+with a clear message. All 16 POST forms across the 10 HTML templates have been updated.
+Routes covered: `setup_profile`, `section` (answer saves), `deprecate_session`,
+`unarchive_session`, `delete_session`, `save_finding_context_route`, `report_setup`,
+`dg_report_setup`, `vr_report_setup`, `import_session`.
+
+### F2 — `datetime.utcnow()` deprecation warnings resolved (`database.py`, `trace.py`, `app.py`)
+
+Python 3.12 deprecated `datetime.utcnow()` and pytest surfaced warnings for every test run.
+All 15 call sites across the three files have been replaced with `datetime.now(timezone.utc)`,
+which produces identical ISO-format timestamp strings and eliminates the warnings entirely.
+
+### F3 — Stale version strings removed from source file headers
+
+Four source files carried inline version numbers that had not been updated since their
+original authoring:
+
+| File | Old header |
+|---|---|
+| `rules_engine_dg.py` | `v0.5.2.1` |
+| `rules_engine_vr.py` | `v0.7.7.0` |
+| `trace.py` | `v0.7.7.1` |
+| `rules_engine.py` | `Schema version: 0.2` |
+
+These lines have been removed. The application version is now authoritative in
+`app.config['VERSION']` and `README.md` only.
+
+### F4 — `test_scoring.py` isolation comment corrected (`test_scoring.py`)
+
+The comment above the database isolation block incorrectly stated that `database.py` reads a
+`DB_PATH_OVERRIDE` environment variable — that env var does not exist in `database.py`. The
+test works by directly patching `database.DB_PATH` before any DB function is called. The
+misleading comment and the now-redundant `os.environ["DB_PATH_OVERRIDE"]` line have been
+removed and replaced with an accurate description.
+
+**Files changed:** `app.py`, `database.py`, `trace.py`, `rules_engine.py`, `rules_engine_dg.py`,
+`rules_engine_vr.py`, `test_scoring.py`, `home.html`, `section.html`, `setup.html`,
+`findings.html`, `dg_report.html`, `vr_report.html`, `report_setup.html`,
+`dg_report_setup.html`, `vr_report_setup.html`, `import_session.html`, `manage_session.html`,
+`README.md`, `CHANGELOG.md`
+
+---
+
 **v0.8.8.0** is a correctness and hardening release addressing six remaining issues from the
 external code review verification pass.
 

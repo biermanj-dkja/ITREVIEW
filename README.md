@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.8.8.0
+## v0.8.9.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -404,60 +404,42 @@ or any technical setup.
 
 ## What's in this version
 
-**v0.8.8.0** is a correctness and hardening release addressing six remaining issues from the
-external code review verification pass.
+**v0.8.9.0** is a security and housekeeping release.
 
-### E1 — Setup route module guards (`app.py`)
+### F1 — CSRF protection for all POST routes (`app.py`, all templates)
 
-`report_setup()`, `dg_report_setup()`, and `vr_report_setup()` could be reached by any session
-regardless of module type. All three now check `sess.module_id` and redirect to the session
-summary with a flash message if the module does not match. The download routes were already
-guarded in v0.8.3; this closes the last gap in setup-page coverage.
+Every state-changing POST form now carries a signed `_csrf_token` hidden field. A
+`before_request` hook in `app.py` validates the token on every POST, PUT, PATCH, and DELETE
+request and returns HTTP 400 on mismatch. The token is generated with `hmac` + `sha256` keyed
+to the Flask session secret, stored server-side in the signed session cookie, and exposed to
+templates via a `csrf_token()` Jinja global. All 16 POST forms across the 10 HTML templates
+have been updated.
 
-### E2 — POST handler no longer drops newly-revealed conditional answers (`app.py`)
+### F2 — `datetime.utcnow()` deprecation warnings resolved (`database.py`, `trace.py`, `app.py`)
 
-When a user changed a gate/trigger answer and submitted in a single round-trip, any questions
-that were newly revealed by that change were not in the pre-computed `visible_questions` set,
-so their answers were silently dropped. The POST handler now does a two-pass save: the first
-pass saves all questions visible before the submit (which writes the triggering answer to the
-DB), then re-evaluates visibility with the updated answers, and a second pass saves any
-questions that are newly visible.
+Python 3.12 deprecated `datetime.utcnow()`. All 15 call sites across the three files have
+been replaced with `datetime.now(timezone.utc)`, which produces identical ISO-format strings
+and eliminates the deprecation warnings that appeared in pytest output.
 
-### E3 — Stable finding context IDs for DG and VR report cards (`rules_engine_dg.py`, `rules_engine_vr.py`, `dg_report.html`, `vr_report.html`)
+### F3 — Stale version strings removed from source file headers (`rules_engine_dg.py`, `rules_engine_vr.py`, `trace.py`, `rules_engine.py`)
 
-Finding context note IDs were built from `area_slug + loop.index` in the Jinja templates.
-If findings were added, removed, or reordered, `loop.index` would shift and existing notes
-would attach to the wrong finding. Both `Finding` (DG) and `VRFinding` (VR) dataclasses now
-carry a `rule_id` string field populated with a stable snake\_case slug at instantiation.
-All 35 DG findings and all 34 VR findings have a unique `rule_id`. The templates now use
-`f.rule_id` as the context key instead of `loop.index`.
+Four source files carried inline version numbers (`v0.5.2.1`, `v0.7.7.0`, `v0.7.7.1`,
+`Schema version: 0.2`) that had not been updated since their original authoring and were
+misleading. These lines have been removed. The application version is authoritative in
+`app.config['VERSION']` and `README.md` only.
 
-### E4 — Test suite now runs under `python -m unittest` and pytest (`test_scoring.py`)
+### F4 — `test_scoring.py` comment corrected (`test_scoring.py`)
 
-`test_scoring.py` was a script that called `sys.exit(1)` at the top level, causing
-`python -m unittest` to crash on import. The file now uses an isolated temporary SQLite
-database (never touching `data/assessments.db`), wraps all assertions in `unittest.TestCase`
-subclasses, and guards `sys.exit` behind `if __name__ == "__main__"`. Direct invocation
-(`python test_scoring.py`) and the `--fixtures-only` / `--scoring-only` flags all still work
-as before.
+The comment above the database isolation block incorrectly stated that `database.py` reads a
+`DB_PATH_OVERRIDE` environment variable. That env var does not exist in `database.py` — the
+test works by directly patching `database.DB_PATH` before any DB call runs. The comment and
+the now-redundant `os.environ` line have both been corrected.
 
-### E5 — Section 7 test fixture corrected (`test_scoring.py`)
-
-The `best7` fixture used `"7.13": "1 to 2 weeks"` which scores `0.75` (not full credit) under
-the RTO scoring map introduced in v0.8.7.x. The correct best answer is `"Less than 1 week"`
-(the only option that scores `1.0`). Fixed in both the Part A `best7` fixture and the Part B
-M1 Strong fixture. The test suite now passes 84/84.
-
-### E6 — Secret key and debug mode hardening (`app.py`)
-
-`app.secret_key` was a hardcoded string committed to source. It is now set from the
-`SECRET_KEY` environment variable if present, otherwise a fresh `os.urandom(24)` key is
-generated at startup (sufficient for a localhost-only tool). `app.run(debug=True)` is now
-`app.run(debug=os.environ.get("FLASK_DEBUG","0")=="1")` — debug mode is off by default and
-can be enabled by setting `FLASK_DEBUG=1` in the environment.
-
-**Files changed:** `app.py`, `rules_engine_dg.py`, `rules_engine_vr.py`, `dg_report.html`,
-`vr_report.html`, `test_scoring.py`, `README.md`, `CHANGELOG.md`
+**Files changed:** `app.py`, `database.py`, `trace.py`, `rules_engine.py`, `rules_engine_dg.py`,
+`rules_engine_vr.py`, `test_scoring.py`, `home.html`, `section.html`, `setup.html`,
+`findings.html`, `dg_report.html`, `vr_report.html`, `report_setup.html`,
+`dg_report_setup.html`, `vr_report_setup.html`, `import_session.html`, `manage_session.html`,
+`README.md`, `CHANGELOG.md`
 
 
 ## Known limitations in this version

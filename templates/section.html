@@ -223,8 +223,7 @@
       </div>
 
       <form method="POST" id="section-form">
-
-        {% for q in questions %}
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           {{ render_question(q, answers) }}
         {% endfor %}
 

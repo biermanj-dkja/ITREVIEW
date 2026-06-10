@@ -248,6 +248,7 @@
           <span style="font-size: 10px;">▸</span> Edit or remove note
         </summary>
         <form method="POST" action="/session/{{ session_id }}/finding-context" style="margin-top: 10px;">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="finding_id" value="{{ f.finding_id }}">
           <textarea name="note" rows="3"
                     style="width: 100%; padding: 8px 10px; background: var(--surface2); border: 1px solid var(--border);
@@ -274,6 +275,7 @@
           The note will appear alongside the finding in the next DOCX download. It does not change the score.
         </p>
         <form method="POST" action="/session/{{ session_id }}/finding-context">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="finding_id" value="{{ f.finding_id }}">
           <textarea name="note" rows="2" placeholder="e.g. 'MFA enforced via Google Admin as of June 2025 — monitoring for stragglers'"
                     style="width: 100%; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border);

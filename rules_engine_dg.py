@@ -1,6 +1,5 @@
 """
 rules_engine_dg.py  —  Data Governance findings engine for module_2
-v0.5.2.1
 
 Generates deterministic findings and a report card from the answers
 collected in the Data Governance and Data Flow Audit (module_2).

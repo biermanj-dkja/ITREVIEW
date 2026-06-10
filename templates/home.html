@@ -225,6 +225,7 @@
               <a href="/session/{{ sess.session_id }}/summary"
                  class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;">View →</a>
               <form method="POST" action="/session/{{ sess.session_id }}/unarchive" style="margin:0;">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-secondary" style="padding: 8px 14px; font-size: 13px;">
                   Restore
                 </button>

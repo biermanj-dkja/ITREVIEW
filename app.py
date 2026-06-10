@@ -2,6 +2,8 @@ import uuid
 import json
 import io
 import os
+import hmac
+import hashlib
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from database import (
@@ -36,7 +38,7 @@ app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 # tool (sessions do not need to survive a restart).  Set SECRET_KEY in the
 # environment for a stable key if you are running the tool on a shared machine.
 app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
-app.config['VERSION'] = '0.8.8.0'
+app.config['VERSION'] = '0.8.9.0'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -60,6 +62,52 @@ def inject_globals():
         show_privacy_banner=show_banner,
         session_breadcrumb=None,  # overridden by individual views when inside a session
     )
+
+
+# ── CSRF protection ──────────────────────────────────────────────────────────
+# Lightweight double-submit cookie pattern.  A per-session token is stored in
+# the Flask session (server-side, signed by secret_key) and emitted as a
+# hidden field by the csrf_token() Jinja helper.  Every POST request checks
+# that the submitted token matches the session token.
+#
+# Exempt routes: none — all POST handlers are protected.  File upload and
+# JSON endpoints are included because the session cookie is present on all
+# same-origin requests.
+
+from flask import session as _flask_session
+
+def _get_csrf_token():
+    """Return the CSRF token for the current session, creating one if absent."""
+    if "_csrf_token" not in _flask_session:
+        secret = app.secret_key
+        if isinstance(secret, str):
+            secret = secret.encode()
+        _flask_session["_csrf_token"] = hmac.new(
+            secret, uuid.uuid4().bytes, hashlib.sha256
+        ).hexdigest()
+    return _flask_session["_csrf_token"]
+
+
+def _check_csrf():
+    """Abort with 400 if the CSRF token is missing or wrong."""
+    token = _flask_session.get("_csrf_token")
+    submitted = (request.form.get("_csrf_token")
+                 or request.headers.get("X-CSRF-Token"))
+    if not token or not submitted or not hmac.compare_digest(token, submitted):
+        from flask import abort
+        abort(400, "CSRF token missing or invalid. Please reload the page and try again.")
+
+
+@app.before_request
+def csrf_protect():
+    """Validate CSRF token on every state-changing (POST/PUT/PATCH/DELETE) request."""
+    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+        _check_csrf()
+
+
+# Make csrf_token() available in every template without an explicit import.
+app.jinja_env.globals["csrf_token"] = _get_csrf_token
+
 
 MODULE_ID = "module_1"
 VALID_MODULE_IDS = {"module_1", "module_2", "module_3"}
@@ -1044,7 +1092,7 @@ def download_vr_report(session_id):
 @app.route("/session/<session_id>/export")
 def export_session(session_id):
     """Download a complete session snapshot as a JSON file."""
-    from datetime import datetime as _dt
+    from datetime import datetime as _dt, timezone as _tz
     sess = get_session(session_id)
     if not sess:
         flash("Session not found.", "error")
@@ -1057,7 +1105,7 @@ def export_session(session_id):
 
     export_data = {
         "export_format":    "school_it_engine_session_v1",
-        "exported_on":      _dt.utcnow().isoformat() + "Z",
+        "exported_on":      _dt.now(_tz.utc).isoformat() + "Z",
         "app_version":      app.config['VERSION'],
         "school_profile":   profile,
         "session":          dict(sess),
@@ -1149,8 +1197,8 @@ def import_session():
     # Preserves the original last_modified from the export so report cover dates
     # reflect when the data was actually collected, not when it was imported.
     # Falls back to now only if the field is absent (legacy exports).
-    from datetime import datetime as _dt
-    now = _dt.utcnow().isoformat()
+    from datetime import datetime as _dt, timezone as _tz
+    now = _dt.now(_tz.utc).isoformat()
     original_last_modified = sess_data.get("last_modified") or now
     restore_session_state(
         session_id,

@@ -1,6 +1,5 @@
 """
 Rules Engine for Module 1 — Small Private School IT Overview and Action Plan
-Schema version: 0.2
 
 Evaluates normalized answers against all defined rules and produces a
 structured findings object. Run on-demand after all answers are saved.

@@ -1,7 +1,7 @@
 import sqlite3
 import json
 import os as _os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -143,7 +143,7 @@ def save_answer(session_id, question_id, raw_answer, notes=None, status="answere
     export is preserved after restore_session_state() has already set it.
     """
     db  = get_db()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     if record_history:
         # Snapshot the current record before overwriting
@@ -218,7 +218,7 @@ def get_answer(session_id, question_id):
 
 def create_session(session_id, module_id, school_name):
     db  = get_db()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     db.execute("""
         INSERT OR IGNORE INTO assessment_session
             (session_id, module_id, school_name, created_on, last_modified, status)
@@ -252,7 +252,7 @@ def mark_section_complete(session_id, section_id):
         complete = json.loads(row["sections_complete"])
         if section_id not in complete:
             complete.append(section_id)
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         db.execute(
             "UPDATE assessment_session SET sections_complete=?, last_modified=? WHERE session_id=?",
             (json.dumps(complete), now, session_id)
@@ -272,7 +272,7 @@ def flag_session_incomplete(session_id, section_id):
         flagged = json.loads(row["sections_flagged"] or "[]")
         if section_id not in flagged:
             flagged.append(section_id)
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         db.execute(
             "UPDATE assessment_session SET sections_flagged=?, last_modified=? WHERE session_id=?",
             (json.dumps(flagged), now, session_id)
@@ -298,7 +298,7 @@ def get_all_sessions():
 
 def save_school_profile(school_name, school_website):
     db  = get_db()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     db.execute("DELETE FROM school_profile")
     db.execute(
         "INSERT INTO school_profile (school_name, school_website, created_on) VALUES (?,?,?)",
@@ -329,7 +329,7 @@ def delete_session(session_id):
 def deprecate_session(session_id):
     """Mark a session as deprecated — excluded from trends but kept in DB."""
     db  = get_db()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     db.execute(
         "UPDATE assessment_session SET status='deprecated', last_modified=? WHERE session_id=?",
         (now, session_id)
@@ -341,7 +341,7 @@ def deprecate_session(session_id):
 def unarchive_session(session_id):
     """Restore a deprecated session to in_progress status."""
     db  = get_db()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     db.execute(
         "UPDATE assessment_session SET status='in_progress', last_modified=? WHERE session_id=?",
         (now, session_id)
@@ -398,7 +398,7 @@ def restore_answer_history(session_id, history_records):
 def set_last_exported(session_id):
     """Stamp the current UTC time as the last export time for a session."""
     db  = get_db()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     db.execute(
         "UPDATE assessment_session SET last_exported=? WHERE session_id=?",
         (now, session_id)
@@ -481,7 +481,7 @@ def get_amended_question_ids(session_id):
 def save_finding_context(session_id, finding_id, note):
     """Upsert a context note for a finding."""
     db  = get_db()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     db.execute("""
         INSERT INTO finding_context (session_id, finding_id, note, added_at)
         VALUES (?, ?, ?, ?)

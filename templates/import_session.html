@@ -25,6 +25,7 @@
     </div>
 
     <form method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <div class="form-group">
         <label class="field-label">Session Export File (.json)</label>
         <input type="file" name="session_file" accept=".json"

@@ -24,6 +24,7 @@
   {% endwith %}
 
   <form method="POST" action="{{ url_for('dg_report_setup', session_id=session_id) }}">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
     <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px;
                 padding:1.8rem; margin-bottom:1.5rem;">

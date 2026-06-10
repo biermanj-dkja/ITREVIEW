@@ -1,6 +1,6 @@
 """
 test_scoring.py  —  Automated scoring and golden fixture tests
-v0.8.8.0
+v0.8.9.0
 
 Run with:  python test_scoring.py                   # full suite (direct)
            python test_scoring.py --fixtures-only   # Part B only (direct)
@@ -53,14 +53,15 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # ── isolated temp database ────────────────────────────────────────────────────
 # Use a fresh temporary SQLite file so tests never touch the real data/.
-# The env var DB_PATH_OVERRIDE is read by database.py if set.
+# We patch database.DB_PATH directly before importing any functions from
+# database.py — get_db() and init_db() both read DB_PATH at call time, so
+# setting it here is sufficient.  No environment variable is required.
 _tmp_db_dir  = tempfile.mkdtemp()
 _tmp_db_path = os.path.join(_tmp_db_dir, "test_assessments.db")
-os.environ["DB_PATH_OVERRIDE"] = _tmp_db_path
 
 # ── imports ───────────────────────────────────────────────────────────────────
 import database as _db_module
-# Patch DB_PATH before init_db() runs so the module uses the temp path.
+# Apply the temp-path patch before init_db() or any DB call runs.
 from pathlib import Path as _Path
 _db_module.DB_PATH = _Path(_tmp_db_path)
 

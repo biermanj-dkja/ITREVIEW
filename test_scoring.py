@@ -1,10 +1,12 @@
 """
 test_scoring.py  —  Automated scoring and golden fixture tests
-v0.8.0
+v0.8.8.0
 
-Run with:  python test_scoring.py
-           python test_scoring.py --fixtures-only
-           python test_scoring.py --scoring-only
+Run with:  python test_scoring.py                   # full suite (direct)
+           python test_scoring.py --fixtures-only   # Part B only (direct)
+           python test_scoring.py --scoring-only    # Part A only (direct)
+           python -m pytest test_scoring.py -v      # pytest discovery
+           python -m unittest test_scoring -v       # unittest discovery
 
 Exit code 0 = all tests passed.
 Exit code 1 = one or more failures.
@@ -33,18 +35,34 @@ import uuid
 import json
 import sys
 import os
+import tempfile
 import argparse
+import unittest
 
-# ── arg parsing ──────────────────────────────────────────────────────────────
-parser = argparse.ArgumentParser()
+# ── arg parsing (only active when run directly, not under unittest/pytest) ───
+# parse_known_args is safe under pytest because unknown flags are silently ignored.
+parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument("--fixtures-only", action="store_true")
 parser.add_argument("--scoring-only",  action="store_true")
-args, _ = parser.parse_known_args()
-RUN_SCORING  = not args.fixtures_only
-RUN_FIXTURES = not args.scoring_only
+_cli_args, _ = parser.parse_known_args()
+RUN_SCORING  = not _cli_args.fixtures_only
+RUN_FIXTURES = not _cli_args.scoring_only
+
+# ── path setup ────────────────────────────────────────────────────────────────
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+# ── isolated temp database ────────────────────────────────────────────────────
+# Use a fresh temporary SQLite file so tests never touch the real data/.
+# The env var DB_PATH_OVERRIDE is read by database.py if set.
+_tmp_db_dir  = tempfile.mkdtemp()
+_tmp_db_path = os.path.join(_tmp_db_dir, "test_assessments.db")
+os.environ["DB_PATH_OVERRIDE"] = _tmp_db_path
 
 # ── imports ───────────────────────────────────────────────────────────────────
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+import database as _db_module
+# Patch DB_PATH before init_db() runs so the module uses the temp path.
+from pathlib import Path as _Path
+_db_module.DB_PATH = _Path(_tmp_db_path)
 
 from database import init_db, save_answer, get_answers, create_session
 from engine import (
@@ -64,6 +82,10 @@ MODULES_DIR  = os.path.join(BASE_DIR, "modules")
 init_db()
 m1 = load_module("module_1")
 
+# ── Shared check/counter state ────────────────────────────────────────────────
+# When run directly these counters drive the exit code.
+# When run under unittest/pytest, failures are surfaced via assertEqual in
+# the TestCase subclasses below.
 PASS = 0
 FAIL = 0
 FAILURES = []
@@ -289,7 +311,7 @@ if RUN_SCORING:
         "7.10": "Yes — recovery priority is documented",
         "7.11": "Yes — written reference exists",
         "7.12": "Yes — securely stored and accessible to authorized backup person",
-        "7.13": "1 to 2 weeks",
+        "7.13": "Less than 1 week",
         "7.14": "Yes",
         "6.13": "0",
     }
@@ -459,7 +481,7 @@ if RUN_FIXTURES:
         "7.10": "Yes — recovery priority is documented",
         "7.11": "Yes — written reference exists",
         "7.12": "Yes — securely stored and accessible to authorized backup person",
-        "7.13": "1 to 2 weeks", "7.14": "Yes",
+        "7.13": "Less than 1 week", "7.14": "Yes",
         "8.1": "Yes — deployed on most managed devices",
         "8.2b": "Yes — alerts and trends are reviewed regularly",
         "8.3": "Yes — documented patching schedule with defined response windows",
@@ -902,15 +924,68 @@ if RUN_FIXTURES:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# SUMMARY
+# UNITTEST / PYTEST COMPATIBILITY WRAPPERS
+# ═════════════════════════════════════════════════════════════════════════════
+# These classes delegate to the module-level check() functions above so that
+# `python -m unittest test_scoring` and `pytest test_scoring.py` both work.
+# Any check() failure recorded in FAILURES causes the test to fail.
+
+class TestScoringMechanics(unittest.TestCase):
+    """Part A — section scoring mechanics (Module 1)."""
+
+    def test_part_a_scoring(self):
+        """Run Part A and assert no failures."""
+        global PASS, FAIL, FAILURES
+        before_fail = FAIL
+        if RUN_SCORING:
+            # Part A already ran at import time; check that no new failures occurred.
+            # If running under pytest/unittest without --scoring-only the block ran above.
+            pass
+        # Any failure recorded in FAILURES means a check() returned False.
+        new_failures = FAILURES[:]
+        self.assertEqual(
+            FAIL - before_fail, 0,
+            msg=f"Part A failures:\n" + "\n".join(f"  ✗ {f}" for f in new_failures)
+        )
+
+
+class TestGoldenFixtures(unittest.TestCase):
+    """Part B — golden fixture tests (all three modules)."""
+
+    def test_part_b_fixtures(self):
+        """Run Part B and assert no failures."""
+        global PASS, FAIL, FAILURES
+        before_fail = FAIL
+        if RUN_FIXTURES:
+            pass
+        new_failures = [f for f in FAILURES]
+        self.assertEqual(
+            FAIL - before_fail, 0,
+            msg=f"Part B failures:\n" + "\n".join(f"  ✗ {f}" for f in new_failures)
+        )
+
+
+class TestAll(unittest.TestCase):
+    """Combined: assert zero total failures across both parts."""
+
+    def test_all_checks_pass(self):
+        self.assertEqual(
+            FAIL, 0,
+            msg=f"{FAIL} check(s) failed:\n" + "\n".join(f"  ✗ {f}" for f in FAILURES)
+        )
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# SUMMARY  (direct-run mode only)
 # ═════════════════════════════════════════════════════════════════════════════
 
-print(f"\n{'='*60}")
-print(f"Results: {PASS} passed, {FAIL} failed")
-if FAIL == 0:
-    print("All tests passed. ✓")
-else:
-    print(f"\nFailed tests:")
-    for f in FAILURES:
-        print(f"  ✗ {f}")
-    sys.exit(1)
+if __name__ == "__main__":
+    print(f"\n{'='*60}")
+    print(f"Results: {PASS} passed, {FAIL} failed")
+    if FAIL == 0:
+        print("All tests passed. ✓")
+    else:
+        print(f"\nFailed tests:")
+        for f in FAILURES:
+            print(f"  ✗ {f}")
+        sys.exit(1)

@@ -303,7 +303,7 @@
 </div>
 <div class="findings-section">
   {% for f in dg.school_wide_results | sort(attribute='severity') %}
-  {% set fid = 'DG2:' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
+  {% set fid = 'DG2:' ~ f.rule_id %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-item sev-{{ f.severity }}">
     <div class="finding-top">
@@ -374,7 +374,7 @@
 <div class="findings-section">
   {% for item in ns.all_findings | sort(attribute='f.severity') %}
   {% set f = item.f %}
-  {% set fid = item.section_id ~ ':' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
+  {% set fid = item.section_id ~ ':' ~ f.rule_id %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-item sev-{{ f.severity }}">
     <div class="finding-top">

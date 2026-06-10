@@ -90,6 +90,7 @@ class VRFinding:
     owner: str = "IT Director"
     timing: str = "near_term"
     vendor_name: Optional[str] = None
+    rule_id: str = ""            # stable slug used as context-note key in templates
 
 
 @dataclass
@@ -392,6 +393,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Cost Visibility", severity="high", effort="S",
             owner="Business Office / IT Director", timing="immediate",
             vendor_name=vendor_name,
+            rule_id="cv_cost_unknown",
             title="Annual cost unknown",
             detail=(f"The annual cost for {vendor_name} is not known. Untracked spend "
                     f"cannot be budgeted, reviewed at renewal, or cancelled when value "
@@ -404,6 +406,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Cost Visibility", severity="medium", effort="S",
             owner="Business Office", timing="near_term",
             vendor_name=vendor_name,
+            rule_id="cv_cost_estimated",
             title="Annual cost estimated but not confirmed",
             detail=(f"The cost for {vendor_name} is approximate. An unverified estimate "
                     f"may not match actual billing and can lead to budget surprises at "
@@ -418,6 +421,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Cost Visibility", severity="medium" if not sensitive else "high",
             effort="S", owner="Business Office", timing="near_term",
             vendor_name=vendor_name,
+            rule_id="cv_not_budgeted",
             title="Subscription not in current budget",
             detail=(f"{vendor_name} is not included in the current approved budget."
                     f"{data_context} Unbudgeted subscriptions are at risk of lapsing "
@@ -436,6 +440,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Renewal Management", severity=sev, effort="S",
             owner="IT Director / Business Office", timing="immediate" if sensitive else "near_term",
             vendor_name=vendor_name,
+            rule_id="rm_renewal_date_unknown",
             title="Renewal date not known",
             detail=(f"The renewal or expiry date for {vendor_name} is not recorded."
                     f"{data_context} Without a known renewal date, the contract may "
@@ -454,6 +459,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Renewal Management", severity="high", effort="S",
             owner="IT Director / Business Office", timing="immediate",
             vendor_name=vendor_name,
+            rule_id="rm_auto_renew_untracked",
             title="Auto-renewing contract with no tracked reminder",
             detail=(f"{vendor_name} auto-renews and there is no calendar reminder or "
                     f"tracking in place. An unmonitored auto-renewal commits budget "
@@ -468,6 +474,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Renewal Management", severity="low", effort="S",
             owner="IT Director / Business Office", timing="planned",
             vendor_name=vendor_name,
+            rule_id="rm_renewal_not_tracked",
             title="Renewal date known but not tracked with a reminder",
             detail=(f"The renewal date for {vendor_name} is known but not entered into "
                     f"a calendar or reminder system. Relying on memory for renewal dates "
@@ -483,6 +490,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Renewal Management", severity=sev, effort="S+",
             owner="Business Office", timing="near_term",
             vendor_name=vendor_name,
+            rule_id="rm_no_signed_contract",
             title="No signed contract on file",
             detail=(f"There is no signed contract or order form on file for {vendor_name}."
                     f"{data_context} Without a contract, the school has no documented "
@@ -496,6 +504,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Renewal Management", severity="low", effort="S",
             owner="Business Office / IT Director", timing="planned",
             vendor_name=vendor_name,
+            rule_id="rm_contract_location_unknown",
             title="Contract exists but its location is not documented",
             detail=(f"A signed contract for {vendor_name} exists, but the location is "
                     f"unclear. A contract that cannot be found quickly is effectively "
@@ -512,6 +521,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Support & Access", severity="medium", effort="S",
             owner="IT Director", timing="near_term",
             vendor_name=vendor_name,
+            rule_id="sa_support_contact_missing",
             title="Support contact not documented",
             detail=(f"The support contact for {vendor_name} is not recorded. If this "
                     f"vendor has an outage or issue, the school does not have a quick "
@@ -528,6 +538,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Support & Access", severity=sev, effort="S",
             owner="IT Director", timing="immediate" if sensitive else "near_term",
             vendor_name=vendor_name,
+            rule_id="sa_admin_creds_missing",
             title="Admin credentials not documented",
             detail=(f"Admin credentials for {vendor_name} are not documented in a shared "
                     f"location.{data_context} If the person who manages this account leaves "
@@ -540,6 +551,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Support & Access", severity="low", effort="S",
             owner="IT Director", timing="planned",
             vendor_name=vendor_name,
+            rule_id="sa_admin_creds_informal",
             title="Admin credentials known but not in a shared password manager",
             detail=(f"Admin credentials for {vendor_name} are known to IT but not stored "
                     f"in a shared password manager. This creates a single-person dependency."),
@@ -555,6 +567,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
                 area="Data Compliance", severity="high", effort="M",
                 owner="IT Director / Head of School", timing="immediate",
                 vendor_name=vendor_name,
+            rule_id="dc_ferpa_not_reviewed",
                 title="FERPA/COPPA compliance not reviewed",
                 detail=(f"{vendor_name} holds student data and FERPA or COPPA compliance "
                         f"has not been reviewed. Schools are responsible for ensuring "
@@ -569,6 +582,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
                 area="Data Compliance", severity="medium", effort="S+",
                 owner="IT Director", timing="near_term",
                 vendor_name=vendor_name,
+            rule_id="dc_ferpa_review_incomplete",
                 title="FERPA/COPPA review in progress but not complete",
                 detail=(f"A compliance review is underway for {vendor_name} but has not "
                         f"been completed. Until it is finished and documented, the school "
@@ -583,6 +597,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
                 area="Data Compliance", severity="critical", effort="M",
                 owner="IT Director / Business Office", timing="immediate",
                 vendor_name=vendor_name,
+            rule_id="dc_no_dpa",
                 title="No Data Processing Agreement in place",
                 detail=(f"{vendor_name} holds student data but there is no signed Data "
                         f"Processing Agreement (DPA) or Student Data Privacy Agreement. "
@@ -598,6 +613,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
                 area="Data Compliance", severity="low", effort="S",
                 owner="IT Director / Business Office", timing="planned",
                 vendor_name=vendor_name,
+            rule_id="dc_dpa_location_unknown",
                 title="Signed DPA exists but location is not documented",
                 detail=(f"A DPA for {vendor_name} is signed but its location is not recorded. "
                         f"A DPA that cannot be quickly produced has limited value in the "
@@ -615,6 +631,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Value Assessment", severity="low", effort="S",
             owner="IT Director / Department Head", timing="planned",
             vendor_name=vendor_name,
+            rule_id="va_low_use_subscription",
             title="Low-use subscription flagged for renewal review",
             detail=(f"{vendor_name} is rarely or not currently in use, and its value has "
                     f"been flagged as unclear or low. Subscriptions in this state are "
@@ -634,6 +651,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Renewal Management", severity="medium", effort="S",
             owner="IT Director / Business Office", timing="near_term",
             vendor_name=vendor_name,
+            rule_id="rm_cancellation_window_unknown",
             title="Cancellation notice window unknown for auto-renewing contract",
             detail=(f"{vendor_name} auto-renews and the required cancellation notice "
                     f"period is not documented. Without knowing the notice window, "
@@ -659,6 +677,7 @@ def findings_for_vendor(answers, section_id, vendor_name, core_categories=None):
             area="Support & Access", severity="medium", effort="S",
             owner="IT Director", timing="near_term",
             vendor_name=vendor_name,
+            rule_id="sa_no_escalation_path",
             title="No escalation path documented for core system vendor",
             detail=(f"{vendor_name} is a core system and there is no documented "
                     f"escalation path for when standard support is unresponsive. "
@@ -776,6 +795,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="high", effort="M",
             owner="IT Director / Head of School", timing="immediate",
+            rule_id="vg_no_software_approval",
             title="No software approval process — shadow IT risk",
             detail=("Staff can adopt tools and subscriptions without IT or business office "
                     "review. Shadow IT is one of the most common sources of untracked spend "
@@ -789,6 +809,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="medium", effort="S+",
             owner="IT Director", timing="near_term",
+            rule_id="software_approval_is_informal_not_consis",
             title="Software approval is informal — not consistently followed",
             detail=("IT is usually consulted before new tools are adopted, but the process "
                     "is informal and not required. Informal processes have gaps — particularly "
@@ -804,6 +825,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="high", effort="S+",
             owner="Head of School / Business Manager", timing="immediate",
+            rule_id="no_clear_contract_signing_authority",
             title="No clear contract signing authority",
             detail=("There is no clear policy about who can sign vendor contracts at the "
                     "school. Without defined signing authority, contracts may be signed by "
@@ -817,6 +839,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="low", effort="S",
             owner="Head of School / Business Manager", timing="planned",
+            rule_id="contract_signing_authority_informal_not_",
             title="Contract signing authority informal — not documented",
             detail=("Signing authority is informally understood but not written down. "
                     "This creates risk during staff transitions."),
@@ -831,6 +854,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="medium", effort="S+",
             owner="IT Director / Head of School", timing="near_term",
+            rule_id="no_it_procurement_spend_threshold_shadow",
             title="No IT procurement spend threshold — shadow IT risk",
             detail=("There is no defined spend threshold below which IT or departments "
                     "must obtain review before adopting a new tool. Without a threshold "
@@ -847,6 +871,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="low", effort="S",
             owner="IT Director / Head of School", timing="planned",
+            rule_id="spend_threshold_policy_informal_not_docu",
             title="Spend threshold policy informal — not documented",
             detail=("A general understanding exists about spend thresholds for IT "
                     "purchases, but it is not written down. Informal policies fail "
@@ -861,6 +886,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="medium", effort="M",
             owner="IT Director / Business Office", timing="near_term",
+            rule_id="no_master_vendor_register_existed_before",
             title="No master vendor register existed before this audit",
             detail=("The school did not have a central vendor or subscription register "
                     "before this audit. Without a register, the school cannot quickly "
@@ -873,6 +899,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="medium", effort="S+",
             owner="IT Director / Business Office", timing="near_term",
+            rule_id="vg_siloed_vendor_lists",
             title="IT and Business Office maintain separate vendor lists",
             detail=("IT and the Business Office each maintain their own vendor list with "
                     "no shared view. This creates duplicate effort and gaps — IT may not "
@@ -888,6 +915,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="high", effort="M",
             owner="IT Director", timing="immediate",
+            rule_id="vg_no_password_manager",
             title="Vendor admin credentials not in a shared password manager",
             detail=("Vendor admin credentials are stored informally — in personal email, "
                     "notes, or a spreadsheet. If the person holding these credentials leaves, "
@@ -901,6 +929,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="medium", effort="S+",
             owner="IT Director", timing="near_term",
+            rule_id="vg_password_manager_partial",
             title="Password manager used for some vendor accounts but not all",
             detail=("Some vendor admin credentials are in a shared password manager, "
                     "but not all. The accounts not covered represent single-person "
@@ -916,6 +945,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="medium", effort="S+",
             owner="IT Director / Business Office", timing="near_term",
+            rule_id="vg_renewal_siloed",
             title="Renewal tracking is siloed — IT and Business Office not sharing",
             detail=("IT and the Business Office track vendor renewals independently. "
                     "This creates two failure modes: renewals IT manages can lapse "
@@ -933,6 +963,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="high", effort="M",
             owner="HR / IT Director", timing="immediate",
+            rule_id="vg_offboarding_missing",
             title="Offboarding does not cover vendor account ownership",
             detail=("When a staff member leaves, there is no process to transfer or revoke "
                     "vendor account ownership. Vendor portal logins, billing contacts, and "
@@ -947,6 +978,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="low", effort="S",
             owner="HR / IT Director", timing="planned",
+            rule_id="vg_offboarding_informal",
             title="Vendor account offboarding handled informally",
             detail=("Vendor account transfers are handled informally when staff leave, "
                     "but are not part of a documented checklist. Informal processes "
@@ -961,6 +993,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="high", effort="M",
             owner="IT Director / Business Office", timing="immediate",
+            rule_id="vg_dpa_not_tracked",
             title="Student data privacy agreements not centrally tracked",
             detail=("There is no central record of which vendors have signed a Data "
                     "Processing Agreement (DPA) or Student Data Privacy Agreement. "
@@ -975,6 +1008,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="medium", effort="S+",
             owner="IT Director", timing="near_term",
+            rule_id="vg_dpa_tracking_partial",
             title="DPA tracking incomplete — not all student-data vendors covered",
             detail=("A DPA register exists but does not cover all vendors that hold student "
                     "data. Gaps in DPA coverage leave the school partially exposed."),
@@ -987,6 +1021,7 @@ def findings_for_school_wide(answers):
         findings.append(VRFinding(
             area="Vendor Governance", severity="medium", effort="S+",
             owner="IT Director / Business Office", timing="near_term",
+            rule_id="vg_no_annual_review",
             title="No annual vendor review process",
             detail=("The school does not conduct a deliberate annual pass through its "
                     "vendor portfolio. Without regular review, subscriptions accumulate, "

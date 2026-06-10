@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.8.7.3
+## v0.8.8.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -404,7 +404,60 @@ or any technical setup.
 
 ## What's in this version
 
-DESCRIPTIVE NOTES ARE IN THE CHANGELOG.MD file.
+**v0.8.8.0** is a correctness and hardening release addressing six remaining issues from the
+external code review verification pass.
+
+### E1 — Setup route module guards (`app.py`)
+
+`report_setup()`, `dg_report_setup()`, and `vr_report_setup()` could be reached by any session
+regardless of module type. All three now check `sess.module_id` and redirect to the session
+summary with a flash message if the module does not match. The download routes were already
+guarded in v0.8.3; this closes the last gap in setup-page coverage.
+
+### E2 — POST handler no longer drops newly-revealed conditional answers (`app.py`)
+
+When a user changed a gate/trigger answer and submitted in a single round-trip, any questions
+that were newly revealed by that change were not in the pre-computed `visible_questions` set,
+so their answers were silently dropped. The POST handler now does a two-pass save: the first
+pass saves all questions visible before the submit (which writes the triggering answer to the
+DB), then re-evaluates visibility with the updated answers, and a second pass saves any
+questions that are newly visible.
+
+### E3 — Stable finding context IDs for DG and VR report cards (`rules_engine_dg.py`, `rules_engine_vr.py`, `dg_report.html`, `vr_report.html`)
+
+Finding context note IDs were built from `area_slug + loop.index` in the Jinja templates.
+If findings were added, removed, or reordered, `loop.index` would shift and existing notes
+would attach to the wrong finding. Both `Finding` (DG) and `VRFinding` (VR) dataclasses now
+carry a `rule_id` string field populated with a stable snake\_case slug at instantiation.
+All 35 DG findings and all 34 VR findings have a unique `rule_id`. The templates now use
+`f.rule_id` as the context key instead of `loop.index`.
+
+### E4 — Test suite now runs under `python -m unittest` and pytest (`test_scoring.py`)
+
+`test_scoring.py` was a script that called `sys.exit(1)` at the top level, causing
+`python -m unittest` to crash on import. The file now uses an isolated temporary SQLite
+database (never touching `data/assessments.db`), wraps all assertions in `unittest.TestCase`
+subclasses, and guards `sys.exit` behind `if __name__ == "__main__"`. Direct invocation
+(`python test_scoring.py`) and the `--fixtures-only` / `--scoring-only` flags all still work
+as before.
+
+### E5 — Section 7 test fixture corrected (`test_scoring.py`)
+
+The `best7` fixture used `"7.13": "1 to 2 weeks"` which scores `0.75` (not full credit) under
+the RTO scoring map introduced in v0.8.7.x. The correct best answer is `"Less than 1 week"`
+(the only option that scores `1.0`). Fixed in both the Part A `best7` fixture and the Part B
+M1 Strong fixture. The test suite now passes 84/84.
+
+### E6 — Secret key and debug mode hardening (`app.py`)
+
+`app.secret_key` was a hardcoded string committed to source. It is now set from the
+`SECRET_KEY` environment variable if present, otherwise a fresh `os.urandom(24)` key is
+generated at startup (sufficient for a localhost-only tool). `app.run(debug=True)` is now
+`app.run(debug=os.environ.get("FLASK_DEBUG","0")=="1")` — debug mode is off by default and
+can be enabled by setting `FLASK_DEBUG=1` in the environment.
+
+**Files changed:** `app.py`, `rules_engine_dg.py`, `rules_engine_vr.py`, `dg_report.html`,
+`vr_report.html`, `test_scoring.py`, `README.md`, `CHANGELOG.md`
 
 
 ## Known limitations in this version

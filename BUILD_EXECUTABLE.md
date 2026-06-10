@@ -1,5 +1,5 @@
 # Building a Standalone Executable
-## School IT Engine v0.8.3 — Tester Distribution Guide
+## School IT Engine v0.5.0 — Tester Distribution Guide
 
 This guide explains how to package the School IT Engine into a single
 double-clickable file that testers can run without installing Python,
@@ -44,25 +44,15 @@ You should see a version number like `6.x.x`.
 
 ---
 
-## Step 2 — Confirm launcher.py is present
+## Step 2 — Create the launcher script
 
-`launcher.py` is the PyInstaller entry point. It is included in the
-repository — you do not need to create it. Confirm it exists in the
-project root alongside `app.py`:
+PyInstaller needs a single entry-point file. The engine's `app.py` starts
+Flask directly, which works in development but needs a small wrapper for
+a packaged executable so the browser opens automatically and the database
+ends up in the right place.
 
-```
-school_it_engine/
-├── app.py
-├── launcher.py   ← should be here
-├── database.py
-└── ...
-```
-
-If it is missing for any reason, the full file content is shown below
-for reference. Do not modify it unless you are changing the port number.
-
-<details>
-<summary>launcher.py — full content for reference / troubleshooting</summary>
+Create a new file called **`launcher.py`** in the project root (same
+folder as `app.py`) with this content:
 
 ```python
 import sys
@@ -71,8 +61,13 @@ import threading
 import webbrowser
 import time
 
+# When running as a PyInstaller bundle, sys._MEIPASS is the temp
+# folder where bundled files are unpacked. We tell the app where
+# to find its templates, modules, and static files.
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
+    # Write the database next to the executable, not in the temp
+    # folder (which is deleted every time the app closes).
     exe_dir = os.path.dirname(sys.executable)
     os.environ['SCHOOL_IT_DATA_DIR'] = os.path.join(exe_dir, 'data')
 else:
@@ -85,7 +80,7 @@ from app import app, init_db_path
 PORT = 5000
 
 def open_browser():
-    time.sleep(1.5)
+    time.sleep(1.5)  # Give Flask a moment to start
     webbrowser.open(f'http://127.0.0.1:{PORT}')
 
 if __name__ == '__main__':
@@ -99,19 +94,27 @@ if __name__ == '__main__':
     t.start()
     app.run(host='127.0.0.1', port=PORT, debug=False, use_reloader=False)
 ```
-</details>
 
 ---
 
-## Step 3 — Confirm database.py honours SCHOOL_IT_DATA_DIR
+## Step 3 — Patch database.py and app.py
 
-`database.py` is already patched in the repository to write the database
-next to the executable rather than inside the PyInstaller temp folder
-(which is deleted on every launch). You do not need to edit it.
+The launcher sets an environment variable `SCHOOL_IT_DATA_DIR` so the
+database is saved next to the executable rather than inside the temporary
+unpacking folder (which is deleted every time the app closes).
 
-To verify, open `database.py` and confirm the top of the file reads:
+### database.py
+
+Find this line near the top:
 
 ```python
+DB_PATH = BASE_DIR / "data" / "assessments.db"
+```
+
+Replace it with:
+
+```python
+import os as _os
 _data_dir = _os.environ.get('SCHOOL_IT_DATA_DIR')
 if _data_dir:
     DB_PATH = Path(_data_dir) / "assessments.db"
@@ -119,13 +122,16 @@ else:
     DB_PATH = BASE_DIR / "data" / "assessments.db"
 ```
 
-If it only shows `DB_PATH = BASE_DIR / "data" / "assessments.db"` (the
-old single-line form), your copy of the file predates v0.8.2. Replace it
-with the current version from the repository before building.
+### app.py
 
-`app.py` also exports an `init_db_path()` function that `launcher.py`
-calls on startup to ensure the data directory exists before Flask starts.
-This is already present in the current codebase.
+Add this function near the top of `app.py`, after the imports:
+
+```python
+def init_db_path():
+    """Called by the launcher to ensure the data directory exists."""
+    from database import DB_PATH
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+```
 
 ---
 
@@ -185,8 +191,8 @@ folder:
 
 **Check the data folder:** After running, look for `dist/data/assessments.db`.
 This file should appear next to the executable (not somewhere in `%TEMP%`
-or `/var/folders`). If it is there and survives a restart, the
-`SCHOOL_IT_DATA_DIR` support in `database.py` is working correctly.
+or `/var/folders`). If it is there and survives a restart, the database
+patch in Step 3 is working correctly.
 
 ---
 
@@ -283,11 +289,10 @@ heuristic scanners associate with malware. Options in order of effort:
 
 ### App works but data disappears on restart
 
-The `SCHOOL_IT_DATA_DIR` support in `database.py` is missing or not
-working correctly. Confirm the `data/assessments.db` file appears at
+The `SCHOOL_IT_DATA_DIR` patch in Step 3 is missing or not applied
+correctly. Confirm the `data/assessments.db` file appears at
 `dist/data/assessments.db` (next to the .exe), not in `%TEMP%`
-or `/var/folders/...`. See Step 3 above to verify your `database.py`
-has the correct patch.
+or `/var/folders/...`.
 
 ### Module 2 worksheets don't appear after saving DG1
 

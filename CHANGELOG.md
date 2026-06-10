@@ -7,6 +7,72 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.8.8.0** is a correctness and hardening release addressing six remaining issues from the
+external code review verification pass.
+
+### E1 — Setup route module guards (`app.py`)
+
+`report_setup()`, `dg_report_setup()`, and `vr_report_setup()` could be reached by any session
+regardless of module type. All three now check `sess.module_id` and redirect to the session
+summary with a flash message if the module does not match. The download routes were already
+guarded in v0.8.3; this closes the last gap in setup-page coverage.
+
+### E2 — POST handler no longer drops newly-revealed conditional answers (`app.py`)
+
+When a user changed a gate/trigger answer and submitted in a single round-trip, any questions
+newly revealed by that change were not in the pre-computed `visible_questions` set, so their
+answers were silently dropped. The POST handler now does a two-pass save: the first pass saves
+all questions visible before the submit (which writes the triggering answer to the DB), then
+re-evaluates visibility with the updated answers, and a second pass saves any questions that
+are newly visible. This means a user who fills in a follow-up question and hits Save in one
+shot no longer loses that answer.
+
+### E3 — Stable finding context IDs for DG and VR report cards (`rules_engine_dg.py`, `rules_engine_vr.py`, `dg_report.html`, `vr_report.html`)
+
+Finding context note IDs were built from `area_slug + loop.index` in the Jinja templates.
+If findings were added, removed, or reordered between versions, `loop.index` would shift and
+existing notes would silently attach to the wrong finding. Both the `Finding` dataclass (DG)
+and `VRFinding` dataclass (VR) now carry a `rule_id: str` field populated with a stable
+snake\_case slug at instantiation. All 35 DG findings and all 34 VR findings have a unique,
+meaningful `rule_id` (e.g. `ac_former_staff_active`, `dc_no_dpa`, `vg_no_offboarding`). The
+templates now use `f.rule_id` as the context key instead of `loop.index`. Context notes saved
+in v0.8.7.3 or earlier used the old `area:SLUG:N` key format and will not carry forward —
+they will need to be re-entered after upgrading.
+
+### E4 — Test suite now runs under `python -m unittest` and pytest (`test_scoring.py`)
+
+`test_scoring.py` was a script that called `sys.exit(1)` at the top level, causing
+`python -m unittest` to crash on import with a `SystemExit`. The file now:
+
+- Uses an isolated temporary SQLite database for every run — `data/assessments.db` is never
+  touched by the tests
+- Wraps all check-based assertions in `unittest.TestCase` subclasses discoverable by
+  `python -m unittest test_scoring` and `pytest test_scoring.py -v`
+- Guards `sys.exit` behind `if __name__ == "__main__"` so import never terminates the process
+- Retains full backwards compatibility: `python test_scoring.py`, `--fixtures-only`, and
+  `--scoring-only` all still work exactly as before
+
+### E5 — Section 7 test fixture corrected (`test_scoring.py`)
+
+The `best7` fixture used `"7.13": "1 to 2 weeks"`, which scores `0.75` under the RTO scoring
+map introduced in v0.8.7.x. The correct maximum-credit answer is `"Less than 1 week"` (the
+only option that earns `1.0`). This was also incorrect in the Part B M1 Strong fixture. Fixed
+in both locations. The test suite now passes 84/84 with no failures.
+
+### E6 — Secret key and debug mode hardening (`app.py`)
+
+`app.secret_key` was a hardcoded string in source code, making session cookies forgeable by
+anyone who reads the repository. It is now set from the `SECRET_KEY` environment variable if
+present, otherwise `os.urandom(24)` generates a fresh key at startup (appropriate for a
+localhost-only single-user tool). `app.run(debug=True)` is changed to read
+`FLASK_DEBUG` from the environment — debug mode is off by default and can be re-enabled by
+setting `FLASK_DEBUG=1` before starting the server.
+
+**Files changed:** `app.py`, `rules_engine_dg.py`, `rules_engine_vr.py`, `dg_report.html`,
+`vr_report.html`, `test_scoring.py`, `README.md`, `CHANGELOG.md`
+
+---
+
 **v0.8.7.3** is a correctness and hardening release addressing all remaining issues from the
 external code review. It covers UI fixes (B), YAML data integrity (C2), route security (D),
 and code cleanup (F).

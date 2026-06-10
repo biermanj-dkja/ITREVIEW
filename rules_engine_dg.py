@@ -67,6 +67,7 @@ class Finding:
     owner: str = "IT Director"
     timing: str = "near_term"    # immediate / near_term / planned
     system_name: Optional[str] = None
+    rule_id: str = ""            # stable slug used as context-note key in templates
 
 
 @dataclass
@@ -369,6 +370,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Access Control", severity="high", effort="S+",
             owner="IT Director", timing="immediate", system_name=system_name,
+            rule_id="ac_roster_unavailable",
             title="User roster not readily available",
             detail=(f"{system_name} does not provide an easy way to list all current login "
                     f"accounts. Without this list, it is impossible to verify that former "
@@ -383,6 +385,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Access Control", severity="critical", effort="S",
             owner="IT Director", timing="immediate", system_name=system_name,
+            rule_id="ac_former_staff_active",
             title="Former staff accounts still active",
             detail=(f"One or more accounts belonging to staff who have left the school "
                     f"were found active in {system_name}. Active former-staff accounts "
@@ -398,6 +401,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Access Control", severity="high", effort="S+",
             owner="IT Director", timing="immediate", system_name=system_name,
+            rule_id="ac_mfa_not_enabled",
             title="MFA not enabled",
             detail=(f"{system_name} does not have multi-factor authentication enabled. "
                     f"Any system holding student, health, or financial data should "
@@ -409,6 +413,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Access Control", severity="medium", effort="S",
             owner="IT Director", timing="near_term", system_name=system_name,
+            rule_id="ac_mfa_optional",
             title="MFA available but not required",
             detail=(f"MFA is available in {system_name} but is not mandatory. "
                     f"Optional MFA is routinely not enabled by users, leaving accounts "
@@ -422,6 +427,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Access Control", severity="medium", effort="S+",
             owner="IT Director", timing="near_term", system_name=system_name,
+            rule_id="ac_shared_logins",
             title="Shared or generic logins in use",
             detail=(f"{system_name} is not connected to SSO and shared or generic "
                     f"logins are in use. Shared logins prevent individual accountability "
@@ -437,6 +443,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Access Control", severity="low", effort="S",
             owner="IT Director", timing="planned", system_name=system_name,
+            rule_id="ac_audit_logs_not_reviewed",
             title="Audit logs not being reviewed",
             detail=(f"{system_name} maintains audit logs, but they are not reviewed "
                     f"regularly (or the retention period is unknown). Logs that are "
@@ -451,6 +458,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Access Control", severity="medium", effort="S+",
             owner="IT Director", timing="near_term", system_name=system_name,
+            rule_id="ac_no_audit_logging",
             title="No audit logging",
             detail=(f"{system_name} does not maintain audit logs. Without logs, there "
                     f"is no way to investigate a suspected breach or verify who accessed "
@@ -466,6 +474,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Backup & Recovery", severity="critical", effort="M",
             owner="IT Director", timing="immediate", system_name=system_name,
+            rule_id="br_no_backup",
             title="No backup in place",
             detail=(f"No backup was confirmed for {system_name}. Data loss from "
                     f"accidental deletion, ransomware, or vendor failure would be "
@@ -480,6 +489,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Backup & Recovery", severity="high", effort="S",
             owner="IT Director", timing="immediate", system_name=system_name,
+            rule_id="br_backup_never_tested",
             title="Backup never tested",
             detail=(f"The backup for {system_name} has never been tested. "
                     f"A backup that has never been restored is an assumption, "
@@ -491,6 +501,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Backup & Recovery", severity="medium", effort="S",
             owner="IT Director", timing="near_term", system_name=system_name,
+            rule_id="br_backup_test_overdue",
             title="Backup test overdue",
             detail=(f"The last restore test for {system_name} was more than "
                     f"12 months ago.{data_context}"),
@@ -502,6 +513,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Backup & Recovery", severity="high", effort="M",
             owner="IT Director", timing="immediate", system_name=system_name,
+            rule_id="br_backup_same_network",
             title="Backup stored on same network as the original",
             detail=(f"The backup for {system_name} is stored on the same network "
                     f"as the system itself. A ransomware attack or hardware failure "
@@ -516,6 +528,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Data Flows", severity="critical", effort="M",
             owner="IT Director", timing="immediate", system_name=system_name,
+            rule_id="df_unencrypted_transfers",
             title="Unencrypted data transfers",
             detail=(f"Data leaving {system_name} is not encrypted in transit. "
                     f"This exposes school data to interception.{data_context}"),
@@ -526,6 +539,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Data Flows", severity="high", effort="M",
             owner="IT Director", timing="immediate", system_name=system_name,
+            rule_id="df_partial_encryption",
             title="Some data transfers not encrypted",
             detail=(f"Some outbound connections from {system_name} are not encrypted. "
                     f"Review and remediate all unencrypted paths.{data_context}"),
@@ -538,6 +552,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Data Flows", severity="medium", effort="S+",
             owner="Business Office", timing="near_term", system_name=system_name,
+            rule_id="df_subprocessors_unnamed",
             title="Sub-processors not identified in contract",
             detail=(f"The vendor for {system_name} sub-processes school data with "
                     f"other companies, but those companies are not named in the contract. "
@@ -552,6 +567,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Vendor & Contract", severity="critical", effort="M+",
             owner="Business Office", timing="immediate", system_name=system_name,
+            rule_id="vc_no_dpa",
             title="No Data Processing Agreement on file",
             detail=(f"No contract or Data Processing Agreement (DPA) exists for "
                     f"{system_name}. Without a DPA, the school has no contractual "
@@ -563,6 +579,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Vendor & Contract", severity="high", effort="M",
             owner="Business Office", timing="immediate", system_name=system_name,
+            rule_id="vc_tos_only",
             title="No formal DPA — terms of service only",
             detail=(f"The school is relying on standard terms of service for "
                     f"{system_name} rather than a negotiated Data Processing Agreement. "
@@ -577,6 +594,7 @@ def findings_for_system(answers, section_id, system_name):
             findings.append(Finding(
                 area="Vendor & Contract", severity="high", effort="M",
                 owner="Business Office", timing="immediate", system_name=system_name,
+                rule_id="vc_no_breach_notification",
                 title="No breach notification requirement in contract",
                 detail=(f"The DPA for {system_name} does not require the vendor to "
                         f"notify the school of a data breach. Applicable law in most "
@@ -589,6 +607,7 @@ def findings_for_system(answers, section_id, system_name):
             findings.append(Finding(
                 area="Vendor & Contract", severity="medium", effort="S+",
                 owner="Business Office", timing="near_term", system_name=system_name,
+                rule_id="vc_breach_window_long",
                 title="Breach notification window exceeds best practice",
                 detail=(f"The breach notification window in the {system_name} contract "
                         f"exceeds 72 hours. This may make it difficult to meet applicable "
@@ -603,6 +622,7 @@ def findings_for_system(answers, section_id, system_name):
         findings.append(Finding(
             area="Vendor & Contract", severity="low", effort="S",
             owner="IT Director", timing="planned", system_name=system_name,
+            rule_id="vc_security_not_reviewed",
             title="Vendor security practices not reviewed",
             detail=(f"The school has not reviewed the security practices of the vendor "
                     f"for {system_name}. A SOC 2 Type II report is the standard way to "
@@ -619,6 +639,7 @@ def findings_for_system(answers, section_id, system_name):
             findings.append(Finding(
                 area="Retention & Disposal", severity="low", effort="S",
                 owner="IT Director", timing="planned", system_name=system_name,
+                rule_id="rd_deletion_not_documented",
                 title="Data deletion not documented",
                 detail=(f"{system_name} deletes data at the end of its retention period, "
                         f"but the process is not documented. An undocumented deletion "
@@ -631,6 +652,7 @@ def findings_for_system(answers, section_id, system_name):
             findings.append(Finding(
                 area="Retention & Disposal", severity="medium", effort="M",
                 owner="IT Director", timing="near_term", system_name=system_name,
+                rule_id="rd_no_deletion_process",
                 title="No data deletion process — data accumulates indefinitely",
                 detail=(f"{system_name} has no process to delete data at the end of its "
                         f"retention period. Data accumulating indefinitely increases "
@@ -649,6 +671,7 @@ def findings_for_system(answers, section_id, system_name):
             findings.append(Finding(
                 area="Retention & Disposal", severity="critical", effort="M",
                 owner="IT Director", timing="immediate", system_name=system_name,
+                rule_id="rd_decom_data_unknown",
                 title="Decommissioned system — data status unknown",
                 detail=(f"{system_name} is no longer in use but data export and vendor "
                         f"deletion have not been confirmed. School data may still exist "
@@ -661,6 +684,7 @@ def findings_for_system(answers, section_id, system_name):
             findings.append(Finding(
                 area="Retention & Disposal", severity="high", effort="S",
                 owner="IT Director", timing="immediate", system_name=system_name,
+                rule_id="rd_decom_deletion_unconfirmed",
                 title="Decommissioned — deletion not confirmed in writing",
                 detail=(f"Data was exported from {system_name} before decommissioning, "
                         f"but the vendor has not confirmed in writing that all school data "
@@ -699,6 +723,7 @@ def check_data_source_coverage(answers, system_names, generated_section_ids):
         findings.append(Finding(
             area="School-Wide Governance", severity="medium", effort="M",
             owner="IT Director", timing="near_term",
+            rule_id="sw_data_sources_exceed_inventory",
             title="Data sources exceed system inventory — possible gaps in worksheet coverage",
             detail=(f"The following system worksheets list more inbound data sources in "
                     f"Section 3 (Data Flows) than the total number of systems in your "
@@ -732,6 +757,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="high", effort="M",
             owner="Head of School / IT Director", timing="immediate",
+            rule_id="sw_no_governance_policy",
             title="No formal data governance policy",
             detail=("The school does not have a formally adopted written data governance "
                     "or data privacy policy. Without this policy, there is no authoritative "
@@ -748,6 +774,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="high", effort="S",
             owner="Head of School", timing="immediate",
+            rule_id="sw_no_privacy_officer",
             title="No designated data privacy officer or responsible person",
             detail=("No individual has formal responsibility for data privacy at the school. "
                     "Data protection decisions are made ad hoc, with no single person "
@@ -762,6 +789,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="medium", effort="M",
             owner="IT Director", timing="near_term",
+            rule_id="sw_no_data_register",
             title="No master data register exists",
             detail=("The school does not maintain a master register of systems, what data "
                     "they hold, and how long it is kept. Without a register, the school "
@@ -776,6 +804,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="low", effort="S+",
             owner="IT Director", timing="planned",
+            rule_id="sw_data_register_outdated",
             title="Master data register exists but is incomplete or outdated",
             detail=("A data register exists but is not current. An outdated register may "
                     "not reflect newly adopted tools or changes to data flows."),
@@ -789,6 +818,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="high", effort="M",
             owner="Head of School / IT Director", timing="immediate",
+            rule_id="sw_no_breach_response_plan",
             title="No documented data breach response plan",
             detail=("The school does not have a written plan for responding to a data breach. "
                     "Applicable law requires prompt breach notification to affected individuals — "
@@ -804,6 +834,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="medium", effort="M",
             owner="IT Director", timing="near_term",
+            rule_id="sw_no_software_approval",
             title="No software approval process — shadow IT risk",
             detail=("Staff can adopt tools and services without IT review. Shadow IT is one "
                     "of the most common sources of data governance gaps in schools — tools "
@@ -819,6 +850,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="medium", effort="M",
             owner="HR / IT Director", timing="near_term",
+            rule_id="sw_no_privacy_training",
             title="No regular staff data privacy training",
             detail=("Staff are not trained on data privacy and responsible data handling on "
                     "a regular schedule. Staff are a primary vector for data incidents — "
@@ -832,6 +864,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="low", effort="S+",
             owner="HR / IT Director", timing="planned",
+            rule_id="sw_privacy_training_partial",
             title="Data privacy training not reaching all staff",
             detail=("Some staff have received data privacy training, but not all. Gaps in "
                     "coverage leave the school partially exposed."),
@@ -846,6 +879,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="critical", effort="M",
             owner="HR / IT Director", timing="immediate",
+            rule_id="sw_no_offboarding_process",
             title="No documented offboarding process for system access",
             detail=("The school does not have a documented checklist for revoking system "
                     "access when staff members leave. Former staff accounts found in the "
@@ -862,6 +896,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="medium", effort="M",
             owner="IT Director / Business Office", timing="near_term",
+            rule_id="sw_no_vendor_review_process",
             title="No formal vendor security review process",
             detail=("New vendors are approved without a security review. The school may be "
                     "signing contracts with vendors whose security practices are unknown."),
@@ -876,6 +911,7 @@ def findings_for_school_wide(answers):
         findings.append(Finding(
             area="School-Wide Governance", severity="medium", effort="M+",
             owner="IT Director / Business Office", timing="near_term",
+            rule_id="sw_no_retention_schedule",
             title="No data retention schedule",
             detail=("The school does not have a written data retention schedule defining "
                     "how long each category of data must be kept. Federal and state law "

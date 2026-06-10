@@ -31,8 +31,12 @@ BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = BASE_DIR / "templates"
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
-app.secret_key = "school-it-engine-dev-key-change-in-production"
-app.config['VERSION'] = '0.8.7.3'
+# Secret key: read from environment variable if set, otherwise generate a
+# fresh random key each startup.  A random key is fine for this localhost-only
+# tool (sessions do not need to survive a restart).  Set SECRET_KEY in the
+# environment for a stable key if you are running the tool on a shared machine.
+app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
+app.config['VERSION'] = '0.8.8.0'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -295,47 +299,64 @@ def section(session_id, section_id):
         # Determine if this section was already marked complete — if so, saves are revisions
         already_complete = section_id in json.loads(sess.get("sections_complete", "[]"))
 
-        for q in visible_questions:
-            qid      = q["question_id"]
-            atype    = q["answer_type"]
-            field_key = f"q_{qid.replace('.', '_')}"
+        def _process_questions(question_list):
+            """Save answers for the given list of questions from the current POST body."""
+            for q in question_list:
+                qid      = q["question_id"]
+                atype    = q["answer_type"]
+                field_key = f"q_{qid.replace('.', '_')}"
 
-            skipped = request.form.get(f"{field_key}_skip")    == "1"
-            unknown = request.form.get(f"{field_key}_unknown") == "1"
+                skipped = request.form.get(f"{field_key}_skip")    == "1"
+                unknown = request.form.get(f"{field_key}_unknown") == "1"
 
-            if skipped:
-                save_answer(session_id, qid, None, status="skipped",
-                            record_history=already_complete)
-                continue
-            if unknown:
-                save_answer(session_id, qid, "unknown", status="unknown",
-                            record_history=already_complete)
-                continue
-
-            if atype == "multi_select":
-                raw    = request.form.getlist(field_key)
-                status = "answered" if raw else "unanswered"
-            elif atype == "yes_no_unknown":
-                raw = request.form.get(field_key)
-                if raw == "unknown":
-                    # Treat the inline "I don't know" radio exactly like the unknown checkbox
+                if skipped:
+                    save_answer(session_id, qid, None, status="skipped",
+                                record_history=already_complete)
+                    continue
+                if unknown:
                     save_answer(session_id, qid, "unknown", status="unknown",
                                 record_history=already_complete)
                     continue
-                status = "answered" if raw else "unanswered"
-            else:
-                raw    = request.form.get(field_key, "").strip()
-                status = "answered" if raw else "unanswered"
 
-            notes = request.form.get(f"{field_key}_notes", "").strip() or None
+                if atype == "multi_select":
+                    raw    = request.form.getlist(field_key)
+                    status = "answered" if raw else "unanswered"
+                elif atype == "yes_no_unknown":
+                    raw = request.form.get(field_key)
+                    if raw == "unknown":
+                        save_answer(session_id, qid, "unknown", status="unknown",
+                                    record_history=already_complete)
+                        continue
+                    status = "answered" if raw else "unanswered"
+                else:
+                    raw    = request.form.get(field_key, "").strip()
+                    status = "answered" if raw else "unanswered"
 
-            if atype == "list_of_items" and isinstance(raw, str):
-                items = [line.strip() for line in raw.splitlines() if line.strip()]
-                raw   = items if items else None
-                status = "answered" if raw else "unanswered"
+                notes = request.form.get(f"{field_key}_notes", "").strip() or None
 
-            save_answer(session_id, qid, raw, notes=notes, status=status,
-                        record_history=already_complete)
+                if atype == "list_of_items" and isinstance(raw, str):
+                    items = [line.strip() for line in raw.splitlines() if line.strip()]
+                    raw   = items if items else None
+                    status = "answered" if raw else "unanswered"
+
+                save_answer(session_id, qid, raw, notes=notes, status=status,
+                            record_history=already_complete)
+
+        # First pass: save answers for all questions visible BEFORE this POST.
+        # This covers most questions and — crucially — saves gate/trigger answers
+        # that may reveal new conditional questions.
+        _process_questions(visible_questions)
+
+        # Second pass: re-evaluate visibility with the freshly-saved answers so
+        # that any questions newly revealed by this submit are also saved.
+        # This prevents answers typed into newly-appeared conditional questions
+        # from being silently dropped when the user submits in a single round-trip.
+        updated_answers = get_answers(session_id)
+        new_visible = get_visible_questions(sec, updated_answers)
+        first_pass_qids = {q["question_id"] for q in visible_questions}
+        newly_visible = [q for q in new_visible if q["question_id"] not in first_pass_qids]
+        if newly_visible:
+            _process_questions(newly_visible)
 
         if action == "complete":
             answers = get_answers(session_id)
@@ -608,6 +629,9 @@ def report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
+    if sess.get("module_id", MODULE_ID) != "module_1":
+        flash("This report setup is only available for IT Assessment sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         if not start_date:
@@ -832,6 +856,9 @@ def dg_report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
+    if sess.get("module_id") != "module_2":
+        flash("This report setup is only available for Data Governance Audit sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         if not start_date:
@@ -939,6 +966,9 @@ def vr_report_setup(session_id):
     sess = get_session(session_id)
     if not sess:
         return redirect(url_for("home"))
+    if sess.get("module_id") != "module_3":
+        flash("This report setup is only available for Vendor Register sessions.", "error")
+        return redirect(url_for("summary", session_id=session_id))
     if request.method == "POST":
         start_date = request.form.get("start_date", "").strip()
         if not start_date:
@@ -1188,4 +1218,6 @@ if __name__ == "__main__":
     print("  This tool runs entirely on your computer.")
     print("  No data is sent to the internet.")
     print("=" * 60 + "\n")
-    app.run(debug=True, port=5000)
+    # Debug mode off by default.  Set FLASK_DEBUG=1 in the environment to enable.
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug_mode, port=5000)

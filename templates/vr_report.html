@@ -288,7 +288,7 @@
     <div class="vendor-body">
       {% if result.findings %}
         {% for f in result.findings | sort(attribute='severity') %}
-        {% set fid = result.section_id ~ ':' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
+        {% set fid = result.section_id ~ ':' ~ f.rule_id %}
         {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
         <div class="finding-row sev-{{ f.severity }}">
           <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
@@ -362,7 +362,7 @@
   {% if vr.school_wide_results %}
   <h2 style="font-size: 1.1rem; margin: 32px 0 16px;">School-Wide Vendor Governance Findings</h2>
   {% for f in vr.school_wide_results %}
-  {% set fid = 'VR2:' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
+  {% set fid = 'VR2:' ~ f.rule_id %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-row sev-{{ f.severity }}" style="margin-bottom: 12px;">
     <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">

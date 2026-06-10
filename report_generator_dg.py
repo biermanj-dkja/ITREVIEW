@@ -729,8 +729,13 @@ def _per_system_findings(doc, dg_report, finding_contexts=None):
 
         for f in sorted_findings:
             sev_hex = _hex(SEV_COLOR.get(f.severity, C.text))
-            # Build a stable finding_id key for context lookup
-            fid_key = f"{result.section_id}:{f.area[:3].upper()}"
+            # P2-H2: Use stable rule_id as canonical context key.
+            # Format: "{section_id}:{rule_id}". Fall back to area prefix only if
+            # rule_id is somehow absent (should not happen in practice).
+            if f.rule_id:
+                fid_key = f"{result.section_id}:{f.rule_id}"
+            else:
+                fid_key = f"{result.section_id}:{f.area[:3].upper()}"
 
             tp = doc.add_paragraph()
             tp.paragraph_format.space_before = Pt(8)
@@ -777,7 +782,8 @@ def _per_system_findings(doc, dg_report, finding_contexts=None):
         doc.add_paragraph().paragraph_format.space_after = Pt(6)
 
 
-def _school_wide_findings(doc, dg_report):
+def _school_wide_findings(doc, dg_report, finding_contexts=None):
+    finding_contexts = finding_contexts or {}
     if not dg_report.school_wide_results:
         return
     _page_break(doc)
@@ -795,6 +801,11 @@ def _school_wide_findings(doc, dg_report):
 
     for f in sorted_findings:
         sev_hex = _hex(SEV_COLOR.get(f.severity, C.text))
+        # P2-H2: stable rule_id key for school-wide context notes
+        if f.rule_id:
+            fid_key = f"DG2:{f.rule_id}"
+        else:
+            fid_key = f"DG2:{f.area[:3].upper()}"
 
         tp = doc.add_paragraph()
         tp.paragraph_format.space_before = Pt(10)
@@ -825,6 +836,17 @@ def _school_wide_findings(doc, dg_report):
                      italic=True, size=9, color=C.faint)
 
         _box(doc, "EBF5FB", action_builder)
+
+        # P2-H2: Context note for school-wide findings
+        ctx = finding_contexts.get(fid_key)
+        if ctx:
+            def ctx_builder(cell, ctx=ctx):
+                ph = _cp(cell, sb=2, sa=1)
+                _run(ph, "📋  Context note  ", bold=True, size=9, color=C.healthy)
+                _run(ph, f"(added {ctx['added_at'][:10]})", size=8, color=C.faint)
+                pb = _cp(cell, sb=1, sa=2)
+                _run(pb, ctx["note"], size=9, italic=True, color=C.text)
+            _box(doc, "EAFAF1", ctx_builder)
 
 
 def _action_plan(doc, dg_report):
@@ -1254,7 +1276,7 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
     _exec_summary(doc, dg_report_obj, school_name, system_names=system_names,
                   is_draft=is_draft)
     _per_system_findings(doc, dg_report_obj, finding_contexts=finding_contexts)
-    _school_wide_findings(doc, dg_report_obj)
+    _school_wide_findings(doc, dg_report_obj, finding_contexts=finding_contexts)
     _action_plan(doc, dg_report_obj)
 
     # Phased remediation timeline (only when start_date supplied)
@@ -1267,7 +1289,7 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
         for result in dg_report_obj.per_system_results:
             for f in result.findings:
                 flat_findings.append({
-                    "finding_id":    f"{result.section_id}:{f.area[:3].upper()}",
+                    "finding_id":    f"{result.section_id}:{f.rule_id}" if f.rule_id else f"{result.section_id}:{f.area[:3].upper()}",
                     "title":         f.title,
                     "severity":      _dg_sev_to_timeline(f.severity),
                     "section_id":    result.section_id,
@@ -1280,7 +1302,7 @@ def generate_dg_report(dg_report_obj, answers, profile, system_names,
                 })
         for f in dg_report_obj.school_wide_results:
             flat_findings.append({
-                "finding_id":    f"DG2:{f.area[:3].upper()}",
+                "finding_id":    f"DG2:{f.rule_id}" if f.rule_id else f"DG2:{f.area[:3].upper()}",
                 "title":         f.title,
                 "severity":      _dg_sev_to_timeline(f.severity),
                 "section_id":    "DG2",

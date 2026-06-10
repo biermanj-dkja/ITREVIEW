@@ -166,6 +166,7 @@
         <div class="text-xs text-faint mb-8">SECTIONS</div>
         {% for s in module.sections %}
         <a href="/session/{{ session_id }}/section/{{ s.section_id }}"
+           class="nav-section-link"
            style="text-decoration: none; display: block;">
           <div class="sidebar-section
             {{ 'complete' if s.section_id in complete else
@@ -222,6 +223,23 @@
         </div>
       </div>
 
+      {# P2-H1: Warn when the inventory list has diverged from generated worksheets #}
+      {% if inventory_reorder_warning %}
+      <div style="margin-bottom: 20px; padding: 12px 16px;
+                  background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.35);
+                  border-left: 3px solid var(--concern); border-radius: 6px;
+                  font-size: 13px; color: var(--text-dim);">
+        ⚠️ <strong style="color: var(--concern);">Inventory mismatch detected.</strong>
+        The number of items in your inventory list has changed since the worksheets were generated
+        (currently <strong>{{ answers.get(inv_qid, {}).get('raw_answer', []) | length }}</strong>
+        items, <strong>{{ gen_ids_count }}</strong> worksheets exist).
+        Editing the inventory list after worksheets have been filled in may reassign answers to the wrong
+        item — worksheet answers are keyed by position, not by name.
+        <strong>Do not reorder or insert items above existing entries.</strong>
+        To rebuild worksheets from scratch, clear the inventory field, save, then re-enter your list.
+      </div>
+      {% endif %}
+
       <form method="POST" id="section-form">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
           {{ render_question(q, answers) }}
@@ -235,7 +253,8 @@
         {% endif %}
 
         <div class="flex-between">
-          <a href="/" class="btn btn-ghost">← Save &amp; Exit</a>
+          {# P2-H4: submit the form before navigating home so unsaved edits are never lost #}
+          <button type="submit" name="action" value="save_exit" class="btn btn-ghost">← Save &amp; Exit</button>
           <div class="flex gap-12">
             <button type="submit" name="action" value="save" class="btn btn-secondary">
               Save Progress
@@ -252,6 +271,12 @@
 </div>
 
 <script>
+  // ── P2-H3: Cross-section condition values ──────────────────────────
+  // Server-side saved values for condition dependencies that live outside
+  // this section's DOM. getFieldValue() falls back here when the field is
+  // not present in the current page.
+  const CONDITION_VALUES = {{ condition_values | tojson }};
+
   // ── Card state helpers ──────────────────────────────────────────
 
   function markAnswered(fkey) {
@@ -306,6 +331,8 @@
   function getFieldValue(fkey) {
     // Returns the current value of a question field as a string,
     // or null if the field has no answer yet.
+    // P2-H3: If the field is not in the current section DOM, fall back to
+    // the server-provided saved value (handles cross-section conditions like 7.4←6.13).
     const radios = document.querySelectorAll(`input[type="radio"][name="${fkey}"]:checked`);
     if (radios.length > 0) return radios[0].value;
 
@@ -318,6 +345,14 @@
                                                input[type="number"][name="${fkey}"],
                                                textarea[name="${fkey}"]`);
     if (textInput && textInput.value.trim()) return textInput.value.trim();
+
+    // Fall back to server-provided cross-section value
+    // fkey is "q_6_13" for question_id "6.13" — convert back to qid
+    const qid = fkey.replace(/^q_/, '').replace(/_/g, '.');
+    if (CONDITION_VALUES.hasOwnProperty(qid)) {
+      const sv = CONDITION_VALUES[qid];
+      return sv !== null && sv !== undefined ? String(sv) : null;
+    }
 
     return null;
   }
@@ -523,6 +558,35 @@
 
   // Initial render
   updateProgressBar();
+
+  // ── P2-H4: Dirty-form detection for sidebar navigation ───────────
+  // Tracks whether any form field has changed since page load so we can
+  // warn before sidebar links navigate away without saving.
+  let formIsDirty = false;
+
+  document.getElementById('section-form').addEventListener('input', () => {
+    formIsDirty = true;
+  });
+  document.getElementById('section-form').addEventListener('change', () => {
+    formIsDirty = true;
+  });
+
+  // Sidebar nav links — warn if unsaved changes exist
+  document.querySelectorAll('.nav-section-link').forEach(link => {
+    link.addEventListener('click', e => {
+      if (!formIsDirty) return;
+      const confirmed = confirm(
+        'You have unsaved changes.\n\n' +
+        'Click OK to leave without saving, or Cancel to go back and press "Save Progress" first.'
+      );
+      if (!confirmed) e.preventDefault();
+    });
+  });
+
+  // Clear dirty flag when any submit button is clicked (form is being saved)
+  document.querySelectorAll('#section-form button[type="submit"]').forEach(btn => {
+    btn.addEventListener('click', () => { formIsDirty = false; });
+  });
 
 </script>
 {% endblock %}

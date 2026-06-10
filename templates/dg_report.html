@@ -303,7 +303,7 @@
 </div>
 <div class="findings-section">
   {% for f in dg.school_wide_results | sort(attribute='severity') %}
-  {% set fid = 'DG2:' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
+  {% set fid = 'DG2:' ~ f.rule_id if f.rule_id else 'DG2:' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-item sev-{{ f.severity }}">
     <div class="finding-top">
@@ -312,7 +312,6 @@
     </div>
     <div class="finding-detail">{{ f.detail }}</div>
     <div class="finding-action"><strong>Action:</strong> {{ f.action }} <span class="effort-pill" title="Estimated effort">{{ f.effort }}</span></div>
-    {% if last_exported %}
     <div style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
       {% if ctx %}
       <div style="background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--healthy);
@@ -347,12 +346,11 @@
             {% endif %}
           </div>
           <p class="text-xs text-faint" style="margin-top: 6px; line-height: 1.5;">
-            This note appears in the DOCX alongside the finding. It does not change the score or severity.
+            This note will appear in the DOCX alongside the finding. It does not change the score or severity.
           </p>
         </form>
       </details>
     </div>
-    {% endif %}
   </div>
   {% endfor %}
 </div>
@@ -375,7 +373,7 @@
 <div class="findings-section">
   {% for item in ns.all_findings | sort(attribute='f.severity') %}
   {% set f = item.f %}
-  {% set fid = item.section_id ~ ':' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
+  {% set fid = item.section_id ~ ':' ~ f.rule_id if f.rule_id else item.section_id ~ ':' ~ (f.area | replace(' ', '_') | upper) ~ ':' ~ loop.index %}
   {% set ctx = finding_contexts.get(fid) if finding_contexts else none %}
   <div class="finding-item sev-{{ f.severity }}">
     <div class="finding-top">
@@ -387,7 +385,6 @@
     {% endif %}
     <div class="finding-detail">{{ f.detail }}</div>
     <div class="finding-action"><strong>Action:</strong> {{ f.action }} <span class="effort-pill" title="Estimated effort">{{ f.effort }}</span></div>
-    {% if last_exported %}
     <div style="margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
       {% if ctx %}
       <div style="background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--healthy);
@@ -422,12 +419,11 @@
             {% endif %}
           </div>
           <p class="text-xs text-faint" style="margin-top: 6px; line-height: 1.5;">
-            This note appears in the DOCX alongside the finding. It does not change the score or severity.
+            This note will appear in the DOCX alongside the finding. It does not change the score or severity.
           </p>
         </form>
       </details>
     </div>
-    {% endif %}
   </div>
   {% endfor %}
 </div>

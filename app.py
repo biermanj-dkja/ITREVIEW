@@ -406,6 +406,10 @@ def section(session_id, section_id):
         if newly_visible:
             _process_questions(newly_visible)
 
+        # P2-H4: Save & Exit — save answers then return to home
+        if action == "save_exit":
+            return redirect(url_for("home"))
+
         if action == "complete":
             answers = get_answers(session_id)
             earned, max_pts, answered_count, skipped_count, total_q = \
@@ -468,6 +472,35 @@ def section(session_id, section_id):
     # (used to show the server-round-trip hint for worksheet generation)
     has_hidden_conditionals = any(q.get("triggers_save") for q in all_questions)
 
+    # P2-H3: Build a dict of saved values for condition dependencies that live
+    # outside the current section.  JS getFieldValue() falls back to this dict
+    # when a dependent field is not present in the current section DOM, so
+    # cross-section conditions (e.g. 7.4 ← 6.13) behave correctly on first render.
+    current_section_qids = {q["question_id"] for q in all_questions}
+    condition_values = {}
+    for q in all_questions:
+        cond = q.get("condition")
+        if cond and isinstance(cond, dict):
+            dep_qid = cond.get("question_id")
+            if dep_qid and dep_qid not in current_section_qids:
+                dep_ans = answers.get(dep_qid, {})
+                dep_val = dep_ans.get("raw_answer") if dep_ans else None
+                if dep_val is not None:
+                    condition_values[dep_qid] = dep_val
+
+    # P2-H1: Detect if the inventory list has changed after worksheets were
+    # generated so we can warn the user in the template.
+    inventory_reorder_warning = False
+    ds = module.get("dynamic_sections", {})
+    inv_qid = ds.get("inventory_question_id") if ds.get("enabled") else None
+    if inv_qid and gen_ids:
+        inv_ans = answers.get(inv_qid, {})
+        current_inv = inv_ans.get("raw_answer") if inv_ans else None
+        if isinstance(current_inv, list):
+            current_count = len([s for s in current_inv if str(s).strip()])
+            if current_count != len(gen_ids):
+                inventory_reorder_warning = True
+
     module_label = _module_label(mid)
     section_label_bc = f"Section {sec.get('display_id', section_id)}: {sec['title']}"
     breadcrumb = dict(session_id=session_id, module_label=module_label, section_label=section_label_bc)
@@ -487,6 +520,10 @@ def section(session_id, section_id):
         complete_count=complete_count,
         profile=profile,
         has_hidden_conditionals=has_hidden_conditionals,
+        condition_values=condition_values,
+        inventory_reorder_warning=inventory_reorder_warning,
+        inv_qid=inv_qid,
+        gen_ids_count=len(gen_ids),
         session_breadcrumb=breadcrumb,
         amended_qids=amended_qids,
     )

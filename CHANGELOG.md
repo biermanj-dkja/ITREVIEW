@@ -7,6 +7,25 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.9.0.1** — Pass 2 UX / app-logic fixes (all five high-priority items from the ITREVIEW pass 2 audit).
+
+### P2-H1 — Inventory reorder warning (`app.py`, `section.html`)
+When the inventory list for Modules 2 or 3 diverges from the number of already-generated worksheets (e.g. after inserting or reordering items), a warning banner is shown at the top of the inventory section. Worksheet answers are keyed by position, so inserting an item above existing entries can silently reassign answers. The warning explains the risk and instructs the user on how to rebuild worksheets cleanly.
+
+### P2-H2 — Context-note IDs use `rule_id` consistently (`dg_report.html`, `vr_report.html`, `report_generator_dg.py`, `report_generator_vr.py`)
+Finding context notes are now keyed as `{scope_id}:{rule_id}` end-to-end (e.g. `DG_SYS_3:ac_mfa_not_enabled`, `VR2:vg_no_password_manager`). The previous area-prefix + loop-index scheme could misattribute notes when findings were added, suppressed, or sorted differently between page load and DOCX export. The stable `rule_id` slug is always used; the area-prefix format is retained as a fallback only when `rule_id` is absent. `_school_wide_findings()` in `report_generator_dg.py` now also accepts and renders context notes (this path was previously absent). Timeline `finding_id` keys in both DG and VR report generators are updated to match.
+
+### P2-H3 — Cross-section conditional questions render correctly (`app.py`, `section.html`)
+`7.4` ("Do backups cover servers?") depends on `6.13` (server count) from Section 6. The JS `evaluateAllConditions()` could not find `6.13` in the Section 7 DOM and would hide `7.4` on first load even when the saved answer warranted showing it. The section route now computes a `condition_values` dict for all cross-section dependencies and embeds it as `CONDITION_VALUES` JSON in the page. `getFieldValue()` falls back to this dict when the field is absent from the DOM.
+
+### P2-H4 — "Save & Exit" saves before navigating (`app.py`, `section.html`)
+"← Save & Exit" was an anchor tag that navigated directly to `/` without submitting the form, silently discarding unsaved edits. It has been replaced with a submit button (`action=save_exit`) that processes the form before redirecting. Sidebar navigation links now carry the class `nav-section-link` and trigger a confirmation dialog when the form has unsaved changes (dirty-form detection via `input`/`change` events).
+
+### P2-M1 — Context notes always visible (`dg_report.html`, `vr_report.html`)
+Context-note forms on DG and VR report cards are now shown unconditionally. The previous `last_exported` gate that hid them until after a first download has been removed. Notes can be added, edited, or cleared at any time; the DOCX will include any saved notes on the next download. Helper text updated from "This note appears…" to "This note **will** appear…" to clarify the intent for first-time annotators.
+
+---
+
 **v0.8.9.0** is a security and housekeeping release.
 
 ### F1 — CSRF protection for all POST routes (`app.py`, all templates)

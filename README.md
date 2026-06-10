@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.8.9.0
+## v0.9.0.1
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -9,6 +9,23 @@ The format of this tool is structured interview → written documentation → pr
 If you're the IT director — or the person who ended up being the IT director — at a small private school, you already know the situation. You're managing devices, vendors, accounts, backups, and security for an entire institution, often without a team, a budget line for assessments, or a consultant you can actually afford. When someone asks "how are we doing on IT?", the honest answer is usually somewhere between "better than last year" and "I'm not totally sure."
 This tool is built for that gap. It walks you through a structured assessment of your school's IT environment — network, devices, identity management, backups, security, data governance — and produces a prioritized findings report and a phased action plan as a Word document you can share with your head of school or board. The whole thing runs locally on your computer. Nothing is sent anywhere.
 ---
+
+### What's new in v0.9.0.1
+
+**P2-H1 — Inventory reorder warning**
+When the number of items in the system/vendor inventory list diverges from the number of generated worksheets (e.g. after inserting or removing an item), a prominent warning banner now appears at the top of that section. Worksheet answers are keyed by position, so reordering the list after worksheets are filled risks misattributing answers to the wrong system or vendor. The warning explains the risk and how to rebuild cleanly.
+
+**P2-H2 — Context-note IDs now use `rule_id` consistently**
+DG and VR finding context notes are now keyed as `{scope_id}:{rule_id}` (e.g. `DG_SYS_3:ac_mfa_not_enabled`, `VR2:vg_no_password_manager`) in both the report-card templates and the DOCX generators. The previous area-prefix + loop-index scheme could attach notes to the wrong finding when findings were added, removed, or reordered. The stable `rule_id` slug is always used; the old format is retained as a fallback only when `rule_id` is absent. School-wide DG findings now also render context notes in the DOCX (this path was previously missing).
+
+**P2-H3 — Cross-section conditional questions render correctly on first load**
+Question `7.4` ("Do backups cover servers?") depends on question `6.13` (server count) from a different section. Previously the client-side JS couldn't find `6.13` in the current section DOM and would hide `7.4` even when it should be shown. The server now embeds a `CONDITION_VALUES` dict for all cross-section dependencies; `getFieldValue()` falls back to this dict when the field is not present in the current page.
+
+**P2-H4 — "Save & Exit" now saves before navigating home**
+The "← Save & Exit" link has been changed to a form submit button (`action=save_exit`). Clicking it now saves the current section's answers before redirecting to the home page — previously it was a plain anchor that silently discarded any unsaved input. Sidebar section-navigation links also now prompt for confirmation if the form has been edited since the last save.
+
+**P2-M1 — Context-note forms no longer require a prior export**
+Context notes on findings (DG and VR report cards) are now always visible — the previous `last_exported` gate that hid them until after a first download has been removed. Notes can be added, edited, or removed at any time and will be included in the next DOCX download.
 
 ## Requirements
 

@@ -731,9 +731,16 @@ def _finding_box(doc, f, finding_contexts=None, section_id=None):
     sev_col = FSEV_COLOR.get(f.severity, C.text)
     sev_hex = _hex(sev_col)
 
-    # Build stable context lookup key: "{section_id}:{area[:3].upper()}"
-    # Matches the key format used in the phased timeline and DG report.
-    fid_key = f"{section_id}:{f.area[:3].upper()}" if section_id else None
+    # P2-H2: Use stable rule_id as canonical context key.
+    # Format: "{section_id}:{rule_id}". Fall back to area prefix only when
+    # rule_id is absent (forward-compatibility guard).
+    if section_id:
+        if f.rule_id:
+            fid_key = f"{section_id}:{f.rule_id}"
+        else:
+            fid_key = f"{section_id}:{f.area[:3].upper()}"
+    else:
+        fid_key = None
     ctx = finding_contexts.get(fid_key) if fid_key else None
 
     def _builder(cell):
@@ -1020,7 +1027,7 @@ def generate_vr_report(vr_report_obj, answers, profile, vendor_names,
         for result in vr_report_obj.per_vendor_results:
             for f in result.findings:
                 flat_findings.append({
-                    "finding_id":   f"{result.section_id}:{f.area[:3].upper()}",
+                    "finding_id":   f"{result.section_id}:{f.rule_id}" if f.rule_id else f"{result.section_id}:{f.area[:3].upper()}",
                     "title":        f.title,
                     "severity":     _vr_sev_to_timeline(f.severity),
                     "section_id":   result.section_id,
@@ -1033,7 +1040,7 @@ def generate_vr_report(vr_report_obj, answers, profile, vendor_names,
                 })
         for f in vr_report_obj.school_wide_results:
             flat_findings.append({
-                "finding_id":   f"VR2:{f.area[:3].upper()}",
+                "finding_id":   f"VR2:{f.rule_id}" if f.rule_id else f"VR2:{f.area[:3].upper()}",
                 "title":        f.title,
                 "severity":     _vr_sev_to_timeline(f.severity),
                 "section_id":   "VR2",

@@ -62,12 +62,12 @@ Ideas captured during development. Not prioritised — reference for future road
   updated whenever the inventory answer changes) so the home page can render without touching
   the YAML or the answers table. Low priority until session counts become a practical problem.
 
-- **`save_session_meta` / `get_session_meta` are stubs** — `database.py` contains two no-op
-  placeholder functions for arbitrary key-value session metadata. They were added speculatively
-  and nothing calls them yet. If a feature ever needs per-session metadata that doesn't
-  warrant a dedicated column (e.g. user-defined tags, display preferences), implement a
-  `session_meta` table here. Until then the stubs are harmless but should not be relied on —
-  any code that calls `save_session_meta` silently discards its data.
+- **`session_meta` table** ✓ *Implemented in v0.9.0.2* — `database.py` now provides a real
+  `session_meta` table with upsert (`save_session_meta`) and typed retrieval
+  (`get_session_meta`). Currently used by the inventory snapshot mechanism (P2-H1) to detect
+  DG/VR inventory reorders, renames, and same-count replacements after worksheets have been
+  filled in. The table is cleaned up on `delete_session`. **Not yet included in session
+  export/import** — see the tracking note below.
 
 - **Module 2 phased timeline** ✓ *Implemented in v0.6.0* — the Data Governance DOCX report
   now includes a phased remediation timeline when a start date is supplied on the download
@@ -91,6 +91,28 @@ Ideas captured during development. Not prioritised — reference for future road
   findings, suppression chains, cross-question comparisons, and the key-risk grouping logic
   currently in Module 1. Recommend doing Module 1 first as the harder case, then verifying
   Module 2 ports cleanly before retiring the Python engines.
+
+- **`session_meta` not included in session export/import** — the per-session export
+  (`/session/<id>/export`) and import routes do not currently serialise or restore
+  `session_meta` rows. The only data currently stored in `session_meta` is the inventory
+  snapshot used by the P2-H1 mismatch warning (`inv_snapshot:DG1.3`,
+  `inv_snapshot:VR1.3`). The practical consequence: after importing a session on a new
+  machine, the inventory snapshot will be absent until the inventory section is visited and
+  the snapshot is backfilled on the first GET. No data loss occurs — the warning simply will
+  not fire on that first visit. Low priority, but should be fixed before `session_meta` is
+  used for anything harder to recover from (e.g. user preferences or display state).
+
+  Required changes when addressing:
+  1. **`app.py` export route** — fetch all `session_meta` rows for the session via a new
+     `get_all_session_meta(session_id)` helper and include them as `"session_meta": [...]`
+     in the export JSON.
+  2. **`app.py` import route** — after restoring answers, iterate the `session_meta` array
+     (if present) and call `save_session_meta()` for each row. Missing key is safe to ignore
+     (forward/backward compat).
+  3. **`database.py`** — add `get_all_session_meta(session_id)` returning a list of
+     `{key, value}` dicts for the export serialiser.
+
+  Scope: XS. Self-contained to `app.py` and `database.py`.
 
 - **Whole-school export / import** — a single "Export School" action that bundles all
   non-deprecated sessions plus the school profile into one JSON file, allowing complete

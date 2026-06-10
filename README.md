@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.9.0.1
+## v0.9.0.2
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -10,10 +10,12 @@ If you're the IT director — or the person who ended up being the IT director �
 This tool is built for that gap. It walks you through a structured assessment of your school's IT environment — network, devices, identity management, backups, security, data governance — and produces a prioritized findings report and a phased action plan as a Word document you can share with your head of school or board. The whole thing runs locally on your computer. Nothing is sent anywhere.
 ---
 
-### What's new in v0.9.0.1
+### What's new in v0.9.0.2
 
-**P2-H1 — Inventory reorder warning**
-When the number of items in the system/vendor inventory list diverges from the number of generated worksheets (e.g. after inserting or removing an item), a prominent warning banner now appears at the top of that section. Worksheet answers are keyed by position, so reordering the list after worksheets are filled risks misattributing answers to the wrong system or vendor. The warning explains the risk and how to rebuild cleanly.
+**P2-H1 — Full inventory snapshot mismatch detection**
+The `session_meta` table (previously stubbed) is now implemented in `database.py`. When dynamic worksheets are generated for a Module 2 or Module 3 session, the exact ordered inventory list is saved as a snapshot. On every subsequent section load, the current inventory is compared against the snapshot — not just the count.
+
+The app now detects and warns on all four divergence cases: count changes (items added/removed), same-count reorder, same-count replacement, and same-count rename. The warning banner shows type-specific copy explaining exactly what changed. Pre-upgrade sessions are silently backfilled on first load with no false-positive warning.
 
 **P2-H2 — Context-note IDs now use `rule_id` consistently**
 DG and VR finding context notes are now keyed as `{scope_id}:{rule_id}` (e.g. `DG_SYS_3:ac_mfa_not_enabled`, `VR2:vg_no_password_manager`) in both the report-card templates and the DOCX generators. The previous area-prefix + loop-index scheme could attach notes to the wrong finding when findings were added, removed, or reordered. The stable `rule_id` slug is always used; the old format is retained as a fallback only when `rule_id` is absent. School-wide DG findings now also render context notes in the DOCX (this path was previously missing).

@@ -289,6 +289,11 @@ def section(session_id, section_id):
     answers = get_answers(session_id)
     profile = get_school_profile()
 
+    # Compute inv_qid early — needed in both GET (snapshot comparison) and POST
+    # (snapshot write) code paths.
+    _ds = module.get("dynamic_sections", {})
+    inv_qid = _ds.get("inventory_question_id") if _ds.get("enabled") else None
+
     # Prefill on first GET
     if request.method == "GET":
         from datetime import date as _date
@@ -406,6 +411,28 @@ def section(session_id, section_id):
         if newly_visible:
             _process_questions(newly_visible)
 
+        # P2-H1: After saving answers, update the inventory snapshot if this
+        # section contains the inventory question.  The snapshot records the
+        # exact ordered list at the time worksheets were (re)generated, so
+        # future GETs can detect reorder/rename/replacement, not just count changes.
+        if inv_qid:
+            saved_inv = get_answers(session_id).get(inv_qid, {})
+            saved_raw = saved_inv.get("raw_answer") if saved_inv else None
+            saved_list = [str(s).strip() for s in (saved_raw or []) if str(s).strip()] \
+                         if isinstance(saved_raw, list) else []
+            if saved_list:
+                snapshot_key = f"inv_snapshot:{inv_qid}"
+                # Re-expand so we know if worksheets now exist after this save
+                _, post_gen_ids = _load_expanded_module(mid, session_id)
+                if post_gen_ids:
+                    existing_snapshot = get_session_meta(session_id, snapshot_key)
+                    # Write the snapshot the first time, and re-write it only when
+                    # the worksheet count has just changed (i.e. items were added/removed
+                    # and saved).  Rewrites on same-count edits are intentionally NOT
+                    # done here — those are exactly the cases we want to warn about.
+                    if existing_snapshot is None or len(existing_snapshot) != len(post_gen_ids):
+                        save_session_meta(session_id, snapshot_key, saved_list)
+
         # P2-H4: Save & Exit — save answers then return to home
         if action == "save_exit":
             return redirect(url_for("home"))
@@ -488,18 +515,46 @@ def section(session_id, section_id):
                 if dep_val is not None:
                     condition_values[dep_qid] = dep_val
 
-    # P2-H1: Detect if the inventory list has changed after worksheets were
-    # generated so we can warn the user in the template.
-    inventory_reorder_warning = False
-    ds = module.get("dynamic_sections", {})
-    inv_qid = ds.get("inventory_question_id") if ds.get("enabled") else None
+    # P2-H1 (upgraded): Full inventory snapshot comparison.
+    # When dynamic worksheets exist, compare the current inventory list against
+    # the snapshot that was saved when worksheets were first generated.
+    # Detects insertions/deletions (count change), reorders, renames, and
+    # same-count replacements — not just count mismatches.
+    inventory_warning_type = None   # None | "count" | "order_or_content" | "both"
+    inventory_warning_details = {}  # passed to template for precise copy
     if inv_qid and gen_ids:
         inv_ans = answers.get(inv_qid, {})
         current_inv = inv_ans.get("raw_answer") if inv_ans else None
-        if isinstance(current_inv, list):
-            current_count = len([s for s in current_inv if str(s).strip()])
-            if current_count != len(gen_ids):
-                inventory_reorder_warning = True
+        current_list = [str(s).strip() for s in (current_inv or []) if str(s).strip()] \
+                       if isinstance(current_inv, list) else []
+
+        snapshot_key = f"inv_snapshot:{inv_qid}"
+        saved_snapshot = get_session_meta(session_id, snapshot_key)  # list or None
+
+        if saved_snapshot is not None and isinstance(saved_snapshot, list):
+            count_changed   = len(current_list) != len(saved_snapshot)
+            content_changed = current_list != saved_snapshot
+            if count_changed and content_changed:
+                inventory_warning_type = "both"
+            elif count_changed:
+                inventory_warning_type = "count"
+            elif content_changed:
+                inventory_warning_type = "order_or_content"
+            inventory_warning_details = {
+                "current": current_list,
+                "snapshot": saved_snapshot,
+                "current_count": len(current_list),
+                "snapshot_count": len(saved_snapshot),
+                "gen_count": len(gen_ids),
+            }
+        elif not saved_snapshot and gen_ids:
+            # Worksheets exist but no snapshot recorded yet (pre-upgrade session).
+            # Write a snapshot from the current inventory so future edits are detectable.
+            if current_list:
+                save_session_meta(session_id, snapshot_key, current_list)
+
+    # Backwards-compat alias so section.html can still test a single truthy flag
+    inventory_reorder_warning = inventory_warning_type is not None
 
     module_label = _module_label(mid)
     section_label_bc = f"Section {sec.get('display_id', section_id)}: {sec['title']}"
@@ -522,6 +577,8 @@ def section(session_id, section_id):
         has_hidden_conditionals=has_hidden_conditionals,
         condition_values=condition_values,
         inventory_reorder_warning=inventory_reorder_warning,
+        inventory_warning_type=inventory_warning_type,
+        inventory_warning_details=inventory_warning_details,
         inv_qid=inv_qid,
         gen_ids_count=len(gen_ids),
         session_breadcrumb=breadcrumb,

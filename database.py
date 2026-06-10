@@ -81,6 +81,15 @@ def init_db():
             added_at TEXT NOT NULL,
             UNIQUE(session_id, finding_id)
         );
+
+        CREATE TABLE IF NOT EXISTS session_meta (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            meta_key TEXT NOT NULL,
+            meta_value TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            UNIQUE(session_id, meta_key)
+        );
     """)
     # Migrate: add sections_flagged column if it doesn't exist yet
     try:
@@ -122,6 +131,21 @@ def init_db():
                 note TEXT NOT NULL,
                 added_at TEXT NOT NULL,
                 UNIQUE(session_id, finding_id)
+            )
+        """)
+        db.commit()
+    except Exception:
+        pass
+    # Migrate: add session_meta table if it doesn't exist yet
+    try:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS session_meta (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                meta_key TEXT NOT NULL,
+                meta_value TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                UNIQUE(session_id, meta_key)
             )
         """)
         db.commit()
@@ -321,6 +345,7 @@ def delete_session(session_id):
     db.execute("DELETE FROM answer_record   WHERE session_id=?", (session_id,))
     db.execute("DELETE FROM answer_history  WHERE session_id=?", (session_id,))
     db.execute("DELETE FROM finding_context WHERE session_id=?", (session_id,))
+    db.execute("DELETE FROM session_meta    WHERE session_id=?", (session_id,))
     db.execute("DELETE FROM assessment_session WHERE session_id=?", (session_id,))
     db.commit()
     db.close()
@@ -419,27 +444,42 @@ def get_last_exported(session_id):
 
 
 def save_session_meta(session_id, key, value):
-    """Save arbitrary key-value metadata for a session.
+    """Persist arbitrary key-value metadata for a session.
 
-    Not yet implemented — raises NotImplementedError so callers fail loudly
-    rather than silently discarding data.  Implement with a session_meta table
-    when this feature is needed.
+    Values are serialised to JSON, so any JSON-compatible type is accepted.
+    Uses upsert so repeated calls are idempotent.
     """
-    raise NotImplementedError(
-        "save_session_meta() is not yet implemented. "
-        "Add a session_meta table before calling this."
-    )
+    db  = get_db()
+    now = datetime.now(timezone.utc).isoformat()
+    db.execute("""
+        INSERT INTO session_meta (session_id, meta_key, meta_value, updated_at)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(session_id, meta_key) DO UPDATE SET
+            meta_value=excluded.meta_value,
+            updated_at=excluded.updated_at
+    """, (session_id, key, json.dumps(value), now))
+    db.commit()
+    db.close()
 
 
-def get_session_meta(session_id, key):
-    """Retrieve metadata for a session.
+def get_session_meta(session_id, key, default=None):
+    """Retrieve a metadata value for a session.
 
-    Not yet implemented — raises NotImplementedError so callers fail loudly.
+    Returns ``default`` (None unless supplied) when the key does not exist.
+    Values are deserialised from JSON before being returned.
     """
-    raise NotImplementedError(
-        "get_session_meta() is not yet implemented. "
-        "Add a session_meta table before calling this."
-    )
+    db  = get_db()
+    row = db.execute(
+        "SELECT meta_value FROM session_meta WHERE session_id=? AND meta_key=?",
+        (session_id, key)
+    ).fetchone()
+    db.close()
+    if row is None:
+        return default
+    try:
+        return json.loads(row["meta_value"])
+    except (TypeError, ValueError):
+        return row["meta_value"]
 
 
 # ── Answer history ────────────────────────────────────────────────

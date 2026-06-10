@@ -223,20 +223,46 @@
         </div>
       </div>
 
-      {# P2-H1: Warn when the inventory list has diverged from generated worksheets #}
+      {# P2-H1 (upgraded): Warn when the inventory list has diverged from generated worksheets #}
+      {# inventory_warning_type: None | "count" | "order_or_content" | "both" #}
       {% if inventory_reorder_warning %}
       <div style="margin-bottom: 20px; padding: 12px 16px;
                   background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.35);
                   border-left: 3px solid var(--concern); border-radius: 6px;
                   font-size: 13px; color: var(--text-dim);">
-        ⚠️ <strong style="color: var(--concern);">Inventory mismatch detected.</strong>
-        The number of items in your inventory list has changed since the worksheets were generated
-        (currently <strong>{{ answers.get(inv_qid, {}).get('raw_answer', []) | length }}</strong>
-        items, <strong>{{ gen_ids_count }}</strong> worksheets exist).
-        Editing the inventory list after worksheets have been filled in may reassign answers to the wrong
-        item — worksheet answers are keyed by position, not by name.
-        <strong>Do not reorder or insert items above existing entries.</strong>
-        To rebuild worksheets from scratch, clear the inventory field, save, then re-enter your list.
+        ⚠️ <strong style="color: var(--concern);">Inventory change detected.</strong>
+
+        {% if inventory_warning_type == "count" %}
+          The number of items in your inventory list has changed
+          (was <strong>{{ inventory_warning_details.snapshot_count }}</strong>,
+          now <strong>{{ inventory_warning_details.current_count }}</strong>;
+          <strong>{{ inventory_warning_details.gen_count }}</strong> worksheets exist).
+          Because worksheet answers are matched by position, adding or removing items
+          above existing entries will reassign those answers to the wrong system or vendor.
+
+        {% elif inventory_warning_type == "order_or_content" %}
+          Your inventory list has been reordered or one or more items renamed/replaced
+          since the worksheets were generated — the item count is unchanged
+          (<strong>{{ inventory_warning_details.snapshot_count }}</strong> items), but the list no longer
+          matches the snapshot recorded when worksheets were created.
+          Worksheet answers are matched by position, so a reorder or rename means existing
+          answers may now appear under the wrong system or vendor.
+
+        {% elif inventory_warning_type == "both" %}
+          Both the content and the count of your inventory list have changed since worksheets
+          were generated (snapshot had <strong>{{ inventory_warning_details.snapshot_count }}</strong>
+          items; list now has <strong>{{ inventory_warning_details.current_count }}</strong>).
+          Worksheet answers are matched by position — existing answers may now be attached to
+          the wrong system or vendor.
+
+        {% endif %}
+
+        <strong>Do not reorder, rename, or insert items above existing entries</strong>
+        once worksheet answers have been entered.
+        To rebuild worksheets cleanly: clear the inventory field, press <em>Save Progress</em>,
+        then re-enter your full list and save again — this will regenerate worksheets in the
+        correct order. Note that previously entered worksheet answers will remain in the database
+        at their old positions and may need to be re-entered.
       </div>
       {% endif %}
 

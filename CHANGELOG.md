@@ -7,6 +7,29 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.9.0.2** — P2-H1 upgrade: full inventory snapshot mismatch detection.
+
+### P2-H1 (upgraded) — Full inventory snapshot mismatch detection (`database.py`, `app.py`, `section.html`)
+
+The `session_meta` table, previously stubbed as `NotImplementedError`, is now fully implemented in `database.py` with upsert, typed retrieval, and `delete_session` cleanup. The table stores arbitrary key-value metadata per session as JSON values.
+
+The inventory snapshot mechanism uses this table to record the exact ordered inventory list the first time worksheets are generated (key `inv_snapshot:{inv_qid}`). On every subsequent section GET, the current inventory is compared against the stored snapshot using full list equality — not just count.
+
+**Divergence cases now detected:**
+
+- Count change (items added or removed) → `warning_type = "count"` or `"both"`
+- Same-count reorder (e.g. `[A, B, C]` → `[B, A, C]`) → `warning_type = "order_or_content"`
+- Same-count replacement (e.g. `B` → `X`) → `warning_type = "order_or_content"`
+- Same-count rename → `warning_type = "order_or_content"`
+
+The `section.html` warning banner shows type-specific copy for each case, including exact counts and instructions for the clean rebuild path.
+
+**Pre-upgrade sessions:** If worksheets exist but no snapshot is recorded (sessions created before this version), the snapshot is silently written from the current inventory on the first GET. No false-positive warning is shown on that visit.
+
+**Snapshot write logic on POST:** The snapshot is written (or rewritten) when the inventory answer is saved and worksheets exist. It is only rewritten when the worksheet count changes — same-count edits are intentionally not treated as a "clean" new baseline, preserving detection of same-count reorders.
+
+---
+
 **v0.9.0.1** — Pass 2 UX / app-logic fixes (all five high-priority items from the ITREVIEW pass 2 audit).
 
 ### P2-H1 — Inventory reorder warning (`app.py`, `section.html`)

@@ -7,6 +7,22 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.9.1.0** — Route, lifecycle, and import/export test suite (`test_routes.py`)
+
+### New test file: `test_routes.py`
+
+Adds a Flask-layer test suite that directly exercises routes, session lifecycle, report generation, and import/export behaviour using the built-in Werkzeug test client. This fills the gap noted in the v0.9.0.x review cycle: `test_scoring.py` was comprehensive on scoring mechanics and golden fixtures, but the entire HTTP surface was untested.
+
+**134 checks across three parts:**
+
+- **Part A — Session lifecycle (26 checks):** home page, setup GET/POST including validation, `new_session` for all three modules, invalid module rejection, section POST `save` / `save_exit` / `complete`, `section_complete` page, summary, manage, resume, findings, report-setup GET/POST, deprecate, unarchive, delete, and graceful unknown-session handling.
+- **Part B — Report generation (44 checks):** imports the Bit-By-Bit Academy fixtures for all three modules, then hits every report download route. Asserts 200 status, correct `Content-Type`, valid DOCX magic bytes, and minimum file size for M1/M2/M3. Also covers HTML report cards, report-setup POST → docx redirect chain, wrong-module route guards, and finding context note save/delete with DOCX verification.
+- **Part C — Import/export round-trip (45 checks):** verifies that export → re-import preserves all 150 M1 answers, `sections_complete`, `school_name`, and the export envelope fields. Guard-rail cases: duplicate session_id, wrong `export_format`, missing `session_id`, unknown `module_id`, non-JSON file.
+
+Run with: `python test_routes.py` alongside `python test_scoring.py`.
+
+---
+
 **v0.9.0.2** — P2-H1 upgrade: full inventory snapshot mismatch detection.
 
 ### P2-H1 (upgraded) — Full inventory snapshot mismatch detection (`database.py`, `app.py`, `section.html`)

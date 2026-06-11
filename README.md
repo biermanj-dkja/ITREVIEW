@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.9.0.2
+## v0.9.1.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -10,24 +10,21 @@ If you're the IT director — or the person who ended up being the IT director �
 This tool is built for that gap. It walks you through a structured assessment of your school's IT environment — network, devices, identity management, backups, security, data governance — and produces a prioritized findings report and a phased action plan as a Word document you can share with your head of school or board. The whole thing runs locally on your computer. Nothing is sent anywhere.
 ---
 
-### What's new in v0.9.0.2
+### What's new in v0.9.1.0
 
-**P2-H1 — Full inventory snapshot mismatch detection**
-The `session_meta` table (previously stubbed) is now implemented in `database.py`. When dynamic worksheets are generated for a Module 2 or Module 3 session, the exact ordered inventory list is saved as a snapshot. On every subsequent section load, the current inventory is compared against the snapshot — not just the count.
+**Route, lifecycle, and import/export test suite (`test_routes.py`)**
 
-The app now detects and warns on all four divergence cases: count changes (items added/removed), same-count reorder, same-count replacement, and same-count rename. The warning banner shows type-specific copy explaining exactly what changed. Pre-upgrade sessions are silently backfilled on first load with no false-positive warning.
+Adds `test_routes.py` — a new test file that covers the Flask layer directly using the built-in test client. This addresses the gap identified in the ChatGPT review pass: `test_scoring.py` covered scoring mechanics and golden fixtures well, but nothing tested the actual routes, session lifecycle, report generation, or import/export behaviour.
 
-**P2-H2 — Context-note IDs now use `rule_id` consistently**
-DG and VR finding context notes are now keyed as `{scope_id}:{rule_id}` (e.g. `DG_SYS_3:ac_mfa_not_enabled`, `VR2:vg_no_password_manager`) in both the report-card templates and the DOCX generators. The previous area-prefix + loop-index scheme could attach notes to the wrong finding when findings were added, removed, or reordered. The stable `rule_id` slug is always used; the old format is retained as a fallback only when `rule_id` is absent. School-wide DG findings now also render context notes in the DOCX (this path was previously missing).
+The new suite has 134 checks across three parts:
 
-**P2-H3 — Cross-section conditional questions render correctly on first load**
-Question `7.4` ("Do backups cover servers?") depends on question `6.13` (server count) from a different section. Previously the client-side JS couldn't find `6.13` in the current section DOM and would hide `7.4` even when it should be shown. The server now embeds a `CONDITION_VALUES` dict for all cross-section dependencies; `getFieldValue()` falls back to this dict when the field is not present in the current page.
+- **Part A — Session lifecycle (26 checks):** home, setup GET/POST (including validation), `new_session` for all three modules, invalid module rejection, section POST save/save_exit/complete, `section_complete` page, summary, manage, resume, findings, report-setup GET/POST, deprecate, unarchive, delete, and graceful handling of unknown session IDs.
 
-**P2-H4 — "Save & Exit" now saves before navigating home**
-The "← Save & Exit" link has been changed to a form submit button (`action=save_exit`). Clicking it now saves the current section's answers before redirecting to the home page — previously it was a plain anchor that silently discarded any unsaved input. Sidebar section-navigation links also now prompt for confirmation if the form has been edited since the last save.
+- **Part B — Report generation (44 checks):** imports each of the three Bit-By-Bit Academy fixture exports and hits every report download route. Asserts 200 status, correct `Content-Type`, valid DOCX magic bytes, and minimum file size for all three modules. Also covers HTML report cards (`dg_report`, `vr_report`, `findings`), the report-setup POST → docx redirect chain, wrong-module route guards, and finding context note save/delete including verification that a saved note survives into the next DOCX download.
 
-**P2-M1 — Context-note forms no longer require a prior export**
-Context notes on findings (DG and VR report cards) are now always visible — the previous `last_exported` gate that hid them until after a first download has been removed. Notes can be added, edited, or removed at any time and will be included in the next DOCX download.
+- **Part C — Import/export round-trip (45 checks):** verifies that a full export → re-import preserves all 150 M1 answers, `sections_complete`, `school_name`, and the `export_format` envelope. Guard-rail cases tested: duplicate session_id, wrong `export_format`, missing `session_id`, unknown `module_id`, and a non-JSON file upload. All three fixture files (M1/M2/M3) are imported and checked independently.
+
+Run with `python test_routes.py` alongside the existing `python test_scoring.py`.
 
 ## Requirements
 

@@ -15,7 +15,8 @@ from database import (
     get_answer_history, get_amended_question_ids,
     save_finding_context, delete_finding_context, get_finding_contexts,
     deprecate_session, unarchive_session,
-    restore_session_state, restore_answer_history
+    restore_session_state, restore_answer_history,
+    get_all_session_meta,
 )
 from rules_engine import evaluate_all, evaluate_section, findings_to_dict
 from trace import write_trace_m1, write_trace_dg, write_trace_vr
@@ -38,7 +39,7 @@ app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 # tool (sessions do not need to survive a restart).  Set SECRET_KEY in the
 # environment for a stable key if you are running the tool on a shared machine.
 app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
-app.config['VERSION'] = '0.9.1.0'
+app.config['VERSION'] = '0.9.1.1'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads
@@ -1196,6 +1197,7 @@ def export_session(session_id):
     profile = get_school_profile()
     finding_contexts = get_finding_contexts(session_id)
     answer_history   = get_answer_history(session_id)
+    session_meta     = get_all_session_meta(session_id)
 
     export_data = {
         "export_format":    "school_it_engine_session_v1",
@@ -1206,6 +1208,7 @@ def export_session(session_id):
         "answers":          answers,
         "finding_contexts": finding_contexts,
         "answer_history":   answer_history,
+        "session_meta":     session_meta,
     }
 
     school = (profile.get("school_name") if profile else "School").replace(" ", "_")
@@ -1252,6 +1255,7 @@ def import_session():
     profile          = data.get("school_profile")
     finding_contexts = data.get("finding_contexts", {})
     answer_history   = data.get("answer_history", [])
+    session_meta_data = data.get("session_meta", {})
 
     # Restore or update school profile (only if not already set)
     existing_profile = get_school_profile()
@@ -1338,11 +1342,20 @@ def import_session():
     if answer_history:
         history_restored = restore_answer_history(session_id, answer_history)
 
+    # Restore session_meta (inventory snapshots and any other keyed metadata).
+    # Present in exports from v0.9.1.1 onward; silently skipped for older exports.
+    meta_restored = 0
+    for meta_key, meta_value in (session_meta_data or {}).items():
+        save_session_meta(session_id, meta_key, meta_value)
+        meta_restored += 1
+
     detail_parts = [f"{len(answers)} answers restored"]
     if contexts_restored:
         detail_parts.append(f"{contexts_restored} finding note{'s' if contexts_restored != 1 else ''} restored")
     if history_restored:
         detail_parts.append(f"{history_restored} amendment record{'s' if history_restored != 1 else ''} restored")
+    if meta_restored:
+        detail_parts.append(f"{meta_restored} metadata key{'s' if meta_restored != 1 else ''} restored")
 
     flash(
         f"Session imported successfully — {', '.join(detail_parts)}. "

@@ -482,6 +482,28 @@ def get_session_meta(session_id, key, default=None):
         return row["meta_value"]
 
 
+def get_all_session_meta(session_id):
+    """Return all metadata entries for a session as a plain dict {key: value}.
+
+    Values are deserialised from JSON.  Used by the export route so that
+    inventory snapshots (``inv_snapshot:*``) and any other session_meta keys
+    survive an export → import round-trip.
+    """
+    db   = get_db()
+    rows = db.execute(
+        "SELECT meta_key, meta_value FROM session_meta WHERE session_id=?",
+        (session_id,)
+    ).fetchall()
+    db.close()
+    result = {}
+    for row in rows:
+        try:
+            result[row["meta_key"]] = json.loads(row["meta_value"])
+        except (TypeError, ValueError):
+            result[row["meta_key"]] = row["meta_value"]
+    return result
+
+
 # ── Answer history ────────────────────────────────────────────────
 
 def get_answer_history(session_id):

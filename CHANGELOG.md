@@ -7,6 +7,30 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.9.1.1** — `section.html` fix, `session_meta` export/import, test suite corrections.
+
+### `section.html` — missing `{% for q in questions %}` loop restored
+
+The `<form>` block in `section.html` was missing its opening `{% for q in questions %}` loop tag, causing a `TemplateSyntaxError` on every section GET. Loop restored; all section pages render correctly.
+
+### `database.py` — `get_all_session_meta()` added
+
+New function returns all `session_meta` rows for a session as `{key: value}`. Used by the export route to include inventory snapshots (`inv_snapshot:*`) in session exports.
+
+### `app.py` — `session_meta` in export and import
+
+Export payload now includes `"session_meta"` with all keys for the session. Import handler restores each entry via `save_session_meta()`, so inventory snapshot state survives a round-trip. Import flash message now also reports how many metadata keys were restored.
+
+### `test_routes.py` — corrected and expanded (147 checks, all passing)
+
+All items from the v0.9.1.0 review addressed: template folder override removed; fixture paths use `_find_fixture()` searching root then `TESTDATA/`; A13 section GET asserts 200 strictly; A25–A27 CSRF sub-group (no-token/bad-token → 400, valid → 302); B6 expanded to all 6 wrong-module guard combos; B16–B19 DOCX content checks unzip `word/document.xml` and assert note text for M1, DG, and VR; C8 deep answer equality (keys, values, statuses); C9 session state field comparison; C10 `session_meta` round-trip test.
+
+### `test_scoring.py` — fixture paths unified
+
+`_find_testdata()` helper searches project root then `TESTDATA/`, matching `test_routes.py`. Golden-fixture tests work in both repo and distribution layouts.
+
+---
+
 **v0.9.1.0** — Route, lifecycle, and import/export test suite (`test_routes.py`)
 
 ### New test file: `test_routes.py`

@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.9.1.0
+## v0.9.1.1
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -10,21 +10,31 @@ If you're the IT director — or the person who ended up being the IT director �
 This tool is built for that gap. It walks you through a structured assessment of your school's IT environment — network, devices, identity management, backups, security, data governance — and produces a prioritized findings report and a phased action plan as a Word document you can share with your head of school or board. The whole thing runs locally on your computer. Nothing is sent anywhere.
 ---
 
-### What's new in v0.9.1.0
+### What's new in v0.9.1.1
 
-**Route, lifecycle, and import/export test suite (`test_routes.py`)**
+**`section.html` — missing `{% for q in questions %}` loop restored**
+The form block in `section.html` was missing its opening `{% for q in questions %}` loop, which caused a Jinja `TemplateSyntaxError` on section GET. The fix restores the loop so section pages render correctly.
 
-Adds `test_routes.py` — a new test file that covers the Flask layer directly using the built-in test client. This addresses the gap identified in the ChatGPT review pass: `test_scoring.py` covered scoring mechanics and golden fixtures well, but nothing tested the actual routes, session lifecycle, report generation, or import/export behaviour.
+**`database.py` — `get_all_session_meta()` added**
+New function returns all `session_meta` rows for a session as a plain `{key: value}` dict. Used by the export route to include inventory snapshots in session exports.
 
-The new suite has 134 checks across three parts:
+**`app.py` — `session_meta` included in export and restored on import**
+Session exports now include a `session_meta` key containing all metadata for the session (primarily `inv_snapshot:*` keys written by the inventory snapshot mechanism). The import handler restores these entries via `save_session_meta()`, so inventory snapshot state survives an export → import round-trip.
 
-- **Part A — Session lifecycle (26 checks):** home, setup GET/POST (including validation), `new_session` for all three modules, invalid module rejection, section POST save/save_exit/complete, `section_complete` page, summary, manage, resume, findings, report-setup GET/POST, deprecate, unarchive, delete, and graceful handling of unknown session IDs.
+**`test_routes.py` — corrected and expanded (147 checks, all passing)**
+Addresses all items from the v0.9.1.0 review:
+- Template folder override removed; test uses Flask's own configured `templates/` path.
+- Fixture paths now search both project root and `TESTDATA/` subdirectory via `_find_fixture()`.
+- A13 section GET now asserts 200 strictly (no longer accepts 500 or exception).
+- A25–A27 CSRF sub-group: no-token → 400, bad-token → 400, valid-token → 302.
+- B6 expanded to all six wrong-module route-guard combinations (M1/M2/M3 × DG/VR/M1).
+- B16–B19 DOCX content verification: unzips `word/document.xml` and asserts note text is present for M1, DG, and VR reports.
+- C8 deep answer equality: compares all answer keys, raw values, and statuses (not just count).
+- C9 session state fields: `sections_complete`, `sections_flagged`, `status`, `last_modified` all compared directly.
+- C10 `session_meta` round-trip: plants an `inv_snapshot:*` key, exports, re-imports, and asserts the value is restored.
 
-- **Part B — Report generation (44 checks):** imports each of the three Bit-By-Bit Academy fixture exports and hits every report download route. Asserts 200 status, correct `Content-Type`, valid DOCX magic bytes, and minimum file size for all three modules. Also covers HTML report cards (`dg_report`, `vr_report`, `findings`), the report-setup POST → docx redirect chain, wrong-module route guards, and finding context note save/delete including verification that a saved note survives into the next DOCX download.
-
-- **Part C — Import/export round-trip (45 checks):** verifies that a full export → re-import preserves all 150 M1 answers, `sections_complete`, `school_name`, and the `export_format` envelope. Guard-rail cases tested: duplicate session_id, wrong `export_format`, missing `session_id`, unknown `module_id`, and a non-JSON file upload. All three fixture files (M1/M2/M3) are imported and checked independently.
-
-Run with `python test_routes.py` alongside the existing `python test_scoring.py`.
+**`test_scoring.py` — fixture paths unified**
+Uses the same `_find_testdata()` helper pattern so golden-fixture tests work whether fixtures are at project root or under `TESTDATA/`.
 
 ## Requirements
 

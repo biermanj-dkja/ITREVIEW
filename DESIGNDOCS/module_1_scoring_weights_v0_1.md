@@ -1,6 +1,13 @@
 # Module 1 — Scoring Weight Framework
 ## Version 0.1
 
+> ⚠ **Design reference only — not a canonical or current source.**
+> This document records the scoring weight framework as it was conceived during initial design.
+> It was written to guide development, not to reflect the current state of the codebase.
+> Section totals, question weights, and section percentages in this document **will not match**
+> the live YAML and rules engine — the code has evolved and this document has not been updated.
+> For current scoring behaviour, read `module_1.yaml` and `rules_engine.py` directly.
+
 ---
 
 ## Purpose

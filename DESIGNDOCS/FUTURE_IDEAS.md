@@ -306,7 +306,184 @@ at least one completed Module 1 session to be useful.
 
 ---
 
-*Last updated: v0.8.2 — Module 3 pre-release requirements reclassified as post-v1.0 deferred items (see above). v0.8 roadmap section added.*
+## Cross-Module Architecture
+
+- **GLOBAL_INVENTORY / intake deduplication** — `evaluate_dg()` and `evaluate_vr()` operate
+  in complete isolation. A platform like Veracross, Blackbaud, or Google Workspace must be
+  entered separately in Module 2 (as a system) and Module 3 (as a vendor). A future
+  `GLOBAL_INVENTORY` array in the session model could derive `system_names` and `vendor_names`
+  by filtering on `has_school_data` and `is_paid_subscription` flags, passing a single
+  authoritative source to both downstream engines. Significant architecture change to the
+  session model, intake flow, and both dynamic engines. Post-v1.0.
+
+- **Cross-module risk aggregation** — surface risks that span Module 1 + 2 + 3 together.
+  A system that fails DG2, has no logging, and has an unverified vendor posture currently
+  produces three separate bullets across two reports. A future composite governance finding
+  could roll these into a single executive finding. Requires a shared session context across
+  modules that does not currently exist.
+
+- **Single-person dependency analysis** — flag controls owned by one individual with no
+  documented backup across all three modules simultaneously (IT credentials, vendor admin
+  accounts, data governance ownership). Currently each module flags this independently.
+
+- **Multi-dimension scoring model** — all four external reviewers converged on the same
+  recommendation: replace (or supplement) the single composite score with three independent
+  dimensions that reflect the app's distinctive purpose:
+  - **Risk Score** — exposure from gaps in security controls, unverified vendors, missing
+    logging, no breach plan
+  - **Operational Maturity Score** — process documentation, backup coverage, incident
+    response, patch compliance, training
+  - **Transferability / Bus-Factor Score** — succession readiness, documented ownership,
+    contract portability, key-person dependency
+
+  A single percentage conflates very different types of institutional health into one number
+  that is hard to act on. These three dimensions map directly to the questions a school board,
+  head of school, or incoming IT director actually needs answered. Large design effort — affects
+  all three rules engines, report generators, and summary templates. Post-v1.0.
+
+---
+
+## Enhancement Backlog — From v0.9.2 Review
+
+*Captured from the combined GPT/Gemini/engineering review. Prioritised by module. All items
+are valid candidates — pick based on the gaps most commonly seen in target schools.*
+
+---
+
+### Module 1 — Coverage Gaps
+
+New questions to consider adding in a future question-set revision:
+
+- Vendor / MSP remote access inventory
+- Admin account inventory including break-glass accounts
+- Phishing-resistant MFA coverage by account type (not just MFA presence)
+- Security awareness training program
+- Cyber incident tabletop exercise history
+- Ransomware-specific recovery plan
+- Endpoint patch compliance rate (not just patching cadence)
+- Server and network firmware patch compliance
+- Public DNS / domain registrar ownership and documented access
+- Website, domain, and email continuity plan
+- Physical security of MDF / IDF / server spaces
+- E-rate / CIPA compliance (if applicable)
+- Cyber insurance claim-readiness and policy requirement awareness
+
+### Module 1 — Section Weight Adjustments
+
+Suggested rebalance based on reviewer analysis of what most predicts catastrophic school IT failure:
+
+| Section | Current | Suggested |
+|---|---|---|
+| Governance | 15% | 15% |
+| Network | 12% | 10% |
+| Identity | 14% | 15% |
+| Endpoints | 10% | 8–9% |
+| Core Systems / Servers / Vendors | 12% | 12% |
+| Backup / Recovery | 15% | 15% |
+| Security Operations | 12% | 14–15% |
+| Documentation | 10% | 11–12% |
+
+Rationale: identity, security operations, and documentation/transferability are more
+predictive of catastrophic failure than network topology.
+
+### Module 1 — Report Enhancements
+
+- Maturity radar chart (per-section scores visualised as a radar/spider)
+- Current-vs-target state summary panel
+- One-page board/leadership summary (top 5 risks with business-impact framing)
+- "What to do Monday morning" checklist — immediate no-cost actions
+- "Quick wins" section separate from the phased action plan
+- Reduce action plan table density
+- Move raw answer appendix to a separate optional export
+- Remove or consolidate repetitive "data confidence" footer (currently appears per-section)
+
+---
+
+### Module 2 — Coverage Gaps
+
+New questions to consider:
+
+- Encryption at rest (separate from transit encryption already covered by SYS.3.2a)
+- Public sharing / external link exposure
+- API keys and service account inventory
+- Integration owner (named person responsible for each automated connection)
+- Manual CSV export practices and whether they are tracked
+- Parent / student data request process
+- AI features and AI sub-processors — whether vendor uses student/staff data for AI model
+  training, analytics, profiling, or automated decision support
+- Vendor sub-processor review and approval status
+- Data quality / authoritative source designation
+- Whether system is included in onboarding/offboarding checklist
+- Whether vendor admin roles are reviewed periodically
+- Whether audit logs are exportable and retained long enough
+- FERPA / COPPA governance review questions
+
+### Module 2 — Report Enhancements
+
+- Move data sensitivity context to the system header row (not buried mid-findings)
+- Risk heatmap across all assessed systems
+- Comparative ranking view across systems
+- "Systems with no DPA" summary table
+- "Systems with active former staff accounts" summary table
+- "Data flows unknown or unencrypted" summary table
+- "Most sensitive data at risk" summary table
+- Fix blank/near-blank page 3 (merge School-Wide Governance heading into adjacent content)
+- Reduce repeated "This system holds…" data context block in per-system findings
+- Separate technical appendix from leadership-facing report
+- Add business-impact language to findings for non-technical readers
+
+---
+
+### Module 3 — Coverage Gaps
+
+New questions to consider:
+
+- Explicit criticality tier field (`V.ID.criticality`): Critical / Important / Supporting /
+  Convenience / Unknown — to supplement the category-string matching used today
+- Number of licenses purchased vs. assigned/used
+- Contract value as a structured currency field (complement to free-text `V.COST.amount`)
+- Payment method / budget line
+- Renewal owner (named person, not just IT Director)
+- Cancellation process documentation
+- Contract location (link or file path)
+- Vendor exit strategy
+- Data export availability
+- Termination assistance / migration support
+- Security attestation (SOC 2, ISO 27001, or equivalent)
+- Breach notification clause
+- Indemnification / limitation of liability
+- Insurance requirements
+- Accessibility review status
+- State student privacy law compliance review
+- AI / data-training terms
+- Sub-processor list
+- Whether vendor holds school-domain admin accounts or OAuth/API access
+- Concentration risk analysis (single-vendor dependencies across critical functions)
+
+### Module 3 — Scoring Calibration
+
+- Make auto-renewal risk conditional on tracking quality, not just the presence of auto-renewal
+- Highest-weighted vendor risks should include: missing admin credentials for critical or
+  student-data vendors, missing DPA for student-data vendors, unknown renewal date for
+  critical or high-cost vendors, auto-renewal with unknown cancellation window, no contract
+  on file, no named owner, cost unknown, not in budget, no escalation path for critical vendor,
+  low use / unclear value
+
+### Module 3 — Report Enhancements
+
+- Financial dashboard (total annual spend, unknown spend, spend by category)
+- Vendors renewing in next 30/60/90 days view
+- Auto-renewing vendors with unknown cancellation window table
+- Student-data vendors missing DPA table
+- Critical vendors missing escalation path table
+- Vendors with low usage / unclear value table
+- Renewal calendar summary
+- Reduce repetitive "Strategic & Future Actions" boilerplate
+- Move raw answer log to appendix or optional export
+
+---
+
+*Last updated: v0.9.2 — cross-module architecture items and full enhancement backlog from combined review added. v0.8.2 note: Module 3 pre-release requirements reclassified as post-v1.0 deferred items.*
 
 ---
 

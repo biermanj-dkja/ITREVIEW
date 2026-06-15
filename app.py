@@ -39,7 +39,7 @@ app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 # tool (sessions do not need to survive a restart).  Set SECRET_KEY in the
 # environment for a stable key if you are running the tool on a shared machine.
 app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
-app.config['VERSION'] = '0.9.1.1'
+app.config['VERSION'] = '0.9.2.0'
 
 import json as _json
 app.jinja_env.filters["from_json"] = _json.loads

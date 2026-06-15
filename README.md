@@ -1,5 +1,5 @@
 # School IT Documentation Engine
-## v0.9.1.1
+## v0.9.2.0
 
 A locally-run assessment tool for small private school IT environments.
 This tool runs entirely on your computer. No data is sent to the internet.
@@ -10,31 +10,28 @@ If you're the IT director — or the person who ended up being the IT director �
 This tool is built for that gap. It walks you through a structured assessment of your school's IT environment — network, devices, identity management, backups, security, data governance — and produces a prioritized findings report and a phased action plan as a Word document you can share with your head of school or board. The whole thing runs locally on your computer. Nothing is sent anywhere.
 ---
 
-### What's new in v0.9.1.1
+### What's new in v0.9.2.0
 
-**`section.html` — missing `{% for q in questions %}` loop restored**
-The form block in `section.html` was missing its opening `{% for q in questions %}` loop, which caused a Jinja `TemplateSyntaxError` on section GET. The fix restores the loop so section pages render correctly.
+**`rules_engine_dg.py` — 13 missing Module 2 questions now scored**
+`QUESTION_WEIGHTS` and `AREA_QUESTIONS` now include all YAML-scored per-system questions that were previously collected but not counted toward the score: `SYS.1.2a`, `SYS.2.1a`, `SYS.2.1b`, `SYS.2.2`, `SYS.2.5`, `SYS.2.5v`, `SYS.3.1`, `SYS.3.2`, `SYS.3.3a`, `SYS.3.4a`, `SYS.3.5`, `SYS.4.4`, and `SYS.5.2`. Data flow mapping questions now affect the score.
 
-**`database.py` — `get_all_session_meta()` added**
-New function returns all `session_meta` rows for a session as a plain `{key: value}` dict. Used by the export route to include inventory snapshots in session exports.
+**`rules_engine_dg.py` — Module 2 DG2 school-wide governance score now counts**
+`evaluate_dg()` scores DG2.1–DG2.9 and folds the result into the sensitivity-weighted overall grade. These point values were assigned in the YAML but previously had zero effect on the module grade.
 
-**`app.py` — `session_meta` included in export and restored on import**
-Session exports now include a `session_meta` key containing all metadata for the session (primarily `inv_snapshot:*` keys written by the inventory snapshot mechanism). The import handler restores these entries via `save_session_meta()`, so inventory snapshot state survives an export → import round-trip.
+**`rules_engine_dg.py` — Module 2 sensitivity category strings corrected**
+`_HIGH_SENSITIVITY` now uses exact YAML strings: `"Financial and billing records (tuition, payments)"` and `"Staff payroll and compensation data"`. Finance and payroll systems now receive the correct 3× sensitivity multiplier.
 
-**`test_routes.py` — corrected and expanded (147 checks, all passing)**
-Addresses all items from the v0.9.1.0 review:
-- Template folder override removed; test uses Flask's own configured `templates/` path.
-- Fixture paths now search both project root and `TESTDATA/` subdirectory via `_find_fixture()`.
-- A13 section GET now asserts 200 strictly (no longer accepts 500 or exception).
-- A25–A27 CSRF sub-group: no-token → 400, bad-token → 400, valid-token → 302.
-- B6 expanded to all six wrong-module route-guard combinations (M1/M2/M3 × DG/VR/M1).
-- B16–B19 DOCX content verification: unzips `word/document.xml` and asserts note text is present for M1, DG, and VR reports.
-- C8 deep answer equality: compares all answer keys, raw values, and statuses (not just count).
-- C9 session state fields: `sections_complete`, `sections_flagged`, `status`, `last_modified` all compared directly.
-- C10 `session_meta` round-trip: plants an `inv_snapshot:*` key, exports, re-imports, and asserts the value is restored.
+**`rules_engine_dg.py` — Module 2 conditional questions gated out of denominator**
+A `_CONDITIONAL_GATES` table ensures conditional follow-up questions (`SYS.1.4a`, `SYS.4.2`, `SYS.4.3`, and others) are excluded from `max_pts` when the parent question did not trigger them — the same way the YAML hides them from the user.
 
-**`test_scoring.py` — fixture paths unified**
-Uses the same `_find_testdata()` helper pattern so golden-fixture tests work whether fixtures are at project root or under `TESTDATA/`.
+**`rules_engine_dg.py` / `rules_engine_vr.py` — Grade/severity boundary aligned**
+`_severity_from_pct()` "healthy" threshold lowered from 85 → 80 in both modules, matching the grade B boundary. A score of 80–84 was previously grade B / severity "watch" — a contradictory pairing.
+
+**`rules_engine_vr.py` — `V.RENEW.notice` and `V.SUPPORT.escalation` now scored**
+Both questions (2 pts each) added to `QUESTION_WEIGHTS` and `AREA_QUESTIONS`. `V.RENEW.notice` is gated on auto-renew status so it only enters the denominator when the question was actually shown.
+
+**`module_3.yaml` — Core vendor category list expanded**
+`core_vendor_categories` now includes `Email and Productivity`, `Cloud Storage`, `Finance and Accounting`, and `HR and Payroll` — so Google Workspace, Microsoft 365, finance, and payroll vendors correctly trigger the VR-S4 escalation-path finding.
 
 ## Requirements
 

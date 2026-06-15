@@ -1,5 +1,5 @@
 """
-dynamic_engine.py  —  Dynamic section generator for School IT Engine
+dynamic_engine.py  —  Dynamic section generator for School IT Engine v0.8.2
 
 When a module declares  dynamic_sections.enabled: true,  this engine:
 

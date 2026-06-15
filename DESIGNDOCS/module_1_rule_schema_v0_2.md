@@ -2,6 +2,12 @@
 ## Small Private School IT Overview and Action Plan
 ### Version 0.2
 
+> ⚠ **Design reference only — not a canonical or current source.**
+> This document was written to capture design intent and guide the initial implementation of
+> `rules_engine.py`. It has not been updated since v0.2 and will not match the current rule
+> set, question IDs, finding IDs, or severity assignments in the live codebase.
+> For current behaviour, read `rules_engine.py` and `module_1.yaml` directly.
+
 **v0.2 changes:** Question IDs updated throughout to match current module_1.yaml (v0.2). Section 8 gate question corrected from 8.2→8.1. Section 3 firewall question corrected from 3.6→3.7, AP inventory from 3.8→3.6. Section 7 gate note added. New rules R7-007b (backup storage location) and R8-001b (EP alert monitoring) added.
 
 ---

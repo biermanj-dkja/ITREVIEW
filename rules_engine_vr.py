@@ -199,7 +199,7 @@ def _grade(pct):
 
 
 def _severity_from_pct(pct):
-    if pct >= 85: return "healthy"
+    if pct >= 80: return "healthy"
     if pct >= 65: return "watch"
     if pct >= 40: return "concern"
     return "urgent"
@@ -211,8 +211,8 @@ def _severity_from_pct(pct):
 AREA_QUESTIONS = {
     "Ownership & Documentation": ["V.ID.owner", "V.RENEW.signed"],
     "Cost Visibility":           ["V.COST.known", "V.COST.budget"],
-    "Renewal Management":        ["V.RENEW.date", "V.RENEW.auto", "V.RENEW.tracked"],
-    "Support & Access":          ["V.SUPPORT.contact", "V.SUPPORT.admin"],
+    "Renewal Management":        ["V.RENEW.date", "V.RENEW.auto", "V.RENEW.notice", "V.RENEW.tracked"],
+    "Support & Access":          ["V.SUPPORT.contact", "V.SUPPORT.escalation", "V.SUPPORT.admin"],
     "Data Compliance":           ["V.DATA.ferpa", "V.DATA.dpa"],
 }
 
@@ -252,6 +252,15 @@ QUESTION_WEIGHTS = {
         "No — requires active renewal decision":                               4,
         "Unknown":                                                             0,
     },
+    # V.RENEW.notice: conditional on auto-renew; 2 pts from YAML
+    "V.RENEW.notice": {
+        "30 days or less":           1,
+        "31–60 days":                2,
+        "61–90 days":                2,
+        "More than 90 days":         2,
+        "Not specified in contract": 0,
+        "Unknown":                   0,
+    },
     "V.RENEW.tracked": {
         "Yes — in a calendar or system with a reminder set": 5,
         "Tracked — but no reminder set":                     3,
@@ -265,6 +274,13 @@ QUESTION_WEIGHTS = {
         "Partial — some contact info documented":               2,
         "No — support contact not documented":                  0,
         "Unknown":                                              0,
+    },
+    # V.SUPPORT.escalation: 2 pts from YAML
+    "V.SUPPORT.escalation": {
+        "Yes — escalation path documented":  2,
+        "No — escalation path not documented": 0,
+        "Not applicable — not a critical system": 2,
+        "Unknown":                            0,
     },
     "V.SUPPORT.admin": {
         "Yes — credentials in a shared password manager or documented process": 5,
@@ -310,6 +326,12 @@ def score_vendor_section(answers, section_id):
         # Data Compliance questions only count if vendor holds student data
         if area == "Data Compliance" and not holds_student_data:
             continue
+
+        # V.RENEW.notice is only shown (and scored) when the vendor auto-renews
+        if template_qid == "V.RENEW.notice":
+            auto_val = _get(answers, section_id, "V.RENEW.auto")
+            if auto_val != "Yes — auto-renews; cancellation notice required before renewal date":
+                continue
 
         # Text-present/absent questions (owner, renewal date)
         if "_present" in weight_map:

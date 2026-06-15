@@ -165,7 +165,7 @@ def _grade(pct):
 
 
 def _severity_from_pct(pct):
-    if pct >= 85: return "healthy"
+    if pct >= 80: return "healthy"
     if pct >= 65: return "watch"
     if pct >= 40: return "concern"
     return "urgent"
@@ -203,22 +203,66 @@ def _data_held_summary(data_held):
 
 AREA_QUESTIONS = {
     "Access Control": [
-        "SYS.1.1", "SYS.1.1a", "SYS.1.2", "SYS.1.3",
+        "SYS.1.1", "SYS.1.1a", "SYS.1.2", "SYS.1.2a", "SYS.1.3",
         "SYS.1.4", "SYS.1.4a", "SYS.1.5",
     ],
-    "Backup & Recovery": ["SYS.2.1", "SYS.2.3", "SYS.2.4"],
-    "Data Flows": ["SYS.3.2a"],
-    "Vendor & Contract": ["SYS.4.1", "SYS.4.2", "SYS.4.3"],
-    "Retention & Disposal": ["SYS.5.3", "SYS.5.4"],
+    "Backup & Recovery": [
+        "SYS.2.1", "SYS.2.1a", "SYS.2.1b", "SYS.2.2",
+        "SYS.2.3", "SYS.2.4", "SYS.2.5", "SYS.2.5v",
+    ],
+    "Data Flows": ["SYS.3.1", "SYS.3.2", "SYS.3.2a", "SYS.3.3a", "SYS.3.4a", "SYS.3.5"],
+    "Vendor & Contract": ["SYS.4.1", "SYS.4.2", "SYS.4.3", "SYS.4.4"],
+    "Retention & Disposal": ["SYS.5.2", "SYS.5.3", "SYS.5.4"],
+}
+
+# Questions whose score presence depends on a parent answer (mirrors YAML condition logic).
+# Format: qid -> (parent_qid, allowed_parent_values)
+# If the parent answer is NOT in allowed_parent_values the question is excluded from the
+# denominator entirely — the same way the YAML hides it from the respondent.
+_CONDITIONAL_GATES = {
+    # SYS.1.2a only shown when role-based access is used
+    "SYS.1.2a": ("SYS.1.2", {"Role-based — different roles see different data"}),
+    # SYS.1.4a only shown when system is NOT on SSO
+    "SYS.1.4a": ("SYS.1.4", {"no"}),
+    # SYS.2.1a only shown when vendor (or both) manages backup
+    "SYS.2.1a": ("SYS.2.1", {
+        "Yes — vendor manages the backup",
+        "Both — school and vendor both maintain copies",
+    }),
+    # SYS.2.1b only shown when vendor-only manages backup
+    "SYS.2.1b": ("SYS.2.1", {"Yes — vendor manages the backup"}),
+    # SYS.2.2 shown whenever a backup exists (i.e. NOT "No" or "Unknown")
+    "SYS.2.2": ("SYS.2.1", {
+        "Yes — school manages the backup",
+        "Yes — vendor manages the backup",
+        "Both — school and vendor both maintain copies",
+    }),
+    # SYS.2.5 shown when school manages backup (or both)
+    "SYS.2.5": ("SYS.2.1", {
+        "Yes — school manages the backup",
+        "Both — school and vendor both maintain copies",
+    }),
+    # SYS.2.5v shown when vendor-only manages backup
+    "SYS.2.5v": ("SYS.2.1", {"Yes — vendor manages the backup"}),
+    # SYS.3.3a only shown when automated connections exist
+    "SYS.3.3a": ("SYS.3.3", {"yes"}),
+    # SYS.3.4a only shown when manual sharing exists
+    "SYS.3.4a": ("SYS.3.4", {"yes"}),
+    # SYS.4.2 and SYS.4.3 only shown when a signed DPA exists
+    "SYS.4.2": ("SYS.4.1", {"Yes — signed DPA on file"}),
+    "SYS.4.3": ("SYS.4.1", {"Yes — signed DPA on file"}),
 }
 
 QUESTION_WEIGHTS = {
+    # ── Access Control ──────────────────────────────────────────────
     "SYS.1.1":  {"Yes — complete list available": 8,
                  "Partial — list available but may be incomplete": 4,
                  "No — system does not easily provide this": 0, "Unknown": 0},
     "SYS.1.1a": {"no": 10, "yes": 0, "unknown": 0},
     "SYS.1.2":  {"Role-based — different roles see different data": 5,
                  "Flat — everyone with a login sees everything": 2, "Unknown": 0},
+    # SYS.1.2a: inverted — "no" (no unnecessary admins) = full credit
+    "SYS.1.2a": {"no": 5, "yes": 0, "unknown": 0},
     "SYS.1.3":  {"Yes — required for all users": 10,
                  "Partial — available but not required": 5,
                  "No — not available or not enabled": 0, "Unknown": 0},
@@ -228,17 +272,50 @@ QUESTION_WEIGHTS = {
                  "Yes — logs exist but not reviewed regularly": 2,
                  "Yes — logs exist but retention period unknown": 1,
                  "No — no audit logging": 0, "Unknown": 0},
+    # ── Backup & Recovery ───────────────────────────────────────────
     "SYS.2.1":  {"Yes — school manages the backup": 10,
                  "Yes — vendor manages the backup": 7,
                  "Both — school and vendor both maintain copies": 10,
                  "No — not backed up": 0, "Unknown": 0},
+    # SYS.2.1a: contract specifies backup terms (vendor-managed only)
+    "SYS.2.1a": {"yes": 4, "no": 0, "unknown": 0},
+    # SYS.2.1b: school keeps independent copy beyond vendor backup
+    "SYS.2.1b": {"yes": 5, "no": 0, "unknown": 0},
+    # SYS.2.2: backup frequency
+    "SYS.2.2":  {"Continuously (real-time replication)": 3,
+                 "Daily": 3, "Weekly": 1,
+                 "Less than weekly": 0, "Unknown": 0},
     "SYS.2.3":  {"Within the last 12 months — documented": 8,
                  "Within the last 12 months — not documented": 5,
                  "More than 12 months ago": 3, "Never tested": 0, "Unknown": 0},
     "SYS.2.4":  {"yes": 6, "no": 0, "unknown": 0},
+    # SYS.2.5: recovery time objective (school-managed backup)
+    "SYS.2.5":  {"Less than 4 hours — documented configuration exists": 3,
+                 "Less than 4 hours — relies on memory": 1,
+                 "4–24 hours": 2, "More than 24 hours": 1, "Unknown": 0},
+    # SYS.2.5v: interim process for vendor-hosted system outage
+    "SYS.2.5v": {"Yes — documented continuity plan, activatable within 4 hours": 3,
+                 "Yes — documented plan, but activation takes more than 4 hours": 2,
+                 "Informal plan — relies on memory or ad-hoc decisions": 1,
+                 "No plan — school would be unable to operate without this system": 0,
+                 "Unknown": 0},
+    # ── Data Flows ──────────────────────────────────────────────────
+    # SYS.3.1 and SYS.3.2: long_text — credit for answering (present/absent)
+    "SYS.3.1":  {"_present": 5, "_absent": 0},
+    "SYS.3.2":  {"_present": 5, "_absent": 0},
     "SYS.3.2a": {"Yes — all outbound transfers are encrypted": 8,
                  "Partial — some encrypted, some not": 4,
                  "No — transfers are not encrypted": 0, "Unknown": 0},
+    # SYS.3.3a: long_text — credit for documenting automated connections
+    "SYS.3.3a": {"_present": 5, "_absent": 0},
+    # SYS.3.4a: long_text — credit for documenting manual sharing
+    "SYS.3.4a": {"_present": 5, "_absent": 0},
+    # SYS.3.5: sub-processors
+    "SYS.3.5":  {"Yes — sub-processors are named in the contract": 3,
+                 "Yes — sub-processors exist but are not named": 1,
+                 "No — vendor states no sub-processing": 3,
+                 "Unknown": 0},
+    # ── Vendor & Contract ───────────────────────────────────────────
     "SYS.4.1":  {"Yes — signed DPA on file": 10,
                  "Terms of service only — no formal DPA": 3,
                  "No agreement on file": 0, "Free tool — no contract": 5,
@@ -249,6 +326,13 @@ QUESTION_WEIGHTS = {
     "SYS.4.3":  {"Yes — deletion required with written confirmation": 7,
                  "Yes — deletion required, no written confirmation": 4,
                  "No — contract is silent on this": 0, "Unknown": 0},
+    # SYS.4.4: vendor security review (SOC 2 etc.)
+    "SYS.4.4":  {"Yes — SOC 2 or equivalent reviewed": 4,
+                 "Yes — reviewed published documentation only": 2,
+                 "No — not reviewed": 0, "Unknown": 0},
+    # ── Retention & Disposal ────────────────────────────────────────
+    # SYS.5.2: long_text — credit for documenting retention periods
+    "SYS.5.2":  {"_present": 5, "_absent": 0},
     "SYS.5.3":  {"Documented secure deletion process with deletion log": 5,
                  "Deletion occurs but is not documented": 3,
                  "No deletion process — data accumulates indefinitely": 0,
@@ -280,18 +364,55 @@ def score_system_section(answers, section_id):
             qid_to_area[qid] = area
 
     for template_qid, weight_map in QUESTION_WEIGHTS.items():
+        # ── Decommissioned-status gates (mutual exclusion) ──────────
         if template_qid == "SYS.5.4" and not is_decommissioned:
             continue
         if template_qid == "SYS.5.3" and is_decommissioned:
             continue
-        if template_qid == "SYS.2.3" and _get(answers, section_id, "SYS.2.1") in (
-                "No — not backed up", "Unknown", None):
-            continue
-        if template_qid == "SYS.2.4" and _get(answers, section_id, "SYS.2.1") in (
-                "No — not backed up", "Unknown", None):
+
+        # ── Visibility gates from _CONDITIONAL_GATES ───────────────
+        # Mirrors YAML condition logic: exclude the question from the
+        # denominator (and numerator) when the parent answer does not
+        # satisfy the condition that would have shown it to the user.
+        if template_qid in _CONDITIONAL_GATES:
+            parent_qid, allowed_values = _CONDITIONAL_GATES[template_qid]
+            parent_val = _get(answers, section_id, parent_qid)
+            if isinstance(parent_val, bool):
+                parent_val = "yes" if parent_val else "no"
+            if parent_val not in allowed_values:
+                continue
+
+        # ── SYS.2.3 / SYS.2.4 legacy gates (school-managed only) ──
+        # Still needed for SYS.2.3/2.4 which predate _CONDITIONAL_GATES
+        # and whose backup-management conditions are handled explicitly.
+        if template_qid in ("SYS.2.3", "SYS.2.4") and _get(
+                answers, section_id, "SYS.2.1") in ("No — not backed up", "Unknown", None):
             continue
 
         raw = _get(answers, section_id, template_qid)
+
+        # ── Present/absent long-text questions ─────────────────────
+        # Questions with {"_present": N, "_absent": 0} are long_text fields
+        # scored simply on whether a substantive answer was recorded.
+        if "_present" in weight_map:
+            max_for_q = weight_map["_present"]
+            if max_for_q == 0:
+                continue
+            max_pts += max_for_q
+            area = qid_to_area.get(template_qid)
+            if area:
+                area_scores[area][1] += max_for_q
+            is_present = bool(
+                raw and str(raw).strip()
+                and str(raw).strip().lower() not in ("unknown", "none", "")
+            )
+            pts = max_for_q if is_present else 0
+            earned += pts
+            if area:
+                area_scores[area][0] += pts
+            continue
+
+        # ── Standard option-mapped questions ───────────────────────
         max_for_q = max(weight_map.values())
         if max_for_q == 0:
             continue
@@ -1142,19 +1263,80 @@ def evaluate_dg(answers, system_names, generated_section_ids):
     watch   = sum(1 for r in per_system_results if r.severity == "watch")
     healthy = sum(1 for r in per_system_results if r.severity == "healthy")
 
-    # ── Sensitivity-weighted overall grade ───────────────────────────
+    # ── DG2 school-wide governance score ────────────────────────────
+    # DG2 questions are answered once for the whole school (not per-system).
+    # Point values match the YAML definition.  DG2 is weighted equally to
+    # one "medium-sensitivity" system (multiplier=2) so it influences but
+    # does not dominate the overall grade.
+    _DG2_WEIGHTS = {
+        "DG2.1": {"Yes — current, reviewed within 12 months": 10,
+                  "Yes — exists but not reviewed recently": 6,
+                  "Draft only — not formally adopted": 2,
+                  "No": 0, "Unknown": 0},
+        "DG2.2": {"Yes — named person with formal responsibility": 8,
+                  "Informal — someone handles it but has no formal designation": 4,
+                  "No — no one is responsible": 0, "Unknown": 0},
+        "DG2.3": {"Yes — maintained and current": 10,
+                  "Partial — exists but incomplete or outdated": 5,
+                  "No — this audit is the first attempt": 0, "Unknown": 0},
+        "DG2.4": {"Yes — documented, tested, and known to key staff": 10,
+                  "Yes — documented but not tested or practiced": 6,
+                  "Informal — general awareness but no written plan": 2,
+                  "No": 0, "Unknown": 0},
+        "DG2.5": {"Yes — formal approval process, enforced": 8,
+                  "Informal — IT is usually consulted but not required": 4,
+                  "No — staff can adopt tools without IT review": 0, "Unknown": 0},
+        "DG2.6": {"Yes — annual training for all staff": 7,
+                  "Partial — some staff trained, not all": 4,
+                  "Ad hoc — training occurs but not on a schedule": 2,
+                  "No": 0, "Unknown": 0},
+        "DG2.7": {"Yes — documented checklist covering all systems": 10,
+                  "Informal — process exists but relies on memory": 4,
+                  "No — no formal offboarding process": 0, "Unknown": 0},
+        "DG2.8": {"Yes — formal review including security questionnaire or SOC 2 review": 7,
+                  "Informal — IT reviews but no standard criteria": 3,
+                  "No — vendors are approved without security review": 0, "Unknown": 0},
+        "DG2.9": {"Yes — written schedule aligned to applicable law": 8,
+                  "Partial — exists for some data types but not all": 4,
+                  "No": 0, "Unknown": 0},
+    }
+
+    def _get_dg2(qid):
+        rec = answers.get(qid, {})
+        if isinstance(rec, dict):
+            raw = rec.get("raw_answer")
+            if isinstance(raw, bool):
+                return "yes" if raw else "no"
+            return raw
+        return None
+
+    dg2_earned = 0.0
+    dg2_max = 0
+    for qid, wmap in _DG2_WEIGHTS.items():
+        q_max = max(wmap.values())
+        if q_max == 0:
+            continue
+        dg2_max += q_max
+        raw = _get_dg2(qid)
+        if raw is not None:
+            dg2_earned += wmap.get(str(raw), 0)
+
+    dg2_pct = round(dg2_earned / dg2_max * 100) if dg2_max > 0 else 0
+
+
     # Systems holding higher-sensitivity data carry more weight in the overall
     # grade. This prevents a strong score on low-risk tools masking critical
     # failures in the school's primary data systems.
     #
     # Multiplier logic (per SYS.5.1 data categories):
-    #   3x  — health/counseling records or financial/HR data
+    #   3x  — health/counseling records or financial/HR/payroll data
     #   2x  — student academic, behavioral, admissions, or auth credentials
     #   1x  — everything else (content filters, logging tools, etc.)
     _HIGH_SENSITIVITY = {
         "Student health records (medical, counseling, nurse)",
         "Staff HR records (employment, performance)",
-        "Financial and payment data",
+        "Staff payroll and compensation data",
+        "Financial and billing records (tuition, payments)",
     }
     _MEDIUM_SENSITIVITY = {
         "Student academic records (grades, transcripts, reports)",
@@ -1180,6 +1362,11 @@ def evaluate_dg(answers, system_names, generated_section_ids):
             w = _sensitivity_multiplier(r.data_held)
             weighted_sum += r.score_pct * w
             weight_total += w
+
+    # Include DG2 school-wide score with weight=2 (equivalent to a medium-sensitivity system)
+    if dg2_max > 0:
+        weighted_sum += dg2_pct * 2
+        weight_total += 2
 
     overall_pct = round(weighted_sum / weight_total) if weight_total > 0 else 0
     overall_grade = _grade(overall_pct)

@@ -7,6 +7,38 @@ Full version history for all releases. See [README.md](README.md) for current us
 
 ## Version History
 
+**v0.9.2.0** — Scoring bug fixes across Module 2 and Module 3 (bugs 1–7 from combined review).
+
+### `rules_engine_dg.py` — Bug 1: 13 missing questions added to scoring
+
+`QUESTION_WEIGHTS` and `AREA_QUESTIONS` now include all YAML-scored per-system questions that were previously collected but not counted: `SYS.1.2a` (unnecessary admin access), `SYS.2.1a` (backup contract terms), `SYS.2.1b` (independent data copy), `SYS.2.2` (backup frequency), `SYS.2.5` (school-managed RTO), `SYS.2.5v` (vendor-hosted continuity plan), `SYS.3.1` (data sources), `SYS.3.2` (data destinations), `SYS.3.3a` (automated connections), `SYS.3.4a` (manual sharing), `SYS.3.5` (sub-processors), `SYS.4.4` (vendor security review), `SYS.5.2` (retention periods). Long-text questions (`SYS.3.1`, `SYS.3.2`, `SYS.3.3a`, `SYS.3.4a`, `SYS.5.2`) use `_present/_absent` scoring — credit for a substantive answer.
+
+### `rules_engine_dg.py` — Bug 2: DG2 school-wide governance score now counted
+
+`evaluate_dg()` now scores DG2.1–DG2.9 through a `_DG2_WEIGHTS` table and accumulates `dg2_earned / dg2_max`. The resulting `dg2_pct` is folded into the sensitivity-weighted overall grade with multiplier=2 (equivalent to a medium-sensitivity system). DG2 point values were previously assigned in the YAML but had zero effect on the module grade.
+
+### `rules_engine_dg.py` — Bug 3: Sensitivity category strings corrected
+
+`_HIGH_SENSITIVITY` set in `evaluate_dg()` now uses the exact YAML option strings: `"Financial and billing records (tuition, payments)"` (was `"Financial and payment data"`) and adds `"Staff payroll and compensation data"`. Finance and payroll systems now correctly receive the 3x sensitivity multiplier.
+
+### `rules_engine_dg.py` — Bug 6: Conditional questions gated out of denominator
+
+Introduced `_CONDITIONAL_GATES` dict mapping each conditional question to its parent question and the required parent value(s). `score_system_section()` now skips a question's contribution to `max_pts` (and `earned`) when the parent condition was not met — the same way the YAML hides the question from the user. Fixed gates: `SYS.1.2a`, `SYS.1.4a`, `SYS.2.1a`, `SYS.2.1b`, `SYS.2.2`, `SYS.2.5`, `SYS.2.5v`, `SYS.3.3a`, `SYS.3.4a`, `SYS.4.2`, `SYS.4.3`.
+
+### `rules_engine_dg.py` / `rules_engine_vr.py` — Bug 7: Grade/severity boundary aligned
+
+`_severity_from_pct()` "healthy" threshold changed from 85 → 80 in both modules. Grade B starts at 80 (`_grade()`); severity "healthy" now matches. A score of 80–84 was previously grade B / severity "watch" — a contradictory pairing.
+
+### `rules_engine_vr.py` — Bug 4: `V.RENEW.notice` and `V.SUPPORT.escalation` now scored
+
+Both questions (2 pts each per YAML) added to `QUESTION_WEIGHTS` and `AREA_QUESTIONS`. `V.RENEW.notice` also gets a visibility gate in `score_vendor_section()` — it only enters the denominator when `V.RENEW.auto` indicates auto-renewal, matching the YAML condition.
+
+### `module_3.yaml` — Bug 5: Core vendor category list expanded
+
+`core_vendor_categories` now includes `Email and Productivity`, `Cloud Storage`, `Finance and Accounting`, and `HR and Payroll`. Google Workspace, Microsoft 365, finance, and payroll vendors now correctly trigger the VR-S4 escalation-path finding and the VR-FLOOR-3 credential check.
+
+---
+
 **v0.9.1.1** — `section.html` fix, `session_meta` export/import, test suite corrections.
 
 ### `section.html` — missing `{% for q in questions %}` loop restored

@@ -1253,6 +1253,74 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
     watch   = sum(1 for r in per_vendor_results if r.severity == "watch")
     healthy = sum(1 for r in per_vendor_results if r.severity == "healthy")
 
+    # ── VR2 school-wide governance score ────────────────────────────
+    # VR2 questions are answered once for the whole school (not per-vendor).
+    # Point values match the YAML definition. VR2 is weighted at multiplier=2
+    # (equivalent to a medium-criticality vendor) so it influences but does
+    # not dominate the overall grade. VR2.10 is a free-text notes field and
+    # is intentionally excluded (0 points in YAML).
+    _VR2_WEIGHTS = {
+        "VR2.1": {"Yes — formal approval process, documented and followed": 8,
+                  "Informal — IT or business office is usually consulted but not required": 4,
+                  "No — staff can adopt tools without review": 0,
+                  "Unknown": 0},
+        "VR2.2": {"Clear policy — named role(s) with documented signing authority": 5,
+                  "Informal — generally understood but not written down": 2,
+                  "No clear policy — contracts can be signed by multiple people without oversight": 0,
+                  "Unknown": 0},
+        "VR2.3": {"Yes — documented spend threshold in place": 4,
+                  "Informal — general understanding but not documented": 2,
+                  "No — no spend threshold policy": 0,
+                  "Unknown": 0},
+        "VR2.4": {"Yes — maintained jointly by IT and Business Office": 7,
+                  "Partial — IT has a list and Business Office has a list, but they are separate": 3,
+                  "Partial — one list exists but it is incomplete or outdated": 3,
+                  "No — this register is the first attempt": 0,
+                  "Unknown": 0},
+        "VR2.5": {"Yes — centralized password manager used by IT for all vendor admin accounts": 7,
+                  "Partial — used for some accounts but not all": 3,
+                  "No — credentials stored informally (email, personal notes, spreadsheet)": 0,
+                  "Unknown": 0},
+        "VR2.6": {"Yes — shared renewal calendar with IT and Business Office both notified": 5,
+                  "Partial — one party tracks renewals and notifies the other informally": 2,
+                  "No — IT and Business Office track renewals independently with no shared system": 0,
+                  "Unknown": 0},
+        "VR2.7": {"Yes — offboarding checklist explicitly covers vendor account transfer": 6,
+                  "Partial — handled informally, not part of a documented checklist": 2,
+                  "No — vendor account ownership is not addressed in offboarding": 0,
+                  "Unknown": 0},
+        "VR2.8": {"Yes — central DPA register maintained and current": 6,
+                  "Partial — some DPAs tracked but not all vendors covered": 3,
+                  "No — DPAs not centrally tracked": 0,
+                  "Unknown": 0},
+        "VR2.9": {"Yes — formal annual review, documented": 6,
+                  "Informal — review happens but is not scheduled or documented": 3,
+                  "No — no annual review": 0,
+                  "Unknown": 0},
+    }
+
+    def _get_vr2(qid):
+        rec = answers.get(qid, {})
+        if isinstance(rec, dict):
+            raw = rec.get("raw_answer")
+            if isinstance(raw, bool):
+                return "yes" if raw else "no"
+            return raw
+        return None
+
+    vr2_earned = 0.0
+    vr2_max = 0
+    for qid, wmap in _VR2_WEIGHTS.items():
+        q_max = max(wmap.values())
+        if q_max == 0:
+            continue
+        vr2_max += q_max
+        raw = _get_vr2(qid)
+        if raw is not None:
+            vr2_earned += wmap.get(str(raw), 0)
+
+    vr2_pct = round(vr2_earned / vr2_max * 100) if vr2_max > 0 else 0
+
     # ── Criticality-weighted overall grade ───────────────────────────
     # Vendors that are both operationally critical AND hold sensitive data
     # carry the most weight. This prevents a healthy score on low-risk tools
@@ -1268,6 +1336,17 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
     #         (e.g. HR system, payroll processor)
     #   1x  — everything else
     #         (e.g. classroom tools, communication apps, facilities software)
+    #
+    # VR2 school-wide governance score is folded in at multiplier=2 —
+    # equivalent to a medium-criticality vendor, enough to matter without
+    # dominating the grade when there are many vendors.
+    #
+    # ── Grade/severity boundary design note ─────────────────────────
+    # _grade() and _severity_from_pct() use the same thresholds as Module 1
+    # (90/80/65/50 for A/B/C/D/F; 80/65/40 for healthy/watch/concern/urgent).
+    # These are intentional — not an oversight. Deviating from Module 1 thresholds
+    # would make cross-module scores harder to compare. If the calibration ever
+    # changes for Module 3 specifically, update the comment here and in FUTURE_IDEAS.
 
     weighted_sum = 0.0
     weight_total = 0.0
@@ -1275,6 +1354,11 @@ def evaluate_vr(answers, vendor_names, generated_section_ids):
         if r.max_pts > 0:
             weighted_sum += r.score_pct * r.weight_multiplier
             weight_total += r.weight_multiplier
+
+    # Include VR2 school-wide governance score at weight=2
+    if vr2_max > 0:
+        weighted_sum += vr2_pct * 2
+        weight_total += 2
 
     overall_pct = round(weighted_sum / weight_total) if weight_total > 0 else 0
     overall_grade = _grade(overall_pct)

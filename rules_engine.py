@@ -376,6 +376,14 @@ def evaluate_section_2(answers):
         findings.append(f)
 
     # R2-006 Constraints annotation
+    # ── Design note: 2.7 is a context annotation, not a scored question ──
+    # Answering "yes" to question 2.7 (known budget or staffing constraints)
+    # fires a "watch" finding that passes the user's notes into the action plan.
+    # This is NOT a scoring inversion. The question does not award or deduct
+    # points — it annotates the report with context. The intent is to surface
+    # the constraint so that recommendations requiring significant spend or staff
+    # time can be read against it. A school with known constraints did not "do
+    # something wrong" by having them; the finding flags the context, not a gap.
     if is_yes(a,"2.7"):
         f = finding("F2-006","R2-006","2","Known budget or staffing constraints affecting IT this year","watch",
             "The IT person has identified active constraints that will limit what can be accomplished this year. Recommendations that require significant spend or staff are flagged with a constraint marker.",

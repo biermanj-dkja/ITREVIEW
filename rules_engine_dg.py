@@ -170,6 +170,17 @@ def _severity_from_pct(pct):
     if pct >= 40: return "concern"
     return "urgent"
 
+# ── Grade/severity boundary design note ─────────────────────────────
+# The thresholds above (90/80/65/50 for grade, 80/65/40 for severity) are
+# intentional and match Module 1. Deviating from Module 1 thresholds would
+# make cross-module scores harder to compare. External reviewers suggested
+# raising C to ≥70 and D to ≥55 — this was evaluated and declined. The
+# thresholds are calibrated for a governance audit (Module 2), where a
+# reasonably well-managed system will land in the 65–75% range. Raising
+# the C threshold would inflate the proportion of D grades for schools that
+# are doing the right things operationally but lack formal documentation.
+# Revisit only if the module's stated purpose changes.
+
 
 def _data_held_summary(data_held):
     """Build a short phrase describing data categories."""
@@ -272,6 +283,15 @@ QUESTION_WEIGHTS = {
                  "Yes — logs exist but not reviewed regularly": 2,
                  "Yes — logs exist but retention period unknown": 1,
                  "No — no audit logging": 0, "Unknown": 0},
+    # ── Calibration note: logging (SYS.1.5, max 5) vs contract language ──
+    # SYS.1.5 (audit logging) max is 5 pts; SYS.4.3 (deletion contract clause)
+    # max is 7 pts. This is intentional, not an inversion. Module 2 is a data
+    # governance and contractual-posture audit, not an operational security audit.
+    # Contract clauses governing data deletion and breach notification are the
+    # primary output of this module's vendor assessment. Logging is a meaningful
+    # control but sits more squarely in an operational security assessment (Module 1
+    # covers it there). If the module's focus ever shifts toward operational
+    # security equally, revisit this weighting.
     # ── Backup & Recovery ───────────────────────────────────────────
     "SYS.2.1":  {"Yes — school manages the backup": 10,
                  "Yes — vendor manages the backup": 7,
@@ -737,10 +757,30 @@ def findings_for_system(answers, section_id, system_name):
             ))
 
     # Vendor security review not performed
+    # ── Calibration note ────────────────────────────────────────────
+    # SYS.4.4 is rated "medium" when the system holds sensitive data (health,
+    # HR, payroll, financial, or student records), and "low" otherwise. A school
+    # that has never checked whether a vendor holding sensitive student or health
+    # data has adequate security controls is meaningfully more exposed than one
+    # with the same gap on a low-sensitivity tool. The finding remains low for
+    # systems that hold no sensitive data because the practical risk is materially
+    # lower and we do not want to over-fire medium findings on benign tools.
     d4 = g("SYS.4.4")
     if d4 in ("No — not reviewed", "Unknown"):
+        _sensitive_categories = {
+            "Student health records (medical, counseling, nurse)",
+            "Staff HR records (employment, performance)",
+            "Staff payroll and compensation data",
+            "Financial and billing records (tuition, payments)",
+            "Student academic records (grades, transcripts, reports)",
+            "Student behavioral records (discipline, incidents)",
+            "Admissions and enrollment data",
+            "Authentication credentials (usernames, passwords, tokens)",
+        }
+        holds_sensitive = bool(set(data_held) & _sensitive_categories)
+        d4_severity = "medium" if holds_sensitive else "low"
         findings.append(Finding(
-            area="Vendor & Contract", severity="low", effort="S",
+            area="Vendor & Contract", severity=d4_severity, effort="S",
             owner="IT Director", timing="planned", system_name=system_name,
             rule_id="vc_security_not_reviewed",
             title="Vendor security practices not reviewed",

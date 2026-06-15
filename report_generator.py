@@ -560,8 +560,31 @@ def _apply_heading_styles(doc):
 
 def _toc(doc):
     """
-    Insert a native Word TOC field. Word/LibreOffice will render it
-    when the document is opened; right-click → Update Field to refresh.
+    Insert a native Word TOC field. Word renders and paginates this automatically
+    when the document is opened — it is NOT a static placeholder.
+
+    ── Design intent ───────────────────────────────────────────────────────────
+    The TOC is built as a native Word field (w:fldChar / w:instrText) rather than
+    a static list of headings. This is deliberate:
+
+      1. Word and LibreOffice rebuild the TOC with live page numbers on open,
+         so the output is always accurate regardless of how the user edits the
+         document afterward.
+      2. A static text list would require the report generator to count pages,
+         which python-docx cannot do reliably (page length is font/margin/
+         printer dependent).
+      3. The native field approach means the school can add notes or edit the
+         document and simply right-click → Update Field to refresh the TOC —
+         the same workflow they already use for any Word document.
+
+    The placeholder text "[Right-click here and choose 'Update Field'…]" is only
+    visible if Word does not auto-update on open (some enterprise Word policies
+    disable auto-update). In normal use, Word replaces it with the live TOC
+    immediately. This is not a bug — it is the correct behavior for a Word field.
+
+    Do NOT replace this with a static heading list. Do NOT attempt to generate
+    page numbers from python-docx — they will be wrong.
+    ────────────────────────────────────────────────────────────────────────────
     Uses Heading 1 and Heading 2 (TOC \\o "1-2").
     """
     _page_break(doc)

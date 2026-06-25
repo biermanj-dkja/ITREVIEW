@@ -33,7 +33,7 @@ else:
 
 os.chdir(base_dir)
 
-from app import app, init_db_path
+from app import app, init_db_path, init_db
 
 PORT = 5000
 
@@ -45,6 +45,7 @@ def open_browser():
 
 if __name__ == '__main__':
     init_db_path()
+    init_db()
     print("=" * 50)
     print("  School IT Engine")
     print(f"  Running at: http://127.0.0.1:{PORT}")

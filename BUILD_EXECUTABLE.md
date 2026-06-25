@@ -1,5 +1,5 @@
 # Building a Standalone Executable
-## School IT Engine v0.5.0 — Tester Distribution Guide
+## School IT Engine v0.9.2.0 — Tester Distribution Guide
 
 This guide explains how to package the School IT Engine into a single
 double-clickable file that testers can run without installing Python,
@@ -44,15 +44,15 @@ You should see a version number like `6.x.x`.
 
 ---
 
-## Step 2 — Create the launcher script
+## Step 2 — The launcher script (already in the repo)
 
 PyInstaller needs a single entry-point file. The engine's `app.py` starts
 Flask directly, which works in development but needs a small wrapper for
 a packaged executable so the browser opens automatically and the database
 ends up in the right place.
 
-Create a new file called **`launcher.py`** in the project root (same
-folder as `app.py`) with this content:
+**`launcher.py` already exists in the project root** (same folder as
+`app.py`) — you do not need to create it. Its current content is:
 
 ```python
 import sys
@@ -75,7 +75,7 @@ else:
 
 os.chdir(base_dir)
 
-from app import app, init_db_path
+from app import app, init_db_path, init_db
 
 PORT = 5000
 
@@ -85,6 +85,7 @@ def open_browser():
 
 if __name__ == '__main__':
     init_db_path()
+    init_db()
     print("=" * 50)
     print("  School IT Engine")
     print(f"  Running at: http://127.0.0.1:{PORT}")
@@ -95,23 +96,27 @@ if __name__ == '__main__':
     app.run(host='127.0.0.1', port=PORT, debug=False, use_reloader=False)
 ```
 
+> **Note:** `init_db()` is called here as well as `init_db_path()`.
+> `init_db_path()` only creates the `data/` folder; `init_db()` creates
+> the actual tables (`school_profile`, `assessment_session`, etc).
+> Earlier builds called only `init_db_path()`, which left the database
+> file empty and caused `sqlite3.OperationalError: no such table:
+> school_profile` on first launch. If your copy of `launcher.py` is
+> missing the `init_db()` import/call, update it to match the version
+> above before building.
+
 ---
 
-## Step 3 — Patch database.py and app.py
+## Step 3 — Confirm the database.py and app.py patches are present
 
-The launcher sets an environment variable `SCHOOL_IT_DATA_DIR` so the
-database is saved next to the executable rather than inside the temporary
-unpacking folder (which is deleted every time the app closes).
+These patches are already applied in the current codebase. This section
+exists so you can confirm they're in place if you're working from an
+older checkout, or if you're tracing the same `sqlite3.OperationalError`
+described in Step 2's note above.
 
 ### database.py
 
-Find this line near the top:
-
-```python
-DB_PATH = BASE_DIR / "data" / "assessments.db"
-```
-
-Replace it with:
+Near the top, you should already see:
 
 ```python
 import os as _os
@@ -124,7 +129,7 @@ else:
 
 ### app.py
 
-Add this function near the top of `app.py`, after the imports:
+Near the top, after the imports, you should already see:
 
 ```python
 def init_db_path():
@@ -132,6 +137,10 @@ def init_db_path():
     from database import DB_PATH
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 ```
+
+If either patch is missing, the launcher's `SCHOOL_IT_DATA_DIR` handling
+won't work and the database will end up in the wrong place (or, per
+Step 2, with no tables at all if `init_db()` isn't also called).
 
 ---
 
